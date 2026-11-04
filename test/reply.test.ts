@@ -43,6 +43,7 @@ const finish = (unified: "stop" | "tool-calls" | "length" | "other") =>
   }) satisfies LanguageModelV4StreamPart;
 
 const streamOf = (parts: LanguageModelV4StreamPart[]) => ({
+  parts,
   stream: new ReadableStream<LanguageModelV4StreamPart>({
     start(controller) {
       for (const part of [
@@ -76,9 +77,14 @@ const calls = (tool: string, input: object) =>
     finish("tool-calls"),
   ]);
 
-/** The model of the next request: each of its steps is the next of `steps`. */
+/** The model of the next request: each of its calls is the next of `steps`, and any after them the last again. */
 function modelSays(...steps: ReturnType<typeof streamOf>[]) {
-  mock = new MockLanguageModelV4({ doStream: steps });
+  mock = new MockLanguageModelV4({
+    doStream: async () => {
+      const at = mock.doStreamCalls.length - 1;
+      return at < steps.length ? steps[at]! : streamOf(steps.at(-1)!.parts);
+    },
+  });
 }
 
 const model: Model = {
@@ -200,6 +206,49 @@ test.each([
     expect(checked!.reply).toBeUndefined();
     expect(checked!.items).toEqual([]);
     expect(text).toBe("Her A1c was high in June.");
+    expect(mock.doStreamCalls).toHaveLength(2);
+  },
+);
+
+test.each([
+  ["is not JSON", says("Her A1c was high in June.")],
+  ["is cut off", says(`{"answer":"Her A1c was 6.6 % in Ju`, "length")],
+  [
+    "breaks the contract",
+    says(JSON.stringify({ answer: "Her A1c was high in June." })),
+  ],
+  [
+    "says recommend in its own voice",
+    says(
+      replyOf(
+        [point([{ says: "Her A1c", cite: { entry: A1C }, field: "value" }])],
+        "The lab recommended a repeat A1c.",
+      ),
+    ),
+  ],
+])(
+  "a reply after the tools that %s is asked for once more, with why, and the second is checked",
+  async (_, first) => {
+    const procedures = { pod: POD, question: "pod/My procedures" };
+    modelSays(
+      calls("ask", procedures),
+      first,
+      says(
+        replyOf([
+          point([{ says: "Her A1c", cite: { entry: A1C }, field: "value" }]),
+        ]),
+      ),
+    );
+    const { checked, text } = await chat([user("How is my A1c?")]);
+    expect(checked!.errors).toEqual([]);
+    expect(checked!.items[0]!.facts[0]!.verdict.ok).toBe(true);
+    expect(text).toBe("Her A1c was 6.6 % in June.");
+    expect(mock.doStreamCalls).toHaveLength(3);
+    const asked = mock.doStreamCalls[2]!.prompt;
+    const again = asked.at(-1)!;
+    expect(again.role).toBe("user");
+    expect(JSON.stringify(again.content)).toContain("Reply again");
+    expect(JSON.stringify(asked)).toContain("tool-result");
   },
 );
 
