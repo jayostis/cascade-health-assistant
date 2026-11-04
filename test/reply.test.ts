@@ -192,6 +192,13 @@ test("a reply naming a handle the pod holds and one it does not comes back with 
   expect(lost!.filled).toBeUndefined();
   expect(text).toBe("Her A1c was 6.6 % in June.");
   expect(chunks.filter(({ type }) => type === "text-delta")).toHaveLength(1);
+  // The page maps the part by its name, and keeps it in the message for history: named data-reply, never transient,
+  // with the answer's text before it and both before the stream's finish.
+  const types = chunks.map(({ type }) => type);
+  const part = chunks.find(({ type }) => type === "data-reply")!;
+  expect(Object.keys(part).sort()).toEqual(["data", "type"]);
+  expect(types.indexOf("text-end")).toBeLessThan(types.indexOf("data-reply"));
+  expect(types.indexOf("data-reply")).toBeLessThan(types.indexOf("finish"));
 });
 
 test.each([
