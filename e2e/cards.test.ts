@@ -168,7 +168,7 @@ test("a turn shows its progress, then the answer with one folded line; opening i
   const supporting = page.locator(".chat .supporting");
   const looked = page.locator(".chat .looked-at");
   await expect(supporting.locator("summary")).toHaveText(
-    "Checked against your records · 5 facts confirmed · 3 could not be confirmed · 1 step",
+    "Checked against your records · 10 facts confirmed · 6 could not be confirmed · 1 step",
   );
   await expect(supporting).not.toHaveAttribute("open");
   await expect(page.getByText("Here is what I would raise.")).toBeVisible();

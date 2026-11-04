@@ -186,7 +186,61 @@ function Point({
   );
 }
 
-/** The points of a checked reply, or, for one that did not fit the contract, that it was not checked. */
+/** Whether the reply followed the contract and was checked: a part that is not a checked reply at all is not. */
+const wasChecked = (checked: CheckedReply) =>
+  Array.isArray(checked.errors) &&
+  Array.isArray(checked.items) &&
+  checked.errors.length === 0 &&
+  checked.reply !== undefined;
+
+/** The points of a checked reply that have both the model's words and the check; none for one that was not checked. */
+export function pointsOf(checked: CheckedReply) {
+  const { reply, items } = checked;
+  if (!wasChecked(checked) || reply === undefined) return [];
+  return items.flatMap((item) => {
+    const said = reply.items.find(({ n }) => n === item.n);
+    return said === undefined ? [] : [{ item, said }];
+  });
+}
+
+/**
+ * What the check found, in the checker's own counts and words and never the model's: that the reply was not checked and
+ * why, or that it was, with how many facts passed and how many facts and searches could not be confirmed.
+ */
+export function verdictOf(checked: CheckedReply): {
+  said: string;
+  kind: "confirmed" | "unconfirmed" | "not-checked";
+} {
+  if (!wasChecked(checked)) {
+    const [why, ...more] = Array.isArray(checked.errors) ? checked.errors : [];
+    return {
+      said: `Not checked: ${typeof why === "string" ? why : "this reply did not follow the form the checks need"}${more.length === 0 ? "" : ` (and ${more.length} more)`}`,
+      kind: "not-checked",
+    };
+  }
+  const facts = checked.items.flatMap((item) => item.facts ?? []);
+  const confirmed = facts.filter(({ verdict }) => verdict.ok).length;
+  const unconfirmed =
+    facts.length -
+    confirmed +
+    checked.items.flatMap((item) => item.absences ?? []).filter(
+      ({ backing }) => !backing.backed,
+    ).length;
+  return {
+    said: [
+      "Checked against your records",
+      confirmed === 0
+        ? undefined
+        : `${confirmed} ${confirmed === 1 ? "fact" : "facts"} confirmed`,
+      unconfirmed === 0 ? undefined : `${unconfirmed} could not be confirmed`,
+    ]
+      .filter((part) => part !== undefined)
+      .join(" · "),
+    kind: unconfirmed === 0 ? "confirmed" : "unconfirmed",
+  };
+}
+
+/** The points of a checked reply, each a card; nothing for a reply that was not checked, which the folded line says. */
 export function ReplyCards({
   checked,
   pod,
@@ -195,23 +249,7 @@ export function ReplyCards({
   pod: string;
 }) {
   const [all, setAll] = useState(false);
-  const { errors, reply, items } = checked;
-  if (
-    !Array.isArray(errors) ||
-    !Array.isArray(items) ||
-    errors.length > 0 ||
-    reply === undefined
-  )
-    return (
-      <div className="not-checked rounded-r-[7px] border-l-[3px] border-warm bg-warm-bg px-[0.8rem] py-[0.4rem] text-warm">
-        Not checked: this reply did not follow the form the checks need, so
-        nothing in it is confirmed by your records.
-      </div>
-    );
-  const points = items.flatMap((item) => {
-    const said = reply.items.find(({ n }) => n === item.n);
-    return said === undefined ? [] : [{ item, said }];
-  });
+  const points = pointsOf(checked);
   const hidden = points.length - SHOWN;
   if (points.length === 0) return null;
   return (
