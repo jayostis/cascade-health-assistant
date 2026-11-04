@@ -27,9 +27,7 @@ let api: ReturnType<typeof podApi>;
 let app: ReturnType<typeof appServer>;
 let mock: MockLanguageModelV4;
 
-const finish = (
-  unified: "stop" | "tool-calls" | "length" | "other",
-) =>
+const finish = (unified: "stop" | "tool-calls" | "length" | "other") =>
   ({
     type: "finish",
     finishReason: { unified, raw: undefined },
@@ -58,10 +56,7 @@ const streamOf = (parts: LanguageModelV4StreamPart[]) => ({
 });
 
 /** A step of the model that says `text`: what the reply is, as JSON text, and stops as `unified`. */
-const says = (
-  text: string,
-  unified: "stop" | "length" | "other" = "stop",
-) =>
+const says = (text: string, unified: "stop" | "length" | "other" = "stop") =>
   streamOf([
     { type: "text-start", id: "t" },
     { type: "text-delta", id: "t", delta: text },
@@ -323,21 +318,30 @@ test("the page's copy of an earlier reply, with its data part, is accepted and o
 });
 
 test.each([
-  ["half-written JSON with its answer begun", `{"answer":"Her A1c was 6.6 % in Ju`, "Her A1c was 6.6 % in Ju"],
+  [
+    "half-written JSON with its answer begun",
+    `{"answer":"Her A1c was 6.6 % in Ju`,
+    "Her A1c was 6.6 % in Ju",
+  ],
   ["half-written JSON before its answer", `{"ans`, "The answer was cut off."],
-])("a reply cut off at the length limit with %s never shows the person raw JSON", async (_, said, shown) => {
-  modelSays(says(said, "length"));
-  const { checked, text } = await chat([user("How is my A1c?")]);
-  expect(text).toBe(shown);
-  expect(checked!.errors.length).toBeGreaterThan(0);
-});
+])(
+  "a reply cut off at the length limit with %s never shows the person raw JSON",
+  async (_, said, shown) => {
+    modelSays(says(said, "length"));
+    const { checked, text } = await chat([user("How is my A1c?")]);
+    expect(text).toBe(shown);
+    expect(checked!.errors.length).toBeGreaterThan(0);
+  },
+);
 
 test.each(["other", "unknown"] as const)(
   "a model that stops with %s still gets its reply checked and shown",
   async (reason) => {
     modelSays(
       says(
-        replyOf([point([{ says: "Her A1c", cite: { entry: A1C }, field: "value" }])]),
+        replyOf([
+          point([{ says: "Her A1c", cite: { entry: A1C }, field: "value" }]),
+        ]),
         reason as "other",
       ),
     );
@@ -374,14 +378,17 @@ test("a reply that says recommend in its own voice is not checked, and one that 
 test("a turn that ended in a page tool keeps its earlier reads for the absence of the request after it", async () => {
   const procedures = { pod: POD, question: "pod/My procedures" };
   const absent = replyOf([
-    point([], [
-      {
-        what: "a mammogram",
-        match: { terms: ["mammogram"] },
-        coverage: "her procedures",
-        query: { tool: "ask", input: procedures },
-      },
-    ]),
+    point(
+      [],
+      [
+        {
+          what: "a mammogram",
+          match: { terms: ["mammogram"] },
+          coverage: "her procedures",
+          query: { tool: "ask", input: procedures },
+        },
+      ],
+    ),
   ]);
   modelSays(
     streamOf([
@@ -430,5 +437,7 @@ test("a turn that ended in a page tool keeps its earlier reads for the absence o
       ],
     },
   ]);
-  expect(second.checked!.items[0]!.absences[0]!.backing).toEqual({ backed: true });
+  expect(second.checked!.items[0]!.absences[0]!.backing).toEqual({
+    backed: true,
+  });
 });

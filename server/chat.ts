@@ -174,7 +174,7 @@ export const CLIENT_OUTPUTS = {
 };
 
 /** Takes a tool call the server ran, as the checker reads it. */
-export type Recorder = (ran: Ran) => void;
+export type Recorder = (ran: Ran, toolCallId: string) => void;
 
 /**
  * `run`, the server's own call of a tool, noted with the answer the model saw (`seen` of what it gave, or the
@@ -182,6 +182,7 @@ export type Recorder = (ran: Ran) => void;
  */
 async function recorded<T>(
   record: Recorder | undefined,
+  toolCallId: string,
   tool: string,
   input: Input,
   run: () => Promise<T>,
@@ -189,20 +190,26 @@ async function recorded<T>(
 ): Promise<T> {
   try {
     const output = await run();
-    record?.({
-      tool,
-      input,
-      ok: true,
-      answer: JSON.stringify(seen(output)) ?? "",
-    });
+    record?.(
+      {
+        tool,
+        input,
+        ok: true,
+        answer: JSON.stringify(seen(output)) ?? "",
+      },
+      toolCallId,
+    );
     return output;
   } catch (error) {
-    record?.({
-      tool,
-      input,
-      ok: false,
-      answer: error instanceof Error ? error.message : String(error),
-    });
+    record?.(
+      {
+        tool,
+        input,
+        ok: false,
+        answer: error instanceof Error ? error.message : String(error),
+      },
+      toolCallId,
+    );
     throw error;
   }
 }
@@ -253,9 +260,10 @@ export function chatTools(api: PodApi, record?: Recorder): ToolSet {
           each.name,
           tool({
             ...offered,
-            execute: (input) =>
+            execute: (input, { toolCallId }) =>
               recorded(
                 record,
+                toolCallId,
                 each.name,
                 input,
                 () =>
@@ -290,8 +298,8 @@ export function chatTools(api: PodApi, record?: Recorder): ToolSet {
         each.name,
         tool({
           ...offered,
-          execute: (input) =>
-            recorded(record, each.name, input, () =>
+          execute: (input, { toolCallId }) =>
+            recorded(record, toolCallId, each.name, input, () =>
               running(async () => each.run(api, input, { address: ADDRESS })),
             ),
         }),
@@ -551,8 +559,8 @@ function ending(
           else if (chunk.finishReason === "tool-calls" && steps > MAX_ROUNDS)
             controller.enqueue({ type: "error", errorText: ROUNDS });
           else if (
-            chunk.finishReason === "stop" ||
-            chunk.finishReason === "length"
+            chunk.finishReason !== "tool-calls" &&
+            chunk.finishReason !== "error"
           )
             for (const part of replyParts(await replying(said)))
               controller.enqueue(part);
@@ -576,6 +584,18 @@ const rowsOfPod =
       })
     ).rows;
 
+const REMEMBERED = 300;
+
+/** A tool part of a message that carries the id of the call the model made. */
+const callsOf = (messages: UIMessage[]) =>
+  messages.flatMap(({ parts }) =>
+    parts.flatMap((part) =>
+      "toolCallId" in part && typeof part.toolCallId === "string"
+        ? [part.toolCallId]
+        : [],
+    ),
+  );
+
 /**
  * `GET /chat` and `POST /chat` over `api`, with `model`, or none when none is set. A body the rules refuse is 400
  * `{ error }` with the reason and no model set is 503, before anything is streamed; a request that closes aborts the
@@ -588,6 +608,8 @@ export function chatRoutes({
   api: PodApi;
   model: Model | undefined;
 }) {
+  /** The free reads this process ran, by the call that made them: the last `REMEMBERED`. A page's word is never one. */
+  const remembered = new Map<string, Ran>();
   return new Hono()
     .get("/chat", (c) =>
       c.json(
@@ -616,8 +638,18 @@ export function chatRoutes({
         }
         try {
           const ran: Ran[] = [];
-          const tools = chatTools(api, (each) => ran.push(each));
+          const tools = chatTools(api, (each, id) => {
+            ran.push(each);
+            remembered.delete(id);
+            remembered.set(id, each);
+            if (remembered.size > REMEMBERED)
+              remembered.delete(remembered.keys().next().value!);
+          });
           const body = await bodyOf(given, tools);
+          const earlierRan = callsOf(body.messages).flatMap((id) => {
+            const each = remembered.get(id);
+            return each === undefined ? [] : [each];
+          });
           const names = (await api.pods({} as never)) as {
             pods: { name: string }[];
           };
@@ -653,11 +685,12 @@ export function chatRoutes({
               }),
               earlier,
               (said) => {
-                const pod = podOf(body.pod, ran);
+                const all = [...earlierRan, ...ran];
+                const pod = podOf(body.pod, all);
                 return repliedTo(said, {
                   ask:
                     pod === undefined ? undefined : asker(rowsOfPod(api, pod)),
-                  ran,
+                  ran: all,
                 });
               },
             ),

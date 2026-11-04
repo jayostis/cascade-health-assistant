@@ -1,6 +1,7 @@
 // What `/chat` asks of the model and does with its answer: the reply contract of `cascade-runtime` (a reply points at
 // entries, and the program shows what the pod holds of each), and the runtime's checker run over the reply before the
 // page sees it. A reply that is not the contract's is text the page shows as not checked, never trusted.
+import { parsePartialJson } from "ai";
 import {
   type CheckedReply,
   checkReply,
@@ -30,6 +31,9 @@ const NO_REPLY = "The model gave no reply.";
 const NOT_JSON = "the reply is not JSON";
 const NO_POD =
   "no pod is open to check the reply against, and the model read none or several";
+const CUT_OFF = "The answer was cut off.";
+const CUT_OFF_WHY = "the reply was cut off before it was whole";
+const RECOMMENDS = "the reply says it recommends something in its own voice";
 const UNCHECKABLE = "the pod could not be read to check the reply";
 
 /** What the page is sent for a reply: the text to show, and the reply checked. */
@@ -51,18 +55,49 @@ export async function repliedTo(
   try {
     value = JSON.parse(text);
   } catch {
-    return unchecked(text, NOT_JSON);
+    if (!text.trimStart().startsWith("{")) return unchecked(text, NOT_JSON);
+    const { value: partial } = await parsePartialJson(text);
+    const begun = (partial as { answer?: unknown } | undefined)?.answer;
+    return unchecked(
+      typeof begun === "string" && begun.trim() !== "" ? begun : CUT_OFF,
+      CUT_OFF_WHY,
+    );
   }
   const answer = (value as { answer?: unknown } | null)?.answer;
   const said = typeof answer === "string" ? answer : text;
   if (ask === undefined) return unchecked(said, NO_POD);
   try {
     const checked = await checkReply(value, { ask, ran });
+    if (checked.reply !== undefined && recommending(checked))
+      return unchecked(said, RECOMMENDS);
     return { answer: checked.reply?.answer ?? said, checked };
   } catch (error) {
     console.error(error);
     return unchecked(said, UNCHECKABLE);
   }
+}
+
+/**
+ * Whether a checked reply says "recommend" in its own voice: in its answer, short, or an item's says, why or knowledge,
+ * outside the quotes of facts that passed their check. Source text is quoted exactly, the word included.
+ */
+function recommending({ reply, items }: CheckedReply): boolean {
+  const quotes = items.flatMap(({ facts }) =>
+    facts.flatMap(({ fact, verdict }) =>
+      verdict.ok && "quote" in fact && fact.quote ? [fact.quote] : [],
+    ),
+  );
+  const outside = (text: string) =>
+    quotes.reduce((rest, quote) => rest.replaceAll(quote, ""), text);
+  return [
+    reply!.answer,
+    reply!.short,
+    ...reply!.items.flatMap((item) => [
+      item.says,
+      item.why,
+      item.knowledge?.says ?? "",
+    ]),
+  ].some((text) => /recommend/i.test(outside(text)));
 }
 
 function unchecked(said: string, why: string): Replied {
