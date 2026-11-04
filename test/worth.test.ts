@@ -56,13 +56,13 @@ test("two codes each shared by records of several entries give one line each, an
   expect(worthALook(answers)).toEqual([
     {
       sentence:
-        "Alder 5 MG is recorded 3 times, from Fernhill Family Clinic and Kestrel Harbor Hospital, under one code, which Cascade keeps apart. Cascade cannot confirm that the shared code names one product, so they may or may not be the same.",
+        "Alder 5 MG is recorded 3 times, from Fernhill Family Clinic and Kestrel Harbor Hospital; some of these records share a code but Cascade keeps them apart. Cascade cannot confirm that a shared code names one product, so they may or may not be the same.",
       entry: entryOf("e1"),
       tag: "Needs review",
     },
     {
       sentence:
-        "Birch 10 MG is recorded 2 times, from Alder Street Pharmacy, under one code, which Cascade keeps apart. Cascade cannot confirm that the shared code names one product, so they may or may not be the same.",
+        "Birch 10 MG is recorded 2 times, from Alder Street Pharmacy; some of these records share a code but Cascade keeps them apart. Cascade cannot confirm that a shared code names one product, so they may or may not be the same.",
       entry: entryOf("e4"),
       tag: "Needs review",
     },
@@ -71,6 +71,47 @@ test("two codes each shared by records of several entries give one line each, an
       entry: "pod://p/clinical/allergies.ttl#a1",
       tag: "Needs review",
     },
+    {
+      sentence: "Sources disagree on how severe the Aspirin allergy is.",
+      entry: "pod://p/clinical/allergies.ttl#a2",
+      tag: "Needs review",
+    },
+  ]);
+});
+
+test("a group joined through different codes says only what is true of any group", () => {
+  const answers: Answers = {
+    [REVIEW]: [
+      // A and B share one code, B and C another: no one code names all three.
+      pair("e1", "Cedar 5 MG", "r1", "r2"),
+      pair("e2", "Cedar 5 MG", "r2", "r3"),
+    ],
+    [SOURCES]: [
+      from("e1", "r1", "Fernhill Family Clinic"),
+      from("e2", "r2", "Kestrel Harbor Hospital"),
+      from("e3", "r3", "Fernhill Family Clinic"),
+    ],
+  };
+  expect(worthALook(answers)).toEqual([
+    {
+      sentence:
+        "Cedar 5 MG is recorded 3 times, from Fernhill Family Clinic and Kestrel Harbor Hospital; some of these records share a code but Cascade keeps them apart. Cascade cannot confirm that a shared code names one product, so they may or may not be the same.",
+      entry: entryOf("e1"),
+      tag: "Needs review",
+    },
+  ]);
+});
+
+test("two unnamed allergies whose sources disagree each keep their own line", () => {
+  const unnamed = (entry: string) => ({
+    entry: `pod://p/clinical/allergies.ttl#${entry}`,
+    entryLabel: "",
+    needs: "members disagree on criticality",
+  });
+  const lines = worthALook({ [REVIEW]: [unnamed("a1"), unnamed("a2")] });
+  expect(lines.map(({ entry }) => entry)).toEqual([
+    "pod://p/clinical/allergies.ttl#a1",
+    "pod://p/clinical/allergies.ttl#a2",
   ]);
 });
 
@@ -83,7 +124,7 @@ test("on Priya's eval pod each shared code gives exactly one line, with its coun
       const { answers } = await api.answers({ pod: SAMPLE.pod });
       const lines = worthALook(answers).map(({ sentence }) =>
         sentence.replace(
-          /, under one code, which Cascade keeps apart\. Cascade cannot confirm that the shared code names one product, so they may or may not be the same\.$/,
+          /; some of these records share a code but Cascade keeps them apart\. Cascade cannot confirm that a shared code names one product, so they may or may not be the same\.$/,
           " [shared code]",
         ),
       );
