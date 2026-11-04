@@ -954,6 +954,9 @@ interface Item {
   readonly one: string;
 }
 
+/** What "What needs review" says of a pair of medications whose records share a code. */
+const SHARED_CODE = "possibly the same medication";
+
 const SAID: Readonly<Record<string, (item: Item, row: Row) => string>> = {
   "members disagree on criticality": ({ name, one }) =>
     `Sources disagree on how severe ${name === UNNAMED ? `an unnamed ${one}` : `the ${name} ${one}`} is.`,
@@ -965,7 +968,7 @@ const SAID: Readonly<Record<string, (item: Item, row: Row) => string>> = {
     `${name} was recorded more than once, and its dates cannot tell whether it is one ${one} or several.`,
   "joined before, apart under newer tables or rules": ({ name, one }) =>
     `${name === UNNAMED ? `An unnamed ${one}` : name} was kept as one ${one} with another before; newer reference tables or rules no longer match them, so they are shown apart.`,
-  "possibly the same medication": ({ name, one }, { otherRecordLabel }) =>
+  [SHARED_CODE]: ({ name, one }, { otherRecordLabel }) =>
     `${name === UNNAMED ? `An unnamed ${one}` : name} shares a code with ${otherNamed(otherRecordLabel, one)}, which Cascade keeps apart. Cascade cannot confirm that the shared code names one product, so they may or may not be the same.`,
 };
 
@@ -1024,11 +1027,12 @@ export function fromLabel(label = ""): Item {
 
 /**
  * What is worth a look, as `{ sentence, entry, tag }` lines, `entry` the entry each is about and `tag` as `TAGS`
- * holds it, none for a shared ingredient: each entry that needs review; then each report that differs from ClinVar
+ * holds it, none for a shared ingredient: each entry that needs review, and for medications that share a code, one
+ * line for the code, naming the entry of the first (see `sharedCodes`); then each report that differs from ClinVar
  * today, which `said` (`variantsSaid`'s answer, none until the tables can say) gives; then each pair of medications in
  * two entries whose codes have an ingredient in common, which the tables' `about` gives. A line that needs the tables
  * comes after those that do not, so the part only grows when they load. `answers` holds the rows of each of
- * `QUESTIONS`, by question.
+ * `QUESTIONS`, by question. A sentence said by two lines is shown once.
  *
  * The pair is a hint the starter gives, not something the pod knows: a pod's questions never read the tables' rows.
  * A combination maps to its own multiple-ingredient concept (MIN), never to each of its ingredients, so lisinopril and
@@ -1046,16 +1050,20 @@ export function worthALook(
         name: row[section.field] || fromLabel(row.entryLabel).name,
         one: section.one,
       });
+  const reviewRows = answers[REVIEW] ?? [];
+  const shared = sharedCodes(reviewRows);
   const review = new Map<string, Line>();
-  for (const row of answers[REVIEW] ?? [])
-    review.set(reviewKey(row), {
-      sentence: reviewSaid(
-        row,
-        entries.get(row.entry) ?? fromLabel(row.entryLabel),
-      ),
-      entry: row.entry,
-      tag: NEEDS_REVIEW,
-    });
+  for (const row of reviewRows) {
+    const set = shared.get(row);
+    if (set !== undefined && set[0] !== row) continue;
+    const item = entries.get(row.entry) ?? fromLabel(row.entryLabel);
+    const sentence =
+      set === undefined
+        ? reviewSaid(row, item)
+        : sharedCodeSaid(set, item, answers[SOURCES] ?? []);
+    if (!review.has(sentence))
+      review.set(sentence, { sentence, entry: row.entry, tag: NEEDS_REVIEW });
+  }
   const named = variantReports(answers, said);
   const differing =
     said === undefined
@@ -1077,7 +1085,7 @@ export function worthALook(
             tag: DIFFERS,
           };
         });
-  return [
+  const lines = [
     ...review.values(),
     ...differing,
     ...sharedIngredients(answers, about).map(({ sentence, entries }) => ({
@@ -1085,15 +1093,52 @@ export function worthALook(
       entry: entries[0].entry,
     })),
   ].map((line) => ({ ...line, sentence: capitalised(line.sentence) }));
+  const first = new Set<string>();
+  return lines.filter(
+    ({ sentence }) => !first.has(sentence) && first.add(sentence),
+  );
 }
 
-/** What a row of "What needs review" is told apart by: its entry, what it needs, and for a pair of medications, the other. */
-export function reviewKey(row: Row): string {
-  return JSON.stringify([
-    row.entry,
-    row.needs,
-    row.needs === "possibly the same medication" ? row.otherRecord : null,
-  ]);
+/**
+ * The rows of "What needs review" that say two medications are possibly the same, each with the rows of its set, the
+ * first row of the set first. The query lists every pair of records that share a code, and gives no column for the
+ * code, so a set is the records those pairs join: the set of one shared code. Any other row has no set.
+ */
+function sharedCodes(rows: readonly Row[]): Map<Row, Row[]> {
+  const pairs = rows.filter(({ needs }) => needs === SHARED_CODE);
+  const parent = new Map<string, string>();
+  const find = (record: string): string => {
+    let top = record;
+    while (parent.has(top) && parent.get(top) !== top) top = parent.get(top)!;
+    for (let at = record; at !== top; ) {
+      const up = parent.get(at)!;
+      parent.set(at, top);
+      at = up;
+    }
+    return top;
+  };
+  for (const { record, otherRecord } of pairs)
+    parent.set(find(record), find(otherRecord));
+  const sets = new Map<string, Row[]>();
+  for (const row of pairs) {
+    const set = sets.get(find(row.record)) ?? [];
+    set.push(row);
+    sets.set(find(row.record), set);
+  }
+  return new Map(pairs.map((row) => [row, sets.get(find(row.record))!]));
+}
+
+/** What a shared code's `set` of rows is told in: `item` the first entry's name, how many records hold the code, and where they came from. */
+function sharedCodeSaid(
+  set: readonly Row[],
+  { name, one }: Item,
+  sources: readonly Row[],
+): string {
+  const records = new Set(set.flatMap((row) => [row.record, row.otherRecord]));
+  const places = new Set(
+    sources.filter((row) => records.has(row.record)).map(placeOf),
+  );
+  return `${name === UNNAMED ? `An unnamed ${one}` : name} is recorded ${records.size} times${places.size === 0 ? "" : `, from ${listed([...places].sort())}`}, under one code, which Cascade keeps apart. Cascade cannot confirm that the shared code names one product, so they may or may not be the same.`;
 }
 
 /** The sentence a row of "What needs review" is told in, of `item`, the entry's `name` and what `one` of its kind is called. */
@@ -2381,14 +2426,12 @@ export function entryOf(
     });
   for (const at of matched)
     known.push({ from: at, fromLead: "Also matched using" });
-  const reviews = new Map<string, string>();
-  for (const row of ofEntry(answers[REVIEW] ?? []))
-    reviews.set(
-      reviewKey(row),
+  const reviews = new Set(
+    ofEntry(answers[REVIEW] ?? []).map((row) =>
       capitalised(reviewSaid(row, { name: title, one: kind })),
-    );
-  for (const sentence of reviews.values())
-    known.push({ sentence, tag: NEEDS_REVIEW });
+    ),
+  );
+  for (const sentence of reviews) known.push({ sentence, tag: NEEDS_REVIEW });
   for (const { sentence, entries } of sharedIngredients(
     named(answers, about),
     about,

@@ -83,7 +83,7 @@ test("on Priya's eval pod each shared code gives exactly one line, with its coun
       const { answers } = await api.answers({ pod: SAMPLE.pod });
       const lines = worthALook(answers).map(({ sentence }) =>
         sentence.replace(
-          / under one code, which Cascade keeps apart\. Cascade cannot confirm that the shared code names one product, so they may or may not be the same\.$/,
+          /, under one code, which Cascade keeps apart\. Cascade cannot confirm that the shared code names one product, so they may or may not be the same\.$/,
           " [shared code]",
         ),
       );
@@ -92,7 +92,7 @@ test("on Priya's eval pod each shared code gives exactly one line, with its coun
         "Amlodipine 5 MG Oral Tablet is recorded 7 times, from Alder Street Pharmacy, Clearwater Eye Associates, Fernhill Family Clinic, Kestrel Harbor Hospital and Saltmarsh Regional Medical Center [shared code]",
         "Hydrochlorothiazide 12.5 mg capsule is recorded 5 times, from Alder Street Pharmacy, Clearwater Eye Associates, Fernhill Family Clinic and Kestrel Harbor Hospital [shared code]",
         "Losartan 50 mg tablet is recorded 6 times, from Alder Street Pharmacy, Clearwater Eye Associates, Fernhill Family Clinic, Kestrel Harbor Hospital and Saltmarsh Regional Medical Center [shared code]",
-        "Metformin ER 500 MG 24 HR Extended Release Oral Tablet is recorded 6 times, from Alder Street Pharmacy, Clearwater Eye Associates, Fernhill Family Clinic, Kestrel Harbor Hospital and Saltmarsh Regional Medical Center [shared code]",
+        "Metformin ER 500 MG 24 HR Tablet is recorded 6 times, from Alder Street Pharmacy, Clearwater Eye Associates, Fernhill Family Clinic, Kestrel Harbor Hospital and Saltmarsh Regional Medical Center [shared code]",
       ]);
     } finally {
       await api.close();
