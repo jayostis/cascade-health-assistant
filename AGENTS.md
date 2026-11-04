@@ -382,8 +382,10 @@ target only, is `src/chat/`: assistant-ui's components over the SDK's `useChat` 
 with the chat open, and a write waits on the page's own ask, `useConfirm()` of `src/confirm.tsx` (Allow, or Cancel,
 which tells the model "The person said no"). A turn is drawn in three parts (`turn.tsx`, the words in `steps.ts`): while the model works one line names its current step, written
 from the tool's name and what it was called with or gave, never the model's words, with Stop beside it, and the
-message itself is not drawn; when it is done the answer, the reply's cards (`reply.tsx`) and then "What it looked at
-(N steps)" folded, a `find_changes` result there in compact form. A finding is a card only when the reply cites it,
+message itself is not drawn; when it is done the answer and under it one folded line (`Supporting`, `turn.tsx`) that
+carries the check's verdict, from the `CheckedReply`'s counts and errors and never the model's words ("Not checked: …"
+when it was not), and the steps' count; every turn starts folded, and opening it shows the reply's cards (`reply.tsx`)
+and then what it looked at, a `find_changes` result there in compact form. A finding is a card only when the reply cites it,
 and a change with not enough results is one quiet line. It keeps the chats in `localStorage`, each under the pod it is about, and
 none of an encrypted pod's (`src/chat/chats.ts`). The screens draw "Ask about this" (`src/ask.tsx`) once `GET /chat`
 names a model; any element with `data-ask` (a JSON context) starts a new chat with that context, and one with

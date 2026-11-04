@@ -26,7 +26,6 @@ import {
   useState,
   type RefObject,
 } from "react";
-import type { CheckedReply } from "cascade-runtime";
 import { useLocation, useNavigate } from "react-router";
 import {
   firstQuestion,
@@ -55,10 +54,9 @@ import {
   type Kept,
   type Note,
 } from "./chats.ts";
-import { ReplyCards } from "./reply.tsx";
 import { isPageStep, stepsOf } from "./steps.ts";
 import { usePageTools } from "./tools.ts";
-import { LookedAt, Working } from "./turn.tsx";
+import { replyOf, Supporting, Working } from "./turn.tsx";
 
 /** How many characters of earlier messages a question carries. */
 const BUDGET = 24_000;
@@ -90,10 +88,6 @@ const Refused = ({ data }: { data: { text?: string } }) => (
     The model declined: {data.text}
   </div>
 );
-/** The model's reply as the server checked it against the pod: a card for each point (`reply.tsx`). */
-function Replied({ data }: { data: CheckedReply }) {
-  return <ReplyCards checked={data} pod={useContext(DrawnContext).pod} />;
-}
 const Silent = () => null;
 
 /** What the window says under the message: that it stopped, or that no answer came and why. */
@@ -129,11 +123,12 @@ function UserMessage() {
   );
 }
 
-/** The answer, then the reply's cards, then what the model looked at folded: nothing of it until the model is done. */
+/** The answer, then one folded line over the reply's cards and what the model looked at: nothing until the model is done. */
 function AssistantMessage() {
   const id = useAuiState(({ message }) => message.id);
-  const { messages, working, open } = useContext(DrawnContext);
+  const { messages, pod, working, open } = useContext(DrawnContext);
   if (working === id) return null;
+  const message = messages.find((each) => each.id === id);
   return (
     <>
       <MessagePrimitive.Root className="model whitespace-pre-wrap">
@@ -142,13 +137,15 @@ function AssistantMessage() {
             Text: Said,
             tools: { Override: Silent },
             data: {
-              by_name: { refused: Refused, reply: Replied },
+              by_name: { refused: Refused, reply: Silent },
               Fallback: Silent,
             },
           }}
         />
-        <LookedAt
-          message={messages.find((each) => each.id === id)}
+        <Supporting
+          message={message}
+          checked={replyOf(message)}
+          pod={pod}
           open={open}
         />
         <Noted inside />

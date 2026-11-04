@@ -1,8 +1,13 @@
+import type { CheckedReply } from "cascade-runtime";
 import type { UIMessage } from "ai";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
+import fixture from "./checked-reply.fixture.json" with { type: "json" };
 import { sideSaid, stepSaid, stepsOf, workingSaid, type Found } from "./steps.ts";
-import { LookedAt, Working } from "./turn.tsx";
+import { LookedAt, Supporting, Working } from "./turn.tsx";
+
+/** Priya's pod's reply, checked: seven facts, five confirmed, and two searches, one of them not backed. */
+const reply = fixture as unknown as CheckedReply;
 
 const row = (side: "before" | "after", value: string, day: string) => ({
   entry: `e-${side}-${value}`,
@@ -135,28 +140,169 @@ describe("what a turn says while the model works", () => {
   });
 });
 
-describe("what it looked at, folded after the answer", () => {
+describe("the one folded line under the answer", () => {
+  const steps = [
+    call("timeline", { pod: "p" }, []),
+    call("find_changes", { pod: "p" }, [creatinine]),
+  ];
+  const draw = (
+    checked: CheckedReply | undefined,
+    parts: UIMessage["parts"] = steps,
+  ) =>
+    renderToStaticMarkup(
+      <Supporting
+        message={turn(...parts)}
+        checked={checked}
+        pod="p"
+        open={() => {}}
+      />,
+    );
+  /** The line the person reads folded, without its markup. */
+  const line = (html: string) =>
+    /<summary[^>]*>(.*?)<\/summary>/s.exec(html)![1].replace(/<[^>]*>/g, "");
+  const passing = (): CheckedReply => {
+    const clone = structuredClone(reply) as unknown as {
+      items: {
+        facts: { verdict: object }[];
+        absences: { backing: object }[];
+      }[];
+    };
+    for (const item of clone.items) {
+      for (const fact of item.facts) fact.verdict = { ok: true };
+      for (const absence of item.absences) absence.backing = { backed: true };
+    }
+    return clone as unknown as CheckedReply;
+  };
+
+  test("a checked reply is one closed line with the check's verdict, the counts and the steps", () => {
+    const drawn = draw(passing());
+    expect(drawn).toContain("<details");
+    expect(drawn).not.toContain('open=""');
+    expect(line(drawn)).toBe(
+      "Checked against your records · 9 confirmed · 2 general, not from your records · 2 steps",
+    );
+  });
+
+  test("the cards and then the steps are inside, the cards first", () => {
+    const drawn = draw(passing());
+    const cards = drawn.indexOf('class="cards');
+    expect(cards).toBeGreaterThan(drawn.indexOf("</summary>"));
+    expect(drawn.indexOf("looked-at")).toBeGreaterThan(cards);
+    expect(drawn).toContain("Looked at lab results after lisinopril");
+  });
+
+  test("a fact or a search the check could not confirm is counted on the line, which says so in the warm colours", () => {
+    const drawn = draw(reply);
+    expect(line(drawn)).toBe(
+      "3 of 9 could not be confirmed against your records · 6 confirmed · 2 general, not from your records · 2 steps",
+    );
+    expect(drawn).toMatch(/<summary[^>]*class="[^"]*unconfirmed/);
+    expect(drawn).not.toMatch(/<summary[^>]*class="[^"]*not-checked/);
+  });
+
+  test("one fact and one step are said in the singular, and a turn with no tool call says no steps", () => {
+    const one = passing() as unknown as {
+      items: { facts: unknown[]; absences: unknown[] }[];
+    };
+    one.items = [{ ...one.items[2], absences: [] }];
+    expect(line(draw(one as unknown as CheckedReply, [steps[0]!]))).toBe(
+      "Checked against your records · 1 confirmed · 1 general, not from your records · 1 step",
+    );
+    expect(line(draw(one as unknown as CheckedReply, []))).toBe(
+      "Checked against your records · 1 confirmed · 1 general, not from your records",
+    );
+  });
+
+  test("a failed fact leads the line, a reply with nothing to check says so, and an item with a verdict and no words is in neither the line nor the cards", () => {
+    const failing = passing() as unknown as {
+      items: { facts: { verdict: object }[] }[];
+    };
+    failing.items[0]!.facts[0]!.verdict = {
+      ok: false,
+      reason: "no such record",
+      missing: [],
+    };
+    expect(line(draw(failing as unknown as CheckedReply, []))).toMatch(
+      /^1 of 9 could not be confirmed against your records · 8 confirmed/,
+    );
+    const none = passing() as unknown as {
+      items: unknown[];
+      reply: { items: { knowledge?: unknown }[] };
+    };
+    none.items = [];
+    none.reply.items = none.reply.items.map(({ knowledge: _, ...rest }) => rest);
+    expect(
+      line(draw(none as unknown as CheckedReply, [steps[0]!])),
+    ).toBe("Nothing in this reply was checked against your records · 1 step");
+    const wordless = passing() as unknown as {
+      reply: { items: { n: number }[] };
+    };
+    wordless.reply.items = wordless.reply.items.filter(({ n }) => n !== 2);
+    const drawn = draw(wordless as unknown as CheckedReply, []);
+    expect(line(drawn)).toBe(
+      "Checked against your records · 7 confirmed · 2 general, not from your records",
+    );
+    expect(drawn.match(/class="point/g)).toHaveLength(2);
+  });
+
+  test("a reply that was not checked says so on the folded line, with the checker's reason", () => {
+    const drawn = draw({ errors: ["items: at most 10"], items: [] });
+    expect(line(drawn)).toBe("Not checked: items: at most 10 · 2 steps");
+    expect(drawn).toMatch(/<summary[^>]*class="[^"]*not-checked/);
+    expect(drawn).not.toContain('class="cards');
+    expect(line(draw({ errors: ["a", "b", "c"], items: [] }))).toBe(
+      "Not checked: a (and 2 more) · 2 steps",
+    );
+  });
+
+  test("a part that is not a checked reply at all is not checked, never confirmed", () => {
+    expect(line(draw({} as CheckedReply))).toMatch(/^Not checked: /);
+    expect(
+      line(draw({ errors: [], items: "none" } as unknown as CheckedReply)),
+    ).toMatch(/^Not checked: /);
+  });
+
+  test("with nothing under it, a not-checked line is still drawn, as a line and not a fold", () => {
+    const drawn = draw({ errors: ["the reply is not JSON"], items: [] }, []);
+    expect(drawn).not.toContain("<details");
+    expect(drawn).toContain("Not checked: the reply is not JSON");
+    expect(drawn).toContain("not-checked");
+  });
+
+  test("a checked reply with no points and no steps is only its verdict", () => {
+    const drawn = draw({ ...reply, items: [] }, []);
+    expect(drawn).not.toContain("<details");
+    expect(drawn).toContain(
+      "Nothing in this reply was checked against your records",
+    );
+  });
+
+  test("a turn with steps and no reply keeps its steps behind a closed line of their own", () => {
+    const drawn = draw(undefined);
+    expect(drawn).toContain("<details");
+    expect(drawn).not.toContain('open=""');
+    expect(line(drawn)).toBe("What it looked at (2 steps)");
+    expect(line(draw(undefined, [steps[0]!]))).toBe("What it looked at (1 step)");
+    expect(draw(undefined, [])).toBe("");
+  });
+});
+
+describe("what it looked at", () => {
   const html = (...parts: UIMessage["parts"]) =>
     renderToStaticMarkup(<LookedAt message={turn(...parts)} open={() => {}} />);
 
-  test("a turn with no tool call has no fold", () => {
+  test("a turn with no tool call lists nothing", () => {
     expect(html()).toBe("");
   });
 
-  test("the fold counts the steps and names each in words, behind a closed details", () => {
+  test("each step is named in words", () => {
     const drawn = html(
       call("timeline", { pod: "p" }, []),
       call("find_changes", { pod: "p" }, [creatinine]),
     );
-    expect(drawn).toContain("<details");
-    expect(drawn).not.toContain("open");
-    expect(drawn).toContain("What it looked at (2 steps)");
+    expect(drawn).not.toContain("<details");
     expect(drawn).toContain("Read the medications and the day each started");
     expect(drawn).toContain("Looked at lab results after lisinopril 10 MG Oral Tablet");
-  });
-
-  test("one step is said in the singular", () => {
-    expect(html(call("list_pods", {}, { pods: [] }))).toContain("(1 step)");
   });
 
   test("a finding with a direction is one compact line: the app's sentence, its numbers and Open the trend, no card", () => {
