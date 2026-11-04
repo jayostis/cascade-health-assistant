@@ -26,7 +26,7 @@ import {
   useState,
   type RefObject,
 } from "react";
-import type { CheckedReply } from "cascade-runtime/reply";
+import type { CheckedReply } from "cascade-runtime";
 import { useLocation, useNavigate } from "react-router";
 import {
   firstQuestion,

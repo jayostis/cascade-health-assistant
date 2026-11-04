@@ -5,11 +5,6 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "customConditions": ["browser"],
-    "paths": {
-      "cascade-runtime/reply": [
-        "./node_modules/cascade-runtime/dist/src/index.d.ts"
-      ]
-    },
     "jsx": "react-jsx",
     "types": ["vite/client"],
     "allowJs": true,

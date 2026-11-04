@@ -1,7 +1,7 @@
 // A checked reply as the chat draws it: each point of the model's a card, in the order the model ranked them; each fact
 // a chip, confirmed or not, showing what the pod holds (never the model's words for it) and opening the entry, whose
 // page says where it came from; each absence with what was searched; the model's own knowledge labelled as such.
-import type { CheckedReply } from "cascade-runtime/reply";
+import type { CheckedReply } from "cascade-runtime";
 import { useState } from "react";
 import { day } from "../../said.ts";
 import { useAddress } from "../address.tsx";

@@ -1,4 +1,4 @@
-import type { CheckedReply } from "cascade-runtime/reply";
+import type { CheckedReply } from "cascade-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import fixture from "./checked-reply.fixture.json" with { type: "json" };
