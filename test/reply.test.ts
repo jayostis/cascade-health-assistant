@@ -632,12 +632,27 @@ test("a reply asked for again is asked within a small bound the first was not, a
     expect(ask).toHaveBeenCalledTimes(1);
     expect(mock.doStreamCalls[0]!.maxOutputTokens).toBeUndefined();
     expect(mock.doStreamCalls[1]!.maxOutputTokens).toBeUndefined();
-    expect(mock.doStreamCalls[2]!.maxOutputTokens).toBe(8000);
+    expect(mock.doStreamCalls[2]!.maxOutputTokens).toBe(16000);
     expect(text).toBe("Her A1c was high in June.");
     expect(checked!.errors.length).toBeGreaterThan(0);
   } finally {
     ask.mockRestore();
   }
+});
+
+test("a reply asked for again that is itself cut off leaves the complete first reply shown", async () => {
+  const first = replyOf(
+    [point([{ says: "Her A1c", cite: { entry: A1C }, field: "value" }])],
+    "The lab recommended a repeat A1c.",
+  );
+  modelSays(
+    says(first),
+    says(`{"answer":"Her A1c was 6.6 % in Ju`, "length"),
+  );
+  const { text, checked } = await chat([user("How is my A1c?")]);
+  expect(mock.doStreamCalls).toHaveLength(2);
+  expect(text).toBe("The lab recommended a repeat A1c.");
+  expect(checked!.errors.length).toBeGreaterThan(0);
 });
 
 test("the page is told the answer is being checked, in a part never kept, before the model is asked again", async () => {

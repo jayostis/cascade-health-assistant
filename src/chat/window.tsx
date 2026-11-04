@@ -255,6 +255,7 @@ function Thread({
     id,
     messages: kept.messages as UIMessage[],
     transport,
+    onError: () => setChecking(false),
     onData: ({ type }) => {
       if (type === "data-checking") setChecking(true);
     },
@@ -289,6 +290,7 @@ function Thread({
       return true;
     },
     onFinish: ({ message, messages, isAbort, isError }) => {
+      setChecking(false);
       failed.current = isError || isAbort;
       if (!isAbort) return;
       const at = noteAt(message, messages);

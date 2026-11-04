@@ -521,7 +521,7 @@ const spent = () =>
  * The bound on a reply asked for again: it only rewrites points the model has already worked out, so a runaway one is
  * cut short rather than paid for twice.
  */
-const REPAIR_MAX_TOKENS = 8_000;
+const REPAIR_MAX_TOKENS = 16_000;
 
 /** `tools` offered and never run: a call to one in a reply asked for again ends it with no reply. */
 const unrun = (tools: ToolSet): ToolSet =>
@@ -724,7 +724,7 @@ export function chatRoutes({
                 const saidAgain = await again(why);
                 if (saidAgain === undefined) return replied;
                 const second = await repliedTo(saidAgain, checking);
-                return askAgain(second) === undefined ? second : replied;
+                return second.checked.errors.length === 0 ? second : replied;
               },
             ),
           });
