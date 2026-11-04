@@ -1,4 +1,4 @@
-import type { CheckedReply } from "cascade-runtime";
+import type { CheckedReply } from "cascade-runtime/reply";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import fixture from "./checked-reply.fixture.json" with { type: "json" };
@@ -7,7 +7,8 @@ import { ReplyCards } from "./reply.tsx";
 /** Priya's pod, checked by the pinned runtime: three points, one of them with a fact that fails, one that names no record. */
 const checked = fixture as unknown as CheckedReply;
 const POD = "priya-natarajan-eval-case";
-const TSH_ID = "0d8c933a39c754242aa4fb5a1032cfc8be460f67170efed924b99acf15b13f2e";
+const TSH_ID =
+  "0d8c933a39c754242aa4fb5a1032cfc8be460f67170efed924b99acf15b13f2e";
 const DISCHARGE_ID =
   "b9044974ee05e2c329f1eb42605c9eb2ae5e3b697e16d05f04228d527a7274e1";
 
@@ -20,7 +21,7 @@ const points = (html: string) =>
 
 /** The markup of the chip that names `text`: each fact is an item of the point's list of chips. */
 const chipWith = (html: string, text: string) =>
-  [...html.matchAll(/<li class="chip-item">(.*?)<\/li>/gs)]
+  [...html.matchAll(/<li class="chip-item[^"]*">(.*?)<\/li>/gs)]
     .map((each) => each[1])
     .find((chip) => chip.includes(text));
 
@@ -65,7 +66,7 @@ describe("a checked reply drawn as cards", () => {
     for (const says of [
       "TSH 7.9, high, on 3 Mar 2026",
       "The lab report for the repeat",
-      "The hospital stopped it",
+      "Sodium was low in June",
     ])
       expect(html).not.toContain(says);
   });
@@ -74,7 +75,7 @@ describe("a checked reply drawn as cards", () => {
     const [first] = points(html);
     expect(first).toContain("Searched: a TSH or free T4 after 6 Mar 2026");
     expect(first).toContain("all sources");
-    expect(first).toContain("found nothing");
+    expect(first).toContain("nothing found");
     expect(first).toContain(
       "Searched: a TSH after 6 Mar 2026, from a search that was never run",
     );
@@ -87,7 +88,9 @@ describe("a checked reply drawn as cards", () => {
     expect(first).toContain("standard thyroid testing practice");
     expect(second).not.toContain("General information");
     expect(third).toContain("CDC/ACIP");
-    const bare = structuredClone(checked) as { reply: { items: { knowledge?: { guideline?: string } }[] } };
+    const bare = structuredClone(checked) as unknown as {
+      reply: { items: { knowledge?: { guideline?: string } }[] };
+    };
     delete bare.reply.items[0].knowledge!.guideline;
     expect(draw(bare as unknown as CheckedReply)).toContain("No source named");
   });
@@ -108,7 +111,11 @@ describe("how many points show", () => {
       ...base.items[at % 3],
       n: at + 1,
     }));
-    return { ...base, reply: { ...base.reply, items: reply }, items } as unknown as CheckedReply;
+    return {
+      ...base,
+      reply: { ...base.reply, items: reply },
+      items,
+    } as unknown as CheckedReply;
   };
 
   test("four show, and a button offers the rest", () => {
@@ -126,6 +133,39 @@ describe("how many points show", () => {
   });
 });
 
+describe("a quote", () => {
+  const quoting = (ok: boolean) => {
+    const clone = structuredClone(checked) as unknown as {
+      items: { facts: { fact: object; verdict: object }[] }[];
+    };
+    const [fact] = clone.items[0].facts;
+    fact.fact = {
+      says: "The discharge says to stop it",
+      cite: { entry: "Nb9044974" },
+      field: "text",
+      quote: "STOP taking hydrochlorothiazide",
+    };
+    fact.verdict = ok
+      ? { ok: true }
+      : {
+          ok: false,
+          reason: "says otherwise",
+          missing: ["quote STOP taking hydrochlorothiazide"],
+        };
+    return draw(clone as unknown as CheckedReply);
+  };
+
+  test("is shown, in the source's words, once the check found it whole in the entry", () => {
+    expect(chipWith(quoting(true), "Thyrotropin")).toContain(
+      '<q class="quote">STOP taking hydrochlorothiazide</q>',
+    );
+  });
+
+  test("is not set as the source's words when the check did not find it", () => {
+    expect(quoting(false)).not.toContain("<q");
+  });
+});
+
 describe("a reply that did not fit the contract", () => {
   const broken: CheckedReply = {
     errors: ["items: at most 10"],
@@ -136,5 +176,16 @@ describe("a reply that did not fit the contract", () => {
     const html = draw(broken);
     expect(points(html)).toHaveLength(0);
     expect(html).toContain("Not checked");
+  });
+
+  test("nor is a part that is not a checked reply at all, which draws no error of its own", () => {
+    expect(draw({} as CheckedReply)).toContain("Not checked");
+    expect(
+      draw({ errors: [], items: "none" } as unknown as CheckedReply),
+    ).toContain("Not checked");
+  });
+
+  test("a checked reply with no points draws nothing", () => {
+    expect(draw({ ...checked, items: [] })).toBe("");
   });
 });

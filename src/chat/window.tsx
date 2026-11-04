@@ -26,6 +26,7 @@ import {
   useState,
   type RefObject,
 } from "react";
+import type { CheckedReply } from "cascade-runtime/reply";
 import { useLocation, useNavigate } from "react-router";
 import {
   firstQuestion,
@@ -54,6 +55,7 @@ import {
   type Kept,
   type Note,
 } from "./chats.ts";
+import { ReplyCards } from "./reply.tsx";
 import { usePageTools } from "./tools.ts";
 
 /** How many characters of earlier messages a question carries. */
@@ -89,13 +91,18 @@ interface Side {
   readonly max: number;
 }
 
-/** What the window gives what it draws: the notes under messages, and how a card's Open the trend moves the app. */
+/** What the window gives what it draws: the notes under messages, the pod a reply is about, and how a card's Open the trend moves the app. */
 interface Drawn {
+  readonly pod: string;
   readonly notes: Readonly<Record<string, Note>>;
   readonly open: (address: string) => void;
 }
 
-const DrawnContext = createContext<Drawn>({ notes: {}, open: () => {} });
+const DrawnContext = createContext<Drawn>({
+  pod: "",
+  notes: {},
+  open: () => {},
+});
 
 const round = (number: number) => Math.round(number * 10) / 10;
 
@@ -161,6 +168,10 @@ const Refused = ({ data }: { data: { text?: string } }) => (
     The model declined: {data.text}
   </div>
 );
+/** The model's reply as the server checked it against the pod: a card for each point (`reply.tsx`). */
+function Replied({ data }: { data: CheckedReply }) {
+  return <ReplyCards checked={data} pod={useContext(DrawnContext).pod} />;
+}
 const Silent = () => null;
 
 /** What the window says under the message: that it stopped, or that no answer came and why. */
@@ -204,7 +215,10 @@ function AssistantMessage() {
           components={{
             Text: Said,
             tools: { Override: Silent },
-            data: { by_name: { refused: Refused }, Fallback: Silent },
+            data: {
+              by_name: { refused: Refused, reply: Replied },
+              Fallback: Silent,
+            },
           }}
         />
         <Cards />
@@ -408,7 +422,7 @@ function Thread({
       if (text.trim() !== "") void sendMessage({ text: text.trim() });
     };
   }, [sender, sendMessage]);
-  const drawn = useMemo(() => ({ notes, open }), [notes, open]);
+  const drawn = useMemo(() => ({ pod, notes, open }), [pod, notes, open]);
   const empty = messages.length === 0;
   return (
     <AssistantRuntimeProvider runtime={runtime}>
