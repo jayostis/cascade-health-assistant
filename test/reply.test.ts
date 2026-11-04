@@ -9,7 +9,7 @@ import { MockLanguageModelV4 } from "ai/test";
 import type { CheckedReply } from "cascade-runtime";
 import { replySchema } from "cascade-runtime";
 import { afterAll, beforeAll, expect, test, vi } from "vitest";
-import type { Model } from "../models.ts";
+import { type Model, modelOf } from "../models.ts";
 import { nodeHost } from "../node-host.ts";
 import { podApi } from "../pod-api.ts";
 import { loadSample, SAMPLE } from "../sample.ts";
@@ -107,8 +107,12 @@ const user = (text: string) => ({
   parts: [{ type: "text", text }],
 });
 
-async function chat(messages: object[], pod: string = POD) {
-  const response = await app.request(`${ORIGIN}/chat`, {
+async function chat(
+  messages: object[],
+  pod: string = POD,
+  through: { request: typeof app.request } = app,
+) {
+  const response = await through.request(`${ORIGIN}/chat`, {
     method: "POST",
     headers: { origin: ORIGIN, "content-type": "application/json" },
     body: JSON.stringify({ pod, page: `/pods/${pod}/`, messages }),
@@ -520,4 +524,117 @@ test("an absence over an earlier request's read is not checked, even when that t
     backed: false,
     reason: "query not run",
   });
+});
+
+const ANTHROPIC = "http://anthropic.test";
+/** The thinking tokens Haiku spent before its reply in the live probe's last step (#12), with room to spare. */
+const THINKING = 5000;
+
+/**
+ * Anthropic's Messages API as its stream answers: `THINKING` tokens of thinking, then `text` (a token for every four
+ * characters), all counted against the request's `max_tokens`, the text cut off where they run out.
+ */
+function anthropicSays(text: string, asked: unknown[]) {
+  return async (_url: unknown, init?: RequestInit) => {
+    const request = JSON.parse(String(init!.body));
+    asked.push(request);
+    const room = request.max_tokens - THINKING;
+    const whole = room >= Math.ceil(text.length / 4);
+    const said = room > 0 ? text.slice(0, room * 4) : "";
+    const events: object[] = [
+      {
+        type: "message_start",
+        message: {
+          id: "msg_1",
+          type: "message",
+          role: "assistant",
+          model: request.model,
+          content: [],
+          stop_reason: null,
+          usage: { input_tokens: 1, output_tokens: 1 },
+        },
+      },
+      {
+        type: "content_block_start",
+        index: 0,
+        content_block: { type: "thinking", thinking: "", signature: "" },
+      },
+      {
+        type: "content_block_delta",
+        index: 0,
+        delta: { type: "signature_delta", signature: "s" },
+      },
+      { type: "content_block_stop", index: 0 },
+      ...(said === ""
+        ? []
+        : [
+            {
+              type: "content_block_start",
+              index: 1,
+              content_block: { type: "text", text: "" },
+            },
+            {
+              type: "content_block_delta",
+              index: 1,
+              delta: { type: "text_delta", text: said },
+            },
+            { type: "content_block_stop", index: 1 },
+          ]),
+      {
+        type: "message_delta",
+        delta: { stop_reason: whole ? "end_turn" : "max_tokens" },
+        usage: {
+          output_tokens: Math.min(
+            request.max_tokens,
+            THINKING + said.length / 4,
+          ),
+        },
+      },
+      { type: "message_stop" },
+    ];
+    return new Response(
+      events
+        .map(
+          (event) =>
+            `event: ${(event as { type: string }).type}\ndata: ${JSON.stringify(event)}\n\n`,
+        )
+        .join(""),
+      { headers: { "content-type": "text/event-stream" } },
+    );
+  };
+}
+
+test("an Anthropic model that thinks at length before its reply still gives the reply whole, and it is checked", async () => {
+  const asked: { max_tokens: number }[] = [];
+  vi.stubGlobal(
+    "fetch",
+    anthropicSays(
+      replyOf([
+        point([{ says: "Her A1c", cite: { entry: A1C }, field: "value" }]),
+      ]),
+      asked,
+    ),
+  );
+  try {
+    const anthropic = chatRoutes({
+      api,
+      model: modelOf({
+        provider: "anthropic",
+        url: ANTHROPIC,
+        name: "claude-haiku-5-5",
+        key: "k",
+      }),
+    });
+    const { checked, text } = await chat(
+      [user("Is there anything I should bring up with Dr. Marsh?")],
+      POD,
+      anthropic,
+    );
+    expect(asked).toHaveLength(1);
+    expect(checked!.errors).toEqual([]);
+    expect(checked!.items[0]!.facts[0]!.verdict.ok).toBe(true);
+    expect(text).toBe("Her A1c was 6.6 % in June.");
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });
