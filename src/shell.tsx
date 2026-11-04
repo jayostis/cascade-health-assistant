@@ -238,7 +238,7 @@ export function Layout({
           className="font-semibold tracking-[0.02em] text-on-bar no-underline"
           href={address.home}
         >
-          Cascade
+          Health assistant
         </a>
         <Menu
           name="File"

@@ -1,4 +1,45 @@
-# cascade-health-assistant
+# Health assistant
+
+A chat with a model over a person's health records, kept in a
+[Cascade](https://github.com/jayostis/cascade-runtime-js) pod. The model runs
+from the app's Node server, which holds its key, and is assumed to be
+connected. The design and the plan are
+[jayostis/cascade-vocabulary#337](https://github.com/jayostis/cascade-vocabulary/issues/337).
+
+Status: a draft, started from the plain app that
+[`create-cascade-app --with chat`](https://github.com/jayostis/cascade-starter-kit)
+makes, from starter release
+`build-8466d0b9399346671c9b7bf1e9a741594e622aac`. Nothing here is fit for
+clinical use, and every person in it is made up.
+
+```sh
+git clone git@github.com:jayostis/cascade-health-assistant.git
+cd cascade-health-assistant
+npm ci
+npm run model   # choose the model the chat uses; the key is kept in .env
+npm start       # then open http://127.0.0.1:3000/
+```
+
+The first `npm start` loads the sample, Priya Natarajan's pod, and opens on it;
+`npm run reset` loads it again. Ask the chat a question about her records.
+`npm run model` is needed only to run the chat; the tests and CI need no key.
+
+## The sample
+
+The app opens on one pod, `priya-natarajan-eval-case`: the 16 downloads of the
+`priya-natarajan` case of the evals in
+[cascade-runtime-js](https://github.com/jayostis/cascade-runtime-js)
+(`packages/evals/cases/priya-natarajan/`), committed in
+`samples/priya-natarajan-eval-case/` as the case generated them, and imported in
+the order its `case.json` names (`sample.ts`). The case's key lists the six
+gaps planted in her records; two of the downloads are refused on purpose, and
+`npm run reset` says so. `test/sample.test.ts` checks the folder against the
+case's digest. It is not the vocabulary kit's pod of the same name
+(`priya-natarajan`, nine downloads, no planted gaps), which this app no longer
+loads; `npm run pod:load -- priya-natarajan` still loads that one.
+
+The rest of this file is the starter's own, kept for now, and says "the starter"
+and "the app" where it means this one.
 
 An app on a Cascade pod: a React app that shows what a pod holds, served on
 Node over the pods in `pods/` or built to run in a browser alone, and commands
@@ -9,18 +50,8 @@ itself.
 It is written in TypeScript, on [React](https://react.dev) with
 [React Router](https://reactrouter.com), built by [Vite](https://vite.dev);
 its server is [Hono](https://hono.dev). Node 22.18 or later runs its `.ts`
-files as they are. It is the starter's base: `create-cascade-app --with chat`
-adds a chat with a model, and `--with mcp` an MCP server, each with its section
-at the end of this file.
-
-The app is made with four pods, `alex-rivera`, `priya-natarajan`,
-`martin-okafor` and `tamsin-vale`, loaded from the kits the package carries.
-Alex Rivera, Priya Natarajan, Martin Okafor and Tamsin Vale are made up. Alex's
-records come from Apple Health exports; Priya's from exports and C-CDA files
-together; Martin's pod holds two FHIR reports of one variant beside what
-ClinVar says today; Tamsin's two pulls from one hospital a year apart, her
-metformin stopped between them. `npm run reset`
-puts the app back as it was made.
+files as they are. The chat with a model is the starter's `chat` add-on, with
+its section at the end of this file.
 
 ## Start
 
@@ -62,7 +93,7 @@ medication's start and stop dashed across it, at
 `/pods/<name>/trend?test=<LOINC>&medication=<RxNorm>`. It states what changed
 after what, never why. A pod brought in more than once also says where that
 comes from: the imports in order, with their source and retrieved date, and the
-medication's earlier and later version. Alex's, Priya's and Martin's pods hold too little to show a card.
+medication's earlier and later version.
 Ines Calloway, a made-up patient at Cascade North, does: her LDL is lower after
 atorvastatin started. "+ New pod", Ines Calloway, "Sign in at Cascade North" and
 "Bring it into … pod" make that pod.
@@ -140,9 +171,9 @@ script goes after `--`, or npm keeps it for itself.
   Vite, the pages redrawn whenever a file is saved.
 - `npm run build` builds the pages into `dist/`, as `npm start` does when they
   are older than their sources.
-- `npm run reset` removes every pod and loads Alex's, Priya's, Martin's and Tamsin's again, as
-  the File menu's "Reset all data" does: both load the kits through
-  `restoreKits` in `pods.ts`.
+- `npm run reset` removes every pod and loads the sample, Priya's pod, again, as
+  the File menu's "Reset all data" does: both load it through
+  `restoreSample` in `pods.ts`.
 - `npm run pod:new <name>` makes an empty pod.
 - `npm run pod:load -- <kit> [--through <step>] [--as <name>]` replays a kit's
   story into `pods/<name>/`. One app can hold a kit at two points:
@@ -158,7 +189,7 @@ script goes after `--`, or npm keeps it for itself.
 - `npm test` runs the app's own tests (`test/`, on [Vitest](https://vitest.dev)): PodApi behind the server, in the
   process, and the tool list's tiers. They take seconds, and they are short so you can copy one for your own change.
 - `npm run test:e2e` runs one browser test (`e2e/`, on [Playwright](https://playwright.dev)): it starts the app, opens
-  Alex Rivera's pod and checks its first tiles draw. Install the browser it uses once, with
+  Priya Natarajan's sample pod and checks its first tiles draw (run `npm run reset` first on a clone). Install the browser it uses once, with
   `npx playwright install chromium`; `npm install` does not download it.
 - `npm run model` asks which model a chat will use: Google Gemini, Groq or
   OpenRouter (each gives a free key from a sign-up page), Ollama or LM Studio
@@ -216,7 +247,7 @@ which Node runs as it is.
 - `demo-hospital/`: the pretend hospitals, a package of this app's own.
 - `pods.ts`: what the commands and the server share: where pods live and what
   they are called, which one a command works on, deleting them and loading the
-  kits again, and the addresses of a pod's page and its trend.
+  sample again, and the addresses of a pod's page and its trend.
 - `pod.ts`, `kit.ts`, `ask.ts`, `console.ts`, `patient.ts`: the commands, and
   `help.ts`, which lists them with what `help.json` says of each.
 - `tools.ts`: the one list of tools a model reaches, with their tiers and
