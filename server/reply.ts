@@ -37,6 +37,27 @@ const CUT_OFF_WHY = "the reply was cut off before it was whole";
 const RECOMMENDS = "the reply says it recommends something in its own voice";
 const UNCHECKABLE = "the pod could not be read to check the reply";
 
+const AGAIN =
+  "Reply again with the same points, and nothing else, as JSON in the form your instructions give, calling no tool.";
+
+/**
+ * What the model is asked once more when its reply was not checked for a fault of its own, with why; nothing when
+ * the reply was checked, or when asking again cannot help (no pod to check it against, or one that could not be read).
+ */
+export function askAgain({ checked }: Replied): string | undefined {
+  const [why] = checked.errors;
+  if (
+    checked.reply !== undefined ||
+    why === undefined ||
+    why === NO_POD ||
+    why === UNCHECKABLE
+  )
+    return undefined;
+  if (why === RECOMMENDS)
+    return `Your reply says "recommend" in your own words. A record's recommendation is given only in its words, inside quotation marks, as a fact's quote. ${AGAIN}`;
+  return `Your reply could not be checked: ${checked.errors.join("; ")}. ${AGAIN}`;
+}
+
 /** What the page is sent for a reply: the text to show, and the reply checked. */
 export interface Replied {
   /** The reply's answer, or for a reply that was not checked, what the model said. */

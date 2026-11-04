@@ -6,7 +6,7 @@
 // The model replies in `cascade-runtime`'s contract (`reply.ts`): points that cite entries by handle, never copying a
 // value. When it has stopped, its last words are checked against the pod, with the tool calls this request ran, and the
 // stream ends with the answer as a text part and the checked reply as a `data-reply` part. The JSON the model wrote is
-// not streamed.
+// not streamed. A reply that could not be checked for a fault of the model's is asked for once more, with why.
 import {
   convertToModelMessages,
   createUIMessageStreamResponse,
@@ -15,6 +15,7 @@ import {
   type JSONSchema7,
   jsonSchema,
   type JSONValue,
+  type ModelMessage,
   NoSuchToolError,
   Output,
   streamText,
@@ -43,7 +44,14 @@ import { podPath, trendPath } from "../pods.ts";
 import { CHANGED, changeSaid, entryId } from "../said.ts";
 import { TOOLS } from "../tools.ts";
 import type { ChatServed } from "./app.ts";
-import { asker, CONTRACT, podOf, type Replied, repliedTo } from "./reply.ts";
+import {
+  askAgain,
+  asker,
+  CONTRACT,
+  podOf,
+  type Replied,
+  repliedTo,
+} from "./reply.ts";
 
 /** How many rounds of tool calls a chat runs before the model must answer. */
 export const MAX_ROUNDS = 6;
@@ -509,6 +517,15 @@ const spent = () =>
     },
   });
 
+/** `tools` offered and never run: a call to one in a reply asked for again ends it with no reply. */
+const unrun = (tools: ToolSet): ToolSet =>
+  Object.fromEntries(
+    Object.entries(tools).map(([name, { execute: _execute, ...offered }]) => [
+      name,
+      offered,
+    ]),
+  ) as ToolSet;
+
 /** The parts of a reply the page is sent: its text, then the reply checked as a `data-reply` part. */
 function replyParts({ answer, checked }: Replied): UIMessageChunk[] {
   const id = `reply-${randomUUID()}`;
@@ -629,22 +646,48 @@ export function chatRoutes({
           const earlier = stepsBefore(body.messages);
           if (earlier > MAX_ROUNDS)
             return createUIMessageStreamResponse({ stream: spent() });
-          const result = streamText({
+          const asked = {
             model: model.language(),
             instructions: instructionsOf(body),
-            messages: await convertToModelMessages(body.messages, { tools }),
-            tools,
             output: Output.object({
               schema: jsonSchema<unknown>(
                 replySchema as unknown as JSONSchema7,
               ),
               name: "reply",
             }),
-            stopWhen: isStepCount(MAX_ROUNDS + 1 - earlier),
             maxRetries: 0,
             abortSignal: c.req.raw.signal,
             onError: () => {},
+          };
+          const messages = await convertToModelMessages(body.messages, {
+            tools,
           });
+          let made: ModelMessage[] = [];
+          const result = streamText({
+            ...asked,
+            messages,
+            tools,
+            stopWhen: isStepCount(MAX_ROUNDS + 1 - earlier),
+            onStepFinish: ({ response }) => {
+              made = [...made, ...response.messages];
+            },
+          });
+          const again = async (text: string): Promise<string> => {
+            try {
+              return await streamText({
+                ...asked,
+                messages: [
+                  ...messages,
+                  ...made,
+                  { role: "user", content: text },
+                ],
+                tools: unrun(tools),
+              }).text;
+            } catch (error) {
+              console.error(error);
+              return "";
+            }
+          };
           return createUIMessageStreamResponse({
             stream: ending(
               result.toUIMessageStream({
@@ -652,13 +695,18 @@ export function chatRoutes({
                 onError: errorText(model),
               }),
               earlier,
-              (said) => {
+              async (said) => {
                 const pod = podOf(body.pod, ran);
-                return repliedTo(said, {
+                const checking = {
                   ask:
                     pod === undefined ? undefined : asker(rowsOfPod(api, pod)),
                   ran,
-                });
+                };
+                const replied = await repliedTo(said, checking);
+                const why = askAgain(replied);
+                return why === undefined
+                  ? replied
+                  : repliedTo(await again(why), checking);
               },
             ),
           });

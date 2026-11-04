@@ -248,7 +248,14 @@ test.each([
     const again = asked.at(-1)!;
     expect(again.role).toBe("user");
     expect(JSON.stringify(again.content)).toContain("Reply again");
-    expect(JSON.stringify(asked)).toContain("tool-result");
+    expect(asked.map(({ role }) => role)).toEqual([
+      "system",
+      "user",
+      "assistant",
+      "tool",
+      "assistant",
+      "user",
+    ]);
   },
 );
 
