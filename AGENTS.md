@@ -380,7 +380,11 @@ with the SDK's UI message stream, stops after `MAX_ROUNDS` rounds of tool calls,
 target only, is `src/chat/`: assistant-ui's components over the SDK's `useChat` at `/chat`. It runs the page's tools,
 `PAGE_TOOLS` of `said.ts` (which `tools.ts` lists too), over the host's PodApi: a navigation moves the app in place
 with the chat open, and a write waits on the page's own ask, `useConfirm()` of `src/confirm.tsx` (Allow, or Cancel,
-which tells the model "The person said no"). It keeps the chats in `localStorage`, each under the pod it is about, and
+which tells the model "The person said no"). A turn is drawn in three parts (`turn.tsx`, the words in `steps.ts`): while the model works one line names its current step, written
+from the tool's name and what it was called with or gave, never the model's words, with Stop beside it, and the
+message itself is not drawn; when it is done the answer, the reply's cards (`reply.tsx`) and then "What it looked at
+(N steps)" folded, a `find_changes` result there in compact form. A finding is a card only when the reply cites it,
+and a change with not enough results is one quiet line. It keeps the chats in `localStorage`, each under the pod it is about, and
 none of an encrypted pod's (`src/chat/chats.ts`). The screens draw "Ask about this" (`src/ask.tsx`) once `GET /chat`
 names a model; any element with `data-ask` (a JSON context) starts a new chat with that context, and one with
 `data-ask-text` sends its text as typed.

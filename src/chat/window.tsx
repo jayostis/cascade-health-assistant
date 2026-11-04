@@ -41,7 +41,7 @@ import {
 import { routed, useAddress } from "../address.tsx";
 import { type ChatModel, useHost } from "../api.tsx";
 import type { Asked } from "../ask.tsx";
-import { muted, quiet, tag } from "../look.ts";
+import { muted, quiet } from "../look.ts";
 import {
   forgetOpen,
   fresh,
@@ -56,110 +56,32 @@ import {
   type Note,
 } from "./chats.ts";
 import { ReplyCards } from "./reply.tsx";
+import { isPageStep, stepsOf } from "./steps.ts";
 import { usePageTools } from "./tools.ts";
+import { LookedAt, Working } from "./turn.tsx";
 
 /** How many characters of earlier messages a question carries. */
 const BUDGET = 24_000;
 
-/** A finding of `find_changes`, as the page gets it: the model's compact finding with its rows and the app's sentence. */
-interface Found {
-  readonly key: string;
-  readonly said?: string;
-  readonly unit: string;
-  readonly view: string;
-  readonly test: {
-    readonly code: string;
-    readonly notation?: string;
-    readonly name?: string;
-  };
-  readonly medication: { readonly name: string };
-  readonly before: Side;
-  readonly after: Side;
-  readonly rows: readonly {
-    readonly entry: string;
-    readonly performed: string;
-    readonly value: string;
-    readonly unit: string;
-    readonly side: string;
-  }[];
-}
-
-interface Side {
-  readonly count: number;
-  readonly mean: number;
-  readonly min: number;
-  readonly max: number;
-}
-
-/** What the window gives what it draws: the notes under messages, the pod a reply is about, and how a card's Open the trend moves the app. */
+/**
+ * What the window gives what it draws: the notes under messages, the pod a reply is about, the messages (whose tool
+ * calls are what a turn looked at), and the message the model is still working on, which is drawn as a line, not yet.
+ */
 interface Drawn {
   readonly pod: string;
   readonly notes: Readonly<Record<string, Note>>;
+  readonly messages: readonly UIMessage[];
+  readonly working: string | undefined;
   readonly open: (address: string) => void;
 }
 
 const DrawnContext = createContext<Drawn>({
   pod: "",
   notes: {},
+  messages: [],
+  working: undefined,
   open: () => {},
 });
-
-const round = (number: number) => Math.round(number * 10) / 10;
-
-const sideSaid = (name: string, side: Side, unit: string) =>
-  side.count === 0
-    ? `${name}: no results`
-    : `${name}: mean ${round(side.mean)} ${unit} over ${side.count} ${side.count === 1 ? "result" : "results"} (${round(side.min)} to ${round(side.max)})`;
-
-/** A finding as a card: the app's sentence, its numbers, a link to each result's entry, and Open the trend. */
-function Card({ finding }: { finding: Found }) {
-  const { open } = useContext(DrawnContext);
-  const test = finding.test.name ?? finding.test.notation ?? finding.test.code;
-  const base = finding.view.replace(/trend\?.*$/, "");
-  return (
-    <div className="card m-0 rounded-[10px] border border-line bg-page px-[0.9rem] py-[0.7rem] [&_p]:my-[0.15rem]">
-      <p className="said">
-        {finding.said ??
-          `${test}: not enough results around ${finding.medication.name}`}
-      </p>
-      <p className={muted}>
-        {sideSaid("Before", finding.before, finding.unit)}
-      </p>
-      <p className={muted}>{sideSaid("After", finding.after, finding.unit)}</p>
-      <ul className="my-[0.4rem] max-h-36 list-none overflow-auto p-0 text-[0.9rem]">
-        {finding.rows.map((row) => (
-          <li key={`${row.entry} ${row.side}`}>
-            <a href={`${base}entries/${encodeURIComponent(row.entry)}`}>
-              {`${row.performed.slice(0, 10)}: ${row.value} ${row.unit}`}
-            </a>{" "}
-            <span className={tag}>{row.side}</span>
-          </li>
-        ))}
-      </ul>
-      <button
-        type="button"
-        className={quiet}
-        onClick={() => open(finding.view)}
-      >
-        Open the trend
-      </button>
-    </div>
-  );
-}
-
-/** The cards of every finding `find_changes` gave in the message, after its text. */
-function Cards() {
-  const parts = useAuiState(({ message }) => message.parts);
-  const found = parts.flatMap((part) =>
-    part.type === "tool-call" &&
-    part.toolName === "find_changes" &&
-    !part.isError &&
-    Array.isArray(part.result)
-      ? (part.result as Found[])
-      : [],
-  );
-  return found.map((finding) => <Card key={finding.key} finding={finding} />);
-}
 
 const STOPPED = "stopped text-[0.9rem] text-muted";
 const Said = ({ text }: { text: string }) => <div>{text}</div>;
@@ -207,7 +129,11 @@ function UserMessage() {
   );
 }
 
+/** The answer, then the reply's cards, then what the model looked at folded: nothing of it until the model is done. */
 function AssistantMessage() {
+  const id = useAuiState(({ message }) => message.id);
+  const { messages, working, open } = useContext(DrawnContext);
+  if (working === id) return null;
   return (
     <>
       <MessagePrimitive.Root className="model whitespace-pre-wrap">
@@ -221,7 +147,10 @@ function AssistantMessage() {
             },
           }}
         />
-        <Cards />
+        <LookedAt
+          message={messages.find((each) => each.id === id)}
+          open={open}
+        />
         <Noted inside />
       </MessagePrimitive.Root>
       <Noted inside={false} />
@@ -422,7 +351,27 @@ function Thread({
       if (text.trim() !== "") void sendMessage({ text: text.trim() });
     };
   }, [sender, sendMessage]);
-  const drawn = useMemo(() => ({ pod, notes, open }), [pod, notes, open]);
+  const [began, setBegan] = useState(false);
+  useEffect(() => {
+    if (busyNow) setBegan(true);
+  }, [busyNow]);
+  const last = messages.at(-1);
+  /** Between a round and the next, while the page runs a tool the model called and the person says Allow. */
+  const between =
+    began &&
+    !busyNow &&
+    status !== "error" &&
+    last?.role === "assistant" &&
+    notes[last.id] === undefined &&
+    stepsOf(last).some(
+      (step) => step.state === "working" && isPageStep(step),
+    );
+  const on = busyNow || between;
+  const working = on && last?.role === "assistant" ? last.id : undefined;
+  const drawn = useMemo(
+    () => ({ pod, notes, messages, working, open }),
+    [pod, notes, messages, working, open],
+  );
   const empty = messages.length === 0;
   return (
     <AssistantRuntimeProvider runtime={runtime}>
@@ -452,6 +401,7 @@ function Thread({
           <ThreadPrimitive.Messages
             components={{ UserMessage, AssistantMessage }}
           />
+          {on && <Working messages={messages} stoppable={busyNow} />}
         </ThreadPrimitive.Viewport>
         <div
           className="chat-chips mb-2 flex min-h-0 flex-[0_1_auto] flex-wrap gap-[0.4rem] overflow-auto"
@@ -482,12 +432,6 @@ function Thread({
           <ComposerPrimitive.Send className="chat-send" hidden={busyNow}>
             Send
           </ComposerPrimitive.Send>
-          <ComposerPrimitive.Cancel
-            className={`${quiet} chat-stop`}
-            hidden={!busyNow}
-          >
-            Stop
-          </ComposerPrimitive.Cancel>
         </ComposerPrimitive.Root>
       </DrawnContext.Provider>
     </AssistantRuntimeProvider>
