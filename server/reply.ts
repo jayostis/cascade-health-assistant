@@ -54,7 +54,7 @@ export function askAgain({ checked }: Replied): string | undefined {
   )
     return undefined;
   if (why === RECOMMENDS)
-    return `Your reply says "recommend" in your own words. A record's recommendation is given only in its words, inside quotation marks, as a fact's quote. ${AGAIN}`;
+    return `Your reply says "recommend" in your own words. A record's recommendation is given only in its words, inside double quotation marks, as a fact's quote, in every text of the reply. ${AGAIN}`;
   return `Your reply could not be checked: ${checked.errors.join("; ")}. ${AGAIN}`;
 }
 
