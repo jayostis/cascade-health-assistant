@@ -351,6 +351,9 @@ test("the model is asked in the runtime's contract, and told to ask, not to reco
   expect(system).toContain("Reply, and nothing else, as JSON");
   expect(system).not.toContain("the command printed");
   expect(system).toContain("Never say that you recommend");
+  expect(system).toContain(
+    "A record's recommendation is given only in its words",
+  );
   expect(options.tools?.map(({ name }) => name)).toContain("ask");
 });
 
