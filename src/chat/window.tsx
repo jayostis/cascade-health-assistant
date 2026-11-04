@@ -249,10 +249,16 @@ function Thread({
       }),
     [address, context],
   );
+  /** That the server is asking the model for its answer again, a part sent to the page and never kept. */
+  const [checking, setChecking] = useState(false);
   const chat = useChat<UIMessage>({
     id,
     messages: kept.messages as UIMessage[],
     transport,
+    onError: () => setChecking(false),
+    onData: ({ type }) => {
+      if (type === "data-checking") setChecking(true);
+    },
     onToolCall: ({ toolCall }) => {
       const { toolName, toolCallId } = toolCall;
       void run(toolName, toolCall.input as ToolInput).then((answer) => {
@@ -284,6 +290,7 @@ function Thread({
       return true;
     },
     onFinish: ({ message, messages, isAbort, isError }) => {
+      setChecking(false);
       failed.current = isError || isAbort;
       if (!isAbort) return;
       const at = noteAt(message, messages);
@@ -299,6 +306,9 @@ function Thread({
   useEffect(() => {
     latest.current.running(busyNow);
   }, [busyNow]);
+  useEffect(() => {
+    if (status === "submitted") setChecking(false);
+  }, [status]);
   useEffect(() => {
     if (status === "submitted") latest.current.asking();
     if (status === "streaming") return;
@@ -401,7 +411,11 @@ function Thread({
           <ThreadPrimitive.Messages
             components={{ UserMessage, AssistantMessage }}
           />
-          {on && <Working messages={messages} stoppable={busyNow} />}
+          {on && <Working
+              messages={messages}
+              stoppable={busyNow}
+              checking={checking && busyNow}
+            />}
         </ThreadPrimitive.Viewport>
         <div
           className="chat-chips mb-2 flex min-h-0 flex-[0_1_auto] flex-wrap gap-[0.4rem] overflow-auto"

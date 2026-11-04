@@ -164,8 +164,15 @@ export function stepSaid(step: Step): string {
   return step.state === "failed" ? `${text}, which gave nothing` : text;
 }
 
-/** What the model is doing now: the step still running, else that it has what it asked for and is writing the answer. */
-export function workingSaid(messages: readonly UIMessage[]): string {
+/**
+ * What the model is doing now: the step still running, else that it has what it asked for and is writing the answer,
+ * or, once the server says it is asking for the answer again (`checking`), that the answer is being checked.
+ */
+export function workingSaid(
+  messages: readonly UIMessage[],
+  checking = false,
+): string {
+  if (checking) return "Checking the answer against the records";
   const last = messages.at(-1);
   const steps = last?.role === "assistant" ? stepsOf(last) : [];
   const running = steps.find(({ state }) => state === "working");

@@ -2,7 +2,7 @@ import type { UIMessage } from "ai";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import { sideSaid, stepSaid, stepsOf, workingSaid, type Found } from "./steps.ts";
-import { LookedAt } from "./turn.tsx";
+import { LookedAt, Working } from "./turn.tsx";
 
 const row = (side: "before" | "after", value: string, day: string) => ({
   entry: `e-${side}-${value}`,
@@ -117,6 +117,21 @@ describe("what a turn says while the model works", () => {
     expect(
       workingSaid([user, turn(call("timeline", { pod: "p" }, []))]),
     ).toBe("Putting the answer together");
+  });
+
+  test("while the server asks for the answer again it says the answer is being checked, in the line the person sees", () => {
+    const done = [user, turn(call("timeline", { pod: "p" }, []))];
+    expect(workingSaid(done, true)).toBe(
+      "Checking the answer against the records",
+    );
+    expect(
+      renderToStaticMarkup(
+        <Working messages={done} stoppable={false} checking />,
+      ),
+    ).toContain("Checking the answer against the records…");
+    expect(
+      renderToStaticMarkup(<Working messages={done} stoppable={false} />),
+    ).toContain("Putting the answer together…");
   });
 });
 

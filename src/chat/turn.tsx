@@ -18,16 +18,18 @@ import {
 export function Working({
   messages,
   stoppable,
+  checking = false,
 }: {
   messages: readonly UIMessage[];
   stoppable: boolean;
+  checking?: boolean;
 }) {
   return (
     <div
       className="working flex items-baseline gap-3 text-[0.9rem] text-muted"
       role="status"
     >
-      <span>{workingSaid(messages)}…</span>
+      <span>{workingSaid(messages, checking)}…</span>
       {stoppable && (
         <ComposerPrimitive.Cancel
           className={`${quiet} chat-stop px-[0.7rem] py-[0.1rem]`}

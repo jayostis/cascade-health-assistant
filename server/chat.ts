@@ -6,7 +6,7 @@
 // The model replies in `cascade-runtime`'s contract (`reply.ts`): points that cite entries by handle, never copying a
 // value. When it has stopped, its last words are checked against the pod, with the tool calls this request ran, and the
 // stream ends with the answer as a text part and the checked reply as a `data-reply` part. The JSON the model wrote is
-// not streamed.
+// not streamed. A reply that could not be checked for a fault of the model's is asked for once more, with why.
 import {
   convertToModelMessages,
   createUIMessageStreamResponse,
@@ -15,6 +15,7 @@ import {
   type JSONSchema7,
   jsonSchema,
   type JSONValue,
+  type ModelMessage,
   NoSuchToolError,
   Output,
   streamText,
@@ -43,7 +44,14 @@ import { podPath, trendPath } from "../pods.ts";
 import { CHANGED, changeSaid, entryId } from "../said.ts";
 import { TOOLS } from "../tools.ts";
 import type { ChatServed } from "./app.ts";
-import { asker, CONTRACT, podOf, type Replied, repliedTo } from "./reply.ts";
+import {
+  askAgain,
+  asker,
+  CONTRACT,
+  podOf,
+  type Replied,
+  repliedTo,
+} from "./reply.ts";
 
 /** How many rounds of tool calls a chat runs before the model must answer. */
 export const MAX_ROUNDS = 6;
@@ -57,7 +65,7 @@ export const RULES = `You answer questions about the health records in the pods 
 Every number, date and name you give comes from a tool's result, never from memory or estimate. Say when a tool finds nothing.
 A finding says what changed after what: a test's results were lower or higher after a medication started or stopped. It never says why, never that the medication caused the change, and never advice about what to do. A clinician can say why.
 A record's date is a fact of the record. Never call a date "in the future" or "in the past" because of what you believe the date today to be.
-Never say that you recommend anything: offer what the person might ask their clinician as questions.
+Never say that you recommend anything: offer what the person might ask their clinician as questions. A record's recommendation is given only in its words, inside double quotation marks, as the quote of a fact that cites it, in every text of your reply: never "recommended" or "recommends" in your own words, not even of what a clinician recommended.
 Write every text of your reply as plain text with no links and no markdown. The app shows a finding's rows under your answer, and open_trend, open_entry and open_pod move the app to a page: use them when the person asks to see something.
 
 A person's records are read with the ask tool: with the pod's name and format "compact", and no question, it gives the whole pod a page at a time, each entry by a short handle and each source by a short name its legend explains. Ask again with the page's next input until there is none. You cite an entry by its handle.
@@ -509,6 +517,21 @@ const spent = () =>
     },
   });
 
+/**
+ * The bound on a reply asked for again: it only rewrites points the model has already worked out, so a runaway one is
+ * cut short rather than paid for twice.
+ */
+const REPAIR_MAX_TOKENS = 16_000;
+
+/** `tools` offered and never run: a call to one in a reply asked for again ends it with no reply. */
+const unrun = (tools: ToolSet): ToolSet =>
+  Object.fromEntries(
+    Object.entries(tools).map(([name, { execute: _execute, ...offered }]) => [
+      name,
+      offered,
+    ]),
+  ) as ToolSet;
+
 /** The parts of a reply the page is sent: its text, then the reply checked as a `data-reply` part. */
 function replyParts({ answer, checked }: Replied): UIMessageChunk[] {
   const id = `reply-${randomUUID()}`;
@@ -525,12 +548,12 @@ function replyParts({ answer, checked }: Replied): UIMessageChunk[] {
  * calls past `MAX_ROUNDS` as an error, and the model's last words, once it has stopped, as `replying` makes them of
  * the reply (the text it wrote is JSON, which the page is not sent), each before the stream's `finish`. `earlier` steps
  * of the question were made already; the tool chunks of every step after the `MAX_ROUNDS`th are dropped, so that the
- * page runs no tool past it.
+ * page runs no tool past it. A reply asked for again is preceded by a transient `data-checking` part, so the page can say so.
  */
 function ending(
   stream: ReadableStream<UIMessageChunk>,
   earlier: number,
-  replying: (said: string) => Promise<Replied>,
+  replying: (said: string, announce: () => void) => Promise<Replied>,
 ) {
   let steps = earlier;
   let said = "";
@@ -554,7 +577,15 @@ function ending(
             chunk.finishReason !== "tool-calls" &&
             chunk.finishReason !== "error"
           )
-            for (const part of replyParts(await replying(said)))
+            for (const part of replyParts(
+              await replying(said, () =>
+                controller.enqueue({
+                  type: "data-checking",
+                  data: {},
+                  transient: true,
+                }),
+              ),
+            ))
               controller.enqueue(part);
         }
         controller.enqueue(chunk);
@@ -629,22 +660,49 @@ export function chatRoutes({
           const earlier = stepsBefore(body.messages);
           if (earlier > MAX_ROUNDS)
             return createUIMessageStreamResponse({ stream: spent() });
-          const result = streamText({
+          const asked = {
             model: model.language(),
             instructions: instructionsOf(body),
-            messages: await convertToModelMessages(body.messages, { tools }),
-            tools,
             output: Output.object({
               schema: jsonSchema<unknown>(
                 replySchema as unknown as JSONSchema7,
               ),
               name: "reply",
             }),
-            stopWhen: isStepCount(MAX_ROUNDS + 1 - earlier),
             maxRetries: 0,
             abortSignal: c.req.raw.signal,
             onError: () => {},
+          };
+          const messages = await convertToModelMessages(body.messages, {
+            tools,
           });
+          let made: ModelMessage[] = [];
+          const result = streamText({
+            ...asked,
+            messages,
+            tools,
+            stopWhen: isStepCount(MAX_ROUNDS + 1 - earlier),
+            onStepFinish: ({ response }) => {
+              made = [...made, ...response.messages];
+            },
+          });
+          const again = async (text: string) => {
+            try {
+              return await streamText({
+                ...asked,
+                messages: [
+                  ...messages,
+                  ...made,
+                  { role: "user", content: text },
+                ],
+                tools: unrun(tools),
+                maxOutputTokens: REPAIR_MAX_TOKENS,
+              }).text;
+            } catch (error) {
+              console.error(error);
+              return undefined;
+            }
+          };
           return createUIMessageStreamResponse({
             stream: ending(
               result.toUIMessageStream({
@@ -652,13 +710,21 @@ export function chatRoutes({
                 onError: errorText(model),
               }),
               earlier,
-              (said) => {
+              async (said, announce) => {
                 const pod = podOf(body.pod, ran);
-                return repliedTo(said, {
+                const checking = {
                   ask:
                     pod === undefined ? undefined : asker(rowsOfPod(api, pod)),
                   ran,
-                });
+                };
+                const replied = await repliedTo(said, checking);
+                const why = askAgain(replied);
+                if (why === undefined) return replied;
+                announce();
+                const saidAgain = await again(why);
+                if (saidAgain === undefined) return replied;
+                const second = await repliedTo(saidAgain, checking);
+                return second.checked.errors.length === 0 ? second : replied;
               },
             ),
           });
