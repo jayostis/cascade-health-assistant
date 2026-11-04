@@ -83,9 +83,15 @@ export function podOf(open: string, ran: readonly Ran[]): string | undefined {
   return named.size === 1 ? [...named][0] : undefined;
 }
 
-/** `rows`, a pod's answer to a question, as the checker asks it: each question is read once. */
+/**
+ * `rows`, a pod's answer to a question, as the checker asks it: each question is read once, so that a pod that cannot be
+ * read rejects one promise every part of the check awaits (the checker asks the same question from two places, and
+ * would leave a second promise's rejection unhandled, which ends the process).
+ */
 export function asker(
-  rows: (question: string) => Promise<readonly Readonly<Record<string, string>>[]>,
+  rows: (
+    question: string,
+  ) => Promise<readonly Readonly<Record<string, string>>[]>,
 ): PodAsker["ask"] {
   const read = new Map<string, ReturnType<typeof rows>>();
   return (question) => {

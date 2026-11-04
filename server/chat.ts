@@ -38,13 +38,7 @@ import { podPath, trendPath } from "../pods.ts";
 import { CHANGED, changeSaid, entryId } from "../said.ts";
 import { TOOLS } from "../tools.ts";
 import type { ChatServed } from "./app.ts";
-import {
-  asker,
-  CONTRACT,
-  podOf,
-  type Replied,
-  repliedTo,
-} from "./reply.ts";
+import { asker, CONTRACT, podOf, type Replied, repliedTo } from "./reply.ts";
 
 /** How many rounds of tool calls a chat runs before the model must answer. */
 export const MAX_ROUNDS = 6;
@@ -636,7 +630,9 @@ export function chatRoutes({
             messages: await convertToModelMessages(body.messages, { tools }),
             tools,
             output: Output.object({
-              schema: jsonSchema<unknown>(replySchema as unknown as JSONSchema7),
+              schema: jsonSchema<unknown>(
+                replySchema as unknown as JSONSchema7,
+              ),
               name: "reply",
             }),
             stopWhen: isStepCount(MAX_ROUNDS + 1 - earlier),
@@ -654,7 +650,8 @@ export function chatRoutes({
               (said) => {
                 const pod = podOf(body.pod, ran);
                 return repliedTo(said, {
-                  ask: pod === undefined ? undefined : asker(rowsOfPod(api, pod)),
+                  ask:
+                    pod === undefined ? undefined : asker(rowsOfPod(api, pod)),
                   ran,
                 });
               },

@@ -8,13 +8,14 @@ import type {
 import { MockLanguageModelV4 } from "ai/test";
 import type { CheckedReply, Reply } from "cascade-runtime";
 import { replySchema } from "cascade-runtime";
-import { afterAll, beforeAll, expect, test } from "vitest";
+import { afterAll, beforeAll, expect, test, vi } from "vitest";
 import type { Model } from "../models.ts";
 import { nodeHost } from "../node-host.ts";
 import { podApi } from "../pod-api.ts";
 import { loadSample, SAMPLE } from "../sample.ts";
 import { appServer } from "../server/app.ts";
 import { chatRoutes } from "../server/chat.ts";
+import { asker, repliedTo } from "../server/reply.ts";
 
 const ORIGIN = "http://app.test";
 const POD = SAMPLE.pod;
@@ -44,7 +45,10 @@ const finish = (unified: "stop" | "tool-calls") =>
 const streamOf = (parts: LanguageModelV4StreamPart[]) => ({
   stream: new ReadableStream<LanguageModelV4StreamPart>({
     start(controller) {
-      for (const part of [{ type: "stream-start", warnings: [] }, ...parts] as LanguageModelV4StreamPart[])
+      for (const part of [
+        { type: "stream-start", warnings: [] },
+        ...parts,
+      ] as LanguageModelV4StreamPart[])
         controller.enqueue(part);
       controller.close();
     },
@@ -103,11 +107,11 @@ const user = (text: string) => ({
   parts: [{ type: "text", text }],
 });
 
-async function chat(messages: object[]) {
+async function chat(messages: object[], pod: string = POD) {
   const response = await app.request(`${ORIGIN}/chat`, {
     method: "POST",
     headers: { origin: ORIGIN, "content-type": "application/json" },
-    body: JSON.stringify({ pod: POD, page: `/pods/${POD}/`, messages }),
+    body: JSON.stringify({ pod, page: `/pods/${pod}/`, messages }),
   });
   expect(response.status).toBe(200);
   const chunks: { type: string; [key: string]: unknown }[] = (
@@ -117,8 +121,7 @@ async function chat(messages: object[]) {
     .filter((event) => event.startsWith("data: {"))
     .map((event) => JSON.parse(event.slice("data: ".length)));
   const checked = chunks.find(({ type }) => type === "data-reply")?.data as
-    | CheckedReply
-    | undefined;
+    CheckedReply | undefined;
   const text = chunks
     .filter(({ type }) => type === "text-delta")
     .map(({ delta }) => delta)
@@ -129,7 +132,9 @@ async function chat(messages: object[]) {
 /** Where `reply` says "recommend" in its own voice: in its answer, short, or an item's says, why or knowledge, outside a quote. */
 function recommending(reply: Reply) {
   const quotes = reply.items.flatMap(({ facts = [] }) =>
-    facts.flatMap((fact) => ("quote" in fact && fact.quote ? [fact.quote] : [])),
+    facts.flatMap((fact) =>
+      "quote" in fact && fact.quote ? [fact.quote] : [],
+    ),
   );
   const outside = (text: string) =>
     quotes.reduce((rest, quote) => rest.replaceAll(quote, ""), text);
@@ -191,15 +196,21 @@ test("a reply naming a handle the pod holds and one it does not comes back with 
 
 test.each([
   ["is not JSON", "Her A1c was high in June."],
-  ["is JSON that breaks the contract", JSON.stringify({ answer: "Her A1c was high in June." })],
-])("a reply that %s comes back as text with no citations and the reasons it was not checked", async (_, said) => {
-  modelSays(says(said));
-  const { checked, text } = await chat([user("How is my A1c?")]);
-  expect(checked!.errors.length).toBeGreaterThan(0);
-  expect(checked!.reply).toBeUndefined();
-  expect(checked!.items).toEqual([]);
-  expect(text).toBe("Her A1c was high in June.");
-});
+  [
+    "is JSON that breaks the contract",
+    JSON.stringify({ answer: "Her A1c was high in June." }),
+  ],
+])(
+  "a reply that %s comes back as text with no citations and the reasons it was not checked",
+  async (_, said) => {
+    modelSays(says(said));
+    const { checked, text } = await chat([user("How is my A1c?")]);
+    expect(checked!.errors.length).toBeGreaterThan(0);
+    expect(checked!.reply).toBeUndefined();
+    expect(checked!.items).toEqual([]);
+    expect(text).toBe("Her A1c was high in June.");
+  },
+);
 
 test("an absence is backed by the calls this request ran, never by a tool's output the page sends back", async () => {
   const procedures = { pod: POD, question: "pod/My procedures" };
@@ -243,6 +254,44 @@ test("an absence is backed by the calls this request ran, never by a tool's outp
   });
 });
 
+test("with no pod open, the pod the model read is the one the reply is checked against, and with none read it is not checked", async () => {
+  const cited = replyOf([
+    point([{ says: "Her A1c", cite: { entry: A1C }, field: "value" }]),
+  ]);
+  modelSays(
+    calls("ask", { pod: POD, question: "pod/My procedures" }),
+    says(cited),
+  );
+  const read = await chat([user("How is my A1c?")], "");
+  expect(read.checked!.items[0]!.facts[0]!.verdict.ok).toBe(true);
+
+  modelSays(says(cited));
+  const unread = await chat([user("How is my A1c?")], "");
+  expect(unread.checked).toMatchObject({ items: [] });
+  expect(unread.checked!.errors).toHaveLength(1);
+  expect(unread.text).toBe("Her A1c was 6.6 % in June.");
+});
+
+test("a pod that cannot be read leaves the reply unchecked, with its answer", async () => {
+  const error = vi.spyOn(console, "error").mockImplementation(() => {});
+  const { answer, checked } = await repliedTo(
+    replyOf([point([{ says: "x", cite: { entry: A1C }, field: "value" }])]),
+    {
+      ask: asker(() => Promise.reject(new Error("the pod is locked"))),
+      ran: [],
+    },
+  );
+  error.mockRestore();
+  expect(answer).toBe("Her A1c was 6.6 % in June.");
+  expect(checked.errors).toHaveLength(1);
+  expect(checked.items).toEqual([]);
+});
+
+test("a model that says nothing is shown as having given no reply", async () => {
+  const { answer } = await repliedTo("  ", { ask: undefined, ran: [] });
+  expect(answer).toBe("The model gave no reply.");
+});
+
 test("the model is asked in the runtime's contract, and told to ask, not to recommend", async () => {
   modelSays(says(replyOf([])));
   await chat([user("What should I ask?")]);
@@ -281,9 +330,7 @@ test("a reply says 'recommend' only inside a quote of the records", async () => 
       ],
     }) satisfies Reply;
   const report = "Repeat colonoscopy in 10 years; we recommend a sooner visit.";
-  expect(
-    recommending(reply("The report says: " + report, report)),
-  ).toEqual([]);
+  expect(recommending(reply("The report says: " + report, report))).toEqual([]);
   expect(recommending(reply("I recommend a sooner visit."))).toHaveLength(2);
 });
 
