@@ -40,33 +40,53 @@ export function Working({
 }
 
 /** A finding that has a direction, as one line of what was looked at: the app's sentence and the two sides' numbers. */
-function Compact({ found }: { found: Found }) {
+function Compact({
+  found,
+  open,
+}: {
+  found: Found;
+  open: (address: string) => void;
+}) {
   const [before, after] = sidesSaid(found);
+  const { view } = found;
   return (
     <li className="finding">
       <span className="said">{found.said}</span>
       <span className={`${muted} block`}>
         {before}. {after}.
       </span>
+      {view !== undefined && (
+        <button type="button" className={quiet} onClick={() => open(view)}>
+          Open the trend
+        </button>
+      )}
     </li>
   );
 }
 
 /** The findings of a `find_changes` step: those with a direction one line each, the rest together in one quiet line. */
-function Findings({ found }: { found: readonly Found[] }) {
+function Findings({
+  found,
+  open,
+}: {
+  found: readonly Found[];
+  open: (address: string) => void;
+}) {
   const thin = found.filter(isThin);
   const medications = [...new Set(thin.map((each) => each.medication.name))];
-  const tests = [
+  const named = [
     ...new Set(
-      thin.map((each) => each.test.name ?? each.test.notation ?? each.test.code),
+      thin.flatMap((each) => each.test.name ?? each.test.notation ?? []),
     ),
   ];
+  const unnamed = thin.some((each) => !(each.test.name ?? each.test.notation));
+  const tests = unnamed ? [...named, "a test"] : named;
   return (
     <ul className="my-1 ml-4 list-disc pl-2">
       {found
         .filter((each) => !isThin(each))
         .map((each) => (
-          <Compact key={each.key} found={each} />
+          <Compact key={each.key} found={each} open={open} />
         ))}
       {thin.length > 0 && (
         <li className={`thin ${muted}`}>
@@ -78,18 +98,30 @@ function Findings({ found }: { found: readonly Found[] }) {
   );
 }
 
-function StepLine({ step }: { step: Step }) {
+function StepLine({
+  step,
+  open,
+}: {
+  step: Step;
+  open: (address: string) => void;
+}) {
   const found = foundIn(step);
   return (
     <li className="step">
       {stepSaid(step)}
-      {found.length > 0 && <Findings found={found} />}
+      {found.length > 0 && <Findings found={found} open={open} />}
     </li>
   );
 }
 
 /** Folded after the answer: the steps the model took to give it, each in words, a change it found in one compact line. */
-export function LookedAt({ message }: { message: UIMessage | undefined }) {
+export function LookedAt({
+  message,
+  open,
+}: {
+  message: UIMessage | undefined;
+  open: (address: string) => void;
+}) {
   const steps = stepsOf(message);
   if (steps.length === 0) return null;
   return (
@@ -99,7 +131,7 @@ export function LookedAt({ message }: { message: UIMessage | undefined }) {
       </summary>
       <ul className="my-1 ml-4 list-disc pl-2">
         {steps.map((step, at) => (
-          <StepLine key={at} step={step} />
+          <StepLine key={at} step={step} open={open} />
         ))}
       </ul>
     </details>

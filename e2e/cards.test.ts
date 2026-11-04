@@ -53,7 +53,37 @@ const thin = (test: string, code: string) => ({
     },
   ],
 });
+/** A change with a direction, whose trend the fold opens. */
+const rose = {
+  key: "tsh-levothyroxine",
+  kind: "medication-started",
+  direction: "higher",
+  said: "Thyrotropin went up after levothyroxine.",
+  unit: "mIU/L",
+  view: `/pods/${POD}/trend?test=3016-3`,
+  test: { code: "3016-3", name: "Thyrotropin" },
+  medication: { name: "levothyroxine 50 MCG Oral Tablet" },
+  before: { count: 1, mean: 2.5, min: 2.5, max: 2.5 },
+  after: { count: 1, mean: 6.1, min: 6.1, max: 6.1 },
+  rows: [
+    {
+      entry: "row-before",
+      performed: "2026-01-06T08:00:00Z",
+      value: "2.50",
+      unit: "mIU/L",
+      side: "before",
+    },
+    {
+      entry: "row-after",
+      performed: "2026-03-06T08:00:00Z",
+      value: "6.10",
+      unit: "mIU/L",
+      side: "after",
+    },
+  ],
+};
 const LOOKED = [
+  rose,
   thin("Creatinine", "2160-0"),
   thin("Sodium", "2951-2"),
   thin("Potassium", "2823-3"),
@@ -179,4 +209,62 @@ test("a turn shows its progress, then the answer and its cards, with what it loo
     page.getByRole("heading", { name: "Where it came from" }),
   ).toBeVisible();
   await expect(page.getByText("Kestrel Harbor Hospital").first()).toBeVisible();
+
+  // A change with a direction is reached from the fold: Open the trend moves the app, the chat staying open.
+  await folded.locator("summary").click();
+  await expect(folded).toContainText(
+    "Before: mean 2.50 mIU/L over 1 result (2.50 to 2.50)",
+  );
+  await folded.getByRole("button", { name: "Open the trend" }).click();
+  await expect(page).toHaveURL(new RegExp(`/pods/${POD}/trend\\?test=3016-3$`));
+  await expect(folded).toBeVisible();
+});
+
+test("a reply tool part that never gets an output does not hold the turn on 'Using reply': the answer is drawn", async ({
+  page,
+}) => {
+  await page.route("**/chat", (route) =>
+    route.request().method() === "GET"
+      ? route.fulfill({
+          json: { provider: "test", name: "stub", local: true },
+        })
+      : route.fulfill({
+          status: 200,
+          headers: {
+            "content-type": "text/event-stream",
+            "x-vercel-ai-ui-message-stream": "v1",
+          },
+          body: toStream([
+            { type: "start", messageId: "reply-1" },
+            { type: "start-step" },
+            {
+              type: "tool-input-available",
+              toolCallId: "call-reply",
+              toolName: "reply",
+              input: { items: [] },
+            },
+            { type: "text-start", id: "t1" },
+            {
+              type: "text-delta",
+              id: "t1",
+              delta: "Here is what I would raise.",
+            },
+            { type: "text-end", id: "t1" },
+            { type: "data-reply", data: checked },
+            { type: "finish-step" },
+            { type: "finish" },
+          ]),
+        }),
+  );
+  await page.goto(`/pods/${POD}/`);
+  await expect(page.locator("body")).toHaveAttribute("data-state", "ready");
+  await page.getByLabel("Ask a question").fill("What should I bring up?");
+  await page.getByRole("button", { name: "Send" }).click();
+
+  await expect(page.getByText("Here is what I would raise.")).toBeVisible();
+  await expect(page.locator(".chat .point").first()).toBeVisible();
+  await expect(page.locator(".chat .working")).toHaveCount(0);
+  await expect(page.locator(".chat")).not.toContainText("Using reply");
+  await expect(page.locator(".chat .looked-at")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Send" })).toBeVisible();
 });

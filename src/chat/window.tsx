@@ -27,7 +27,7 @@ import {
   type RefObject,
 } from "react";
 import type { CheckedReply } from "cascade-runtime";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import {
   firstQuestion,
   maps,
@@ -38,7 +38,7 @@ import {
   type ToolInput,
   type VariantsSaid,
 } from "../../said.ts";
-import { useAddress } from "../address.tsx";
+import { routed, useAddress } from "../address.tsx";
 import { type ChatModel, useHost } from "../api.tsx";
 import type { Asked } from "../ask.tsx";
 import { muted, quiet } from "../look.ts";
@@ -56,7 +56,7 @@ import {
   type Note,
 } from "./chats.ts";
 import { ReplyCards } from "./reply.tsx";
-import { stepsOf } from "./steps.ts";
+import { isPageStep, stepsOf } from "./steps.ts";
 import { usePageTools } from "./tools.ts";
 import { LookedAt, Working } from "./turn.tsx";
 
@@ -72,6 +72,7 @@ interface Drawn {
   readonly notes: Readonly<Record<string, Note>>;
   readonly messages: readonly UIMessage[];
   readonly working: string | undefined;
+  readonly open: (address: string) => void;
 }
 
 const DrawnContext = createContext<Drawn>({
@@ -79,6 +80,7 @@ const DrawnContext = createContext<Drawn>({
   notes: {},
   messages: [],
   working: undefined,
+  open: () => {},
 });
 
 const STOPPED = "stopped text-[0.9rem] text-muted";
@@ -130,7 +132,7 @@ function UserMessage() {
 /** The answer, then the reply's cards, then what the model looked at folded: nothing of it until the model is done. */
 function AssistantMessage() {
   const id = useAuiState(({ message }) => message.id);
-  const { messages, working } = useContext(DrawnContext);
+  const { messages, working, open } = useContext(DrawnContext);
   if (working === id) return null;
   return (
     <>
@@ -145,7 +147,10 @@ function AssistantMessage() {
             },
           }}
         />
-        <LookedAt message={messages.find((each) => each.id === id)} />
+        <LookedAt
+          message={messages.find((each) => each.id === id)}
+          open={open}
+        />
         <Noted inside />
       </MessagePrimitive.Root>
       <Noted inside={false} />
@@ -194,6 +199,7 @@ function Thread({
   running,
   asking,
   opened,
+  open,
   sender,
 }: {
   kept: Kept;
@@ -208,6 +214,7 @@ function Thread({
   running: (on: boolean) => void;
   asking: () => void;
   opened: () => void;
+  open: (address: string) => void;
   sender: RefObject<((text: string) => void) | undefined>;
 }) {
   const address = useAddress();
@@ -356,12 +363,14 @@ function Thread({
     status !== "error" &&
     last?.role === "assistant" &&
     notes[last.id] === undefined &&
-    stepsOf(last).some(({ state }) => state === "working");
+    stepsOf(last).some(
+      (step) => step.state === "working" && isPageStep(step),
+    );
   const on = busyNow || between;
   const working = on && last?.role === "assistant" ? last.id : undefined;
   const drawn = useMemo(
-    () => ({ pod, notes, messages, working }),
-    [pod, notes, messages, working],
+    () => ({ pod, notes, messages, working, open }),
+    [pod, notes, messages, working, open],
   );
   const empty = messages.length === 0;
   return (
@@ -481,6 +490,7 @@ function usePodChat(pod: string) {
 
 /** The window of a host whose chat names a model: the bar, the open chat, Recent chats; the strip's behaviour, kept. */
 function Window({ model, pod }: { model: ChatModel; pod: string }) {
+  const navigate = useNavigate();
   const { sealed, suggestions } = usePodChat(pod);
   const known = useRef(sealed);
   known.current = sealed;
@@ -508,9 +518,10 @@ function Window({ model, pod }: { model: ChatModel; pod: string }) {
   const [recent, setRecent] = useState(false);
   const [running, setRunning] = useState(false);
   const following = useRef(false);
-  const now = useRef({ running, first });
+  const at = pathname + search;
+  const now = useRef({ running, first, at });
   useLayoutEffect(() => {
-    now.current = { running, first };
+    now.current = { running, first, at };
   });
 
   const fold = useCallback((to: boolean) => {
@@ -618,6 +629,16 @@ function Window({ model, pod }: { model: ChatModel; pod: string }) {
     following.current = true;
   }, []);
   const sender = useRef<(text: string) => void>(undefined);
+
+  const open = useCallback(
+    (address: string) => {
+      const to = routed(new URL(address, location.href));
+      if (now.current.running || to === now.current.at) return;
+      following.current = true;
+      void navigate(to);
+    },
+    [navigate],
+  );
 
   const begin = useCallback(
     (context?: Asked, label?: string, question?: string) => {
@@ -737,6 +758,7 @@ function Window({ model, pod }: { model: ChatModel; pod: string }) {
         running={setRunning}
         asking={unfold}
         opened={opened}
+        open={open}
         sender={sender}
       />
     </section>

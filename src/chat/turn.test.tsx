@@ -18,6 +18,7 @@ const creatinine: Found = {
   said: "Creatinine went up after lisinopril.",
   direction: "higher",
   unit: "mg/dL",
+  view: "/pods/p/trend?test=2160-0",
   test: { code: "2160-0", name: "Creatinine" },
   medication: { name: "lisinopril 10 MG Oral Tablet" },
   before: { count: 1, mean: 0.88, min: 0.88, max: 0.88 },
@@ -45,6 +46,7 @@ const thin = (test: string, code: string): Found => ({
   key: `thin-${code}`,
   direction: "not enough results",
   unit: "mg/dL",
+  view: `/pods/p/trend?test=${code}`,
   test: { code, name: test },
   medication: { name: "ondansetron 4 MG Disintegrating Oral Tablet" },
   before: { count: 0, mean: 0, min: 0, max: 0 },
@@ -101,6 +103,16 @@ describe("what a turn says while the model works", () => {
     expect(stepSaid(step!)).toBe("Looking at lab results after medications");
   });
 
+  test("the reply tool is not a step: it never runs on the page, so it is not working and it is not listed", () => {
+    const withReply = turn(call("reply", { items: [] }));
+    expect(stepsOf(withReply)).toEqual([]);
+    expect(workingSaid([user, withReply])).toBe("Reading the question");
+    expect(
+      workingSaid([user, turn(call("timeline", { pod: "p" }, []), call("reply", { items: [] }))]),
+    ).toBe("Putting the answer together");
+    expect(renderToStaticMarkup(<LookedAt message={withReply} open={() => {}} />)).toBe("");
+  });
+
   test("once every tool has answered it says the answer is being put together", () => {
     expect(
       workingSaid([user, turn(call("timeline", { pod: "p" }, []))]),
@@ -110,7 +122,7 @@ describe("what a turn says while the model works", () => {
 
 describe("what it looked at, folded after the answer", () => {
   const html = (...parts: UIMessage["parts"]) =>
-    renderToStaticMarkup(<LookedAt message={turn(...parts)} />);
+    renderToStaticMarkup(<LookedAt message={turn(...parts)} open={() => {}} />);
 
   test("a turn with no tool call has no fold", () => {
     expect(html()).toBe("");
@@ -132,13 +144,26 @@ describe("what it looked at, folded after the answer", () => {
     expect(html(call("list_pods", {}, { pods: [] }))).toContain("(1 step)");
   });
 
-  test("a finding with a direction is one compact line: the app's sentence and its numbers, no card", () => {
+  test("a finding with a direction is one compact line: the app's sentence, its numbers and Open the trend, no card", () => {
     const drawn = html(call("find_changes", { pod: "p" }, [creatinine]));
     expect(drawn).toContain("Creatinine went up after lisinopril.");
     expect(drawn).toContain("Before: mean 0.88 mg/dL over 1 result (0.88 to 0.88)");
     expect(drawn).not.toContain("card");
-    expect(drawn).not.toContain("Open the trend");
+    expect(drawn.match(/Open the trend/g)).toHaveLength(1);
     expect(drawn).not.toContain("<a ");
+  });
+
+  test("a change with not enough results has no trend to open", () => {
+    expect(html(call("find_changes", { pod: "p" }, [thin("Sodium", "2951-2")]))).not.toContain(
+      "Open the trend",
+    );
+  });
+
+  test("a test with neither a name nor a notation is said as a test, never by its code", () => {
+    const bare: Found = { ...thin("x", "2345-7"), test: { code: "2345-7" } };
+    const drawn = html(call("find_changes", { pod: "p" }, [bare]));
+    expect(drawn).toContain("Not enough results to compare: a test around");
+    expect(drawn).not.toContain("2345-7");
   });
 
   test("a change with not enough results is one quiet line listing the tests, never a card each", () => {
@@ -175,13 +200,19 @@ describe("a side's numbers keep the results' precision", () => {
     ).toBe("After: mean 142.3 mmol/L over 3 results (140 to 145)");
   });
 
+  test("results 1.10 and 1.30 keep their written decimals: the mean 1.20 and the range 1.10 to 1.30", () => {
+    expect(
+      sideSaid("Before", { count: 2, mean: 1.2, min: 1.1, max: 1.3 }, "mg/dL", ["1.10", "1.30"]),
+    ).toBe("Before: mean 1.20 mg/dL over 2 results (1.10 to 1.30)");
+  });
+
   test("a side with no results says so", () => {
     expect(sideSaid("Before", thin("x", "1").before, "mg/dL", [])).toBe("Before: no results");
   });
 
   test("a compact finding draws both sides from its own rows", () => {
     const drawn = renderToStaticMarkup(
-      <LookedAt message={turn(call("find_changes", { pod: "p" }, [together]))} />,
+      <LookedAt message={turn(call("find_changes", { pod: "p" }, [together]))} open={() => {}} />,
     );
     expect(drawn).toContain("Before: mean 0.95 mg/dL over 2 results (0.88 to 1.02)");
     expect(drawn).toContain("After: mean 1.5 mg/dL over 1 result (1.5 to 1.5)");

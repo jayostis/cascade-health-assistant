@@ -1,6 +1,7 @@
 // What a chat turn says of its own steps, in the app's words written from the tool's name and what it was given or
 // gave back, never the model's: the line shown while the model works, and the steps folded under its answer.
 import { getToolName, isToolUIPart, type UIMessage } from "ai";
+import { PAGE_TOOLS } from "../../said.ts";
 
 /** A tool call of a message: what it was called with, how far it got, and what it gave back. */
 export interface Step {
@@ -16,6 +17,7 @@ export interface Found {
   readonly said?: string;
   readonly direction?: string;
   readonly unit: string;
+  readonly view?: string;
   readonly test: {
     readonly code: string;
     readonly notation?: string;
@@ -40,10 +42,17 @@ export interface Side {
   readonly max: number;
 }
 
-/** The calls of `message` to tools, in the order made. */
+/** The tool that gives the answer itself: it looks at nothing, so it is no step of a turn. */
+const REPLY_TOOL = "reply";
+
+/** That the page, not the server, runs this step's tool. */
+export const isPageStep = ({ name }: Step) =>
+  PAGE_TOOLS.some((tool) => tool.name === name);
+
+/** The calls of `message` to tools that look at the pod or move the app, in the order made. */
 export function stepsOf(message: UIMessage | undefined): Step[] {
   return (message?.parts ?? []).flatMap((part) => {
-    if (!isToolUIPart(part)) return [];
+    if (!isToolUIPart(part) || getToolName(part) === REPLY_TOOL) return [];
     const input = part.input;
     return [
       {
@@ -181,8 +190,8 @@ export const isThin = ({ direction, said }: Found) =>
 const decimalsOf = (value: string) => /\.(\d+)/.exec(value)?.[1]?.length ?? 0;
 
 /**
- * A side as the app says it: the min and max are the results' own values, and the mean keeps at least their decimals
- * (and one), so that 0.88 and 1.02 give "mean 0.95 ... (0.88 to 1.02)". `values` are the side's results as written.
+ * A side as the app says it: the min and max are the results' own values as written, and the mean keeps at least their
+ * decimals (and one), so that 1.10 and 1.30 give "mean 1.20 ... (1.10 to 1.30)". `values` are the side's results as written.
  */
 export function sideSaid(
   name: string,
@@ -192,8 +201,11 @@ export function sideSaid(
 ) {
   if (side.count === 0) return `${name}: no results`;
   const decimals = Math.max(1, ...values.map(decimalsOf));
-  const mean = Number(side.mean.toFixed(decimals));
-  return `${name}: mean ${mean} ${unit} over ${side.count} ${side.count === 1 ? "result" : "results"} (${side.min} to ${side.max})`;
+  const mean = side.mean.toFixed(decimals);
+  const ordered = values.toSorted((a, b) => Number(a) - Number(b));
+  const min = ordered.at(0) ?? String(side.min);
+  const max = ordered.at(-1) ?? String(side.max);
+  return `${name}: mean ${mean} ${unit} over ${side.count} ${side.count === 1 ? "result" : "results"} (${min} to ${max})`;
 }
 
 /** A finding's two sides, each said with its own results' values. */
