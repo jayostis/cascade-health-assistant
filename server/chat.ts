@@ -2,6 +2,11 @@
 // runs the free reads of `tools.ts` for up to `MAX_ROUNDS` rounds; every other tool it offers goes to the page with
 // no server `execute`, so the page moves itself and asks the person before a write. `POST /chat` answers with the
 // AI SDK's UI message stream; `GET /chat` names the model.
+//
+// The model replies in `cascade-runtime`'s contract (`reply.ts`): points that cite entries by handle, never copying a
+// value. When it has stopped, its last words are checked against the pod, with the tool calls this request ran, and the
+// stream ends with the answer as a text part and the checked reply as a `data-reply` part. The JSON the model wrote is
+// not streamed.
 import {
   convertToModelMessages,
   createUIMessageStreamResponse,
@@ -47,7 +52,7 @@ const MAX_CHARACTERS = 100_000;
 const MAX_BODY_BYTES = 1024 * 1024;
 const MAX_CONTEXT = 200;
 
-/** The rules the model is given, apart from where the person is. */
+/** The rules the model is given, and the reply contract it answers in, apart from where the person is. */
 export const RULES = `You answer questions about the health records in the pods of this app, for the person who owns them.
 Every number, date and name you give comes from a tool's result, never from memory or estimate. Say when a tool finds nothing.
 A finding says what changed after what: a test's results were lower or higher after a medication started or stopped. It never says why, never that the medication caused the change, and never advice about what to do. A clinician can say why.
