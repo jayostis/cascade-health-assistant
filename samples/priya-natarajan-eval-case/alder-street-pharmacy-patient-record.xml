@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <realmCode code="US"/>
+  <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.2" extension="2015-08-01"/>
+  <id root="2.16.840.1.113883.19.5.4.1" extension="ASP-58821-20260714"/>
+  <code code="34133-9" displayName="Summarization of Episode Note" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+  <title>Alder Street Pharmacy Patient Record</title>
+  <effectiveTime value="20260714164508+0000"/>
+  <confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25"/>
+  <languageCode code="en-US"/>
+  <recordTarget>
+    <patientRole>
+      <id root="2.16.840.1.113883.19.5.4.2" extension="58821"/>
+      <addr use="HP">
+        <streetAddressLine>48 Alder Lane</streetAddressLine>
+        <city>Fernhill</city>
+        <state>WA</state>
+        <postalCode>98000</postalCode>
+        <country>US</country>
+      </addr>
+      <telecom use="MC" value="tel:+1(555)555-0148"/>
+      <patient>
+        <name use="L">
+          <given>Priya</given>
+          <family>Natarajan</family>
+        </name>
+        <administrativeGenderCode code="F" displayName="Female" codeSystem="2.16.840.1.113883.5.1" codeSystemName="AdministrativeGender"/>
+        <birthTime value="19681104"/>
+        <raceCode code="2028-9" displayName="Asian" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
+        <ethnicGroupCode code="2186-5" displayName="Not Hispanic or Latino" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
+        <languageCommunication>
+          <languageCode code="en"/>
+          <preferenceInd value="true"/>
+        </languageCommunication>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <author>
+    <time value="20260714164508+0000"/>
+    <assignedAuthor>
+      <id root="2.16.840.1.113883.19.5.4.3" extension="ASP-RX-SYSTEM"/>
+      <addr use="WP">
+        <streetAddressLine>21 Alder Street</streetAddressLine>
+        <city>Fernhill</city>
+        <state>WA</state>
+        <postalCode>98000</postalCode>
+        <country>US</country>
+      </addr>
+      <telecom use="WP" value="tel:+1(555)555-0215"/>
+      <assignedAuthoringDevice>
+        <manufacturerModelName>Alder Street Pharmacy System</manufacturerModelName>
+        <softwareName>Alder Street Pharmacy Online</softwareName>
+      </assignedAuthoringDevice>
+      <representedOrganization>
+        <id root="2.16.840.1.113883.19.5.4"/>
+        <name>Alder Street Pharmacy</name>
+        <telecom use="WP" value="tel:+1(555)555-0215"/>
+        <addr use="WP">
+          <streetAddressLine>21 Alder Street</streetAddressLine>
+          <city>Fernhill</city>
+          <state>WA</state>
+          <postalCode>98000</postalCode>
+          <country>US</country>
+        </addr>
+      </representedOrganization>
+    </assignedAuthor>
+  </author>
+  <custodian>
+    <assignedCustodian>
+      <representedCustodianOrganization>
+        <id root="2.16.840.1.113883.19.5.4"/>
+        <name>Alder Street Pharmacy</name>
+        <telecom use="WP" value="tel:+1(555)555-0215"/>
+        <addr use="WP">
+          <streetAddressLine>21 Alder Street</streetAddressLine>
+          <city>Fernhill</city>
+          <state>WA</state>
+          <postalCode>98000</postalCode>
+          <country>US</country>
+        </addr>
+      </representedCustodianOrganization>
+    </assignedCustodian>
+  </custodian>
+  <documentationOf>
+    <serviceEvent classCode="PCPR">
+      <effectiveTime>
+        <low value="20250923"/>
+        <high value="20260714"/>
+      </effectiveTime>
+    </serviceEvent>
+  </documentationOf>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1" extension="2015-08-01"/>
+          <code code="48765-2" displayName="Allergies and adverse reactions Document" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Allergies</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Substance</th><th>Reaction</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="ALRG1">
+                  <td ID="ALRG1-S">Aspirin</td>
+                  <td ID="ALRG1-R">Hives</td>
+                  <td>Active</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.30" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.4.4" extension="ASP-AC-58821-1"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20250923"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.4.4" extension="ASP-A-58821-1"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <text>
+                    <reference value="#ALRG1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="2016"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="416098002" displayName="Allergy to drug" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                  <participant typeCode="CSM">
+                    <participantRole classCode="MANU">
+                      <playingEntity classCode="MMAT">
+                        <code code="1191" displayName="aspirin" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                          <originalText>
+                            <reference value="#ALRG1-S"/>
+                          </originalText>
+                        </code>
+                      </playingEntity>
+                    </participantRole>
+                  </participant>
+                  <entryRelationship typeCode="MFST" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9" extension="2014-06-09"/>
+                      <id root="2.16.840.1.113883.19.5.4.4" extension="ASP-AR-58821-1"/>
+                      <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                      <text>
+                        <reference value="#ALRG1-R"/>
+                      </text>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="126485001" displayName="Urticaria" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                    </observation>
+                  </entryRelationship>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1" extension="2014-06-09"/>
+          <code code="10160-0" displayName="History of Medication use Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Medications</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Medication</th><th>Directions</th><th>First filled</th><th>Last filled</th><th>Prescriber</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="RXL1">
+                  <td ID="RXL1-N">losartan potassium 50 MG Oral Tablet</td>
+                  <td>Take 1 tablet by mouth once daily</td>
+                  <td>September 23, 2025</td>
+                  <td>June 28, 2026 (90 days)</td>
+                  <td>Elena Marsh, MD</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="RXL2">
+                  <td ID="RXL2-N">metformin ER 500 MG 24 HR Tablet</td>
+                  <td>Take 1 tablet by mouth once daily with the evening meal</td>
+                  <td>September 23, 2025</td>
+                  <td>June 28, 2026 (90 days)</td>
+                  <td>Elena Marsh, MD</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="RXL3">
+                  <td ID="RXL3-N">amlodipine 5 MG Oral Tablet</td>
+                  <td>Take 1 tablet by mouth once daily</td>
+                  <td>September 27, 2025</td>
+                  <td>June 28, 2026 (90 days)</td>
+                  <td>Elena Marsh, MD</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="RXL4">
+                  <td ID="RXL4-N">tamsulosin 0.4 MG Oral Capsule</td>
+                  <td>Take 1 capsule by mouth once daily for 14 days</td>
+                  <td>October 18, 2025</td>
+                  <td>October 18, 2025 (14 days), no refills</td>
+                  <td>Malik Osei, MD</td>
+                  <td>Inactive</td>
+                </tr>
+                <tr ID="RXL5">
+                  <td ID="RXL5-N">hydrochlorothiazide 12.5 MG Oral Capsule</td>
+                  <td>Take 1 capsule by mouth once daily</td>
+                  <td>December 10, 2025</td>
+                  <td>April 2, 2026 (90 days), 2 refills remaining</td>
+                  <td>Elena Marsh, MD</td>
+                  <td>Active</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.4.5" extension="RX6120443"/>
+              <text>
+                <reference value="#RXL1"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20250923"/>
+              </effectiveTime>
+              <effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+                <period value="24" unit="h"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="979492" displayName="losartan potassium 50 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#RXL1-N"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.4.5" extension="RX6120444"/>
+              <text>
+                <reference value="#RXL2"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20250923"/>
+              </effectiveTime>
+              <effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+                <period value="24" unit="h"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="860975" displayName="24 HR metformin hydrochloride 500 MG Extended Release Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#RXL2-N"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.4.5" extension="RX6120502"/>
+              <text>
+                <reference value="#RXL3"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20250927"/>
+              </effectiveTime>
+              <effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+                <period value="24" unit="h"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="197361" displayName="amlodipine 5 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#RXL3-N"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.4.5" extension="RX6127718"/>
+              <text>
+                <reference value="#RXL4"/>
+              </text>
+              <statusCode code="completed"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20251018"/>
+              <high value="20251101"/>
+              </effectiveTime>
+              <effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+                <period value="24" unit="h"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="863669" displayName="tamsulosin hydrochloride 0.4 MG Oral Capsule" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#RXL4-N"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.4.5" extension="RX6131090"/>
+              <text>
+                <reference value="#RXL5"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20251210"/>
+              </effectiveTime>
+              <effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+                <period value="24" unit="h"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="199903" displayName="hydrochlorothiazide 12.5 MG Oral Capsule" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#RXL5-N"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section nullFlavor="NI">
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1" extension="2015-08-01"/>
+          <code code="11450-4" displayName="Problem list - Reported" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Problems</title>
+          <text>No information</text>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.2.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.2.1" extension="2015-08-01"/>
+          <code code="11369-6" displayName="History of Immunization Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Immunizations</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Vaccine</th><th>Date</th><th>Lot</th><th>Site</th><th>Administered by</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="IMM1">
+                  <td ID="IMM1-N">Influenza vaccine, trivalent, preservative free (Fluarix)</td>
+                  <td>November 8, 2025</td>
+                  <td>FL7K2A</td>
+                  <td>Left upper arm</td>
+                  <td>Grace Oyelaran, PharmD</td>
+                </tr>
+                <tr ID="IMM2">
+                  <td ID="IMM2-N">Zoster vaccine recombinant, adjuvanted (Shingrix)</td>
+                  <td>November 8, 2025</td>
+                  <td>7T5K9</td>
+                  <td>Right upper arm</td>
+                  <td>Grace Oyelaran, PharmD</td>
+                </tr>
+                <tr ID="IMM3">
+                  <td ID="IMM3-N">Pneumococcal 20-valent conjugate vaccine (Prevnar 20)</td>
+                  <td>November 8, 2025</td>
+                  <td>LR4417</td>
+                  <td>Left upper arm</td>
+                  <td>Grace Oyelaran, PharmD</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN" negationInd="false">
+              <templateId root="2.16.840.1.113883.10.20.22.4.52"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.52" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.4.7" extension="VX-251108-1"/>
+              <text>
+                <reference value="#IMM1"/>
+              </text>
+              <statusCode code="completed"/>
+              <effectiveTime value="20251108"/>
+              <routeCode code="C28161" displayName="INTRAMUSCULAR" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <approachSiteCode code="368208006" displayName="Left upper arm structure" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+              <doseQuantity value="0.5" unit="mL"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.54"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.54" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="140" displayName="Influenza, seasonal, injectable, preservative free" codeSystem="2.16.840.1.113883.12.292" codeSystemName="CVX">
+                      <originalText>
+                        <reference value="#IMM1-N"/>
+                      </originalText>
+                    </code>
+                    <lotNumberText>FL7K2A</lotNumberText>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+              <performer>
+                <assignedEntity>
+                  <id root="2.16.840.1.113883.19.5.4.3" extension="OYELARAN-RPH"/>
+                  <assignedPerson>
+                    <name>
+                      <given>Grace</given>
+                      <family>Oyelaran</family>
+                      <suffix>PharmD</suffix>
+                    </name>
+                  </assignedPerson>
+                </assignedEntity>
+              </performer>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN" negationInd="false">
+              <templateId root="2.16.840.1.113883.10.20.22.4.52"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.52" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.4.7" extension="VX-251108-2"/>
+              <text>
+                <reference value="#IMM2"/>
+              </text>
+              <statusCode code="completed"/>
+              <effectiveTime value="20251108"/>
+              <routeCode code="C28161" displayName="INTRAMUSCULAR" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <approachSiteCode code="368209003" displayName="Right upper arm structure" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+              <doseQuantity value="0.5" unit="mL"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.54"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.54" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="187" displayName="zoster vaccine recombinant" codeSystem="2.16.840.1.113883.12.292" codeSystemName="CVX">
+                      <originalText>
+                        <reference value="#IMM2-N"/>
+                      </originalText>
+                    </code>
+                    <lotNumberText>7T5K9</lotNumberText>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+              <performer>
+                <assignedEntity>
+                  <id root="2.16.840.1.113883.19.5.4.3" extension="OYELARAN-RPH"/>
+                  <assignedPerson>
+                    <name>
+                      <given>Grace</given>
+                      <family>Oyelaran</family>
+                      <suffix>PharmD</suffix>
+                    </name>
+                  </assignedPerson>
+                </assignedEntity>
+              </performer>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN" negationInd="false">
+              <templateId root="2.16.840.1.113883.10.20.22.4.52"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.52" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.4.7" extension="VX-251108-3"/>
+              <text>
+                <reference value="#IMM3"/>
+              </text>
+              <statusCode code="completed"/>
+              <effectiveTime value="20251108"/>
+              <routeCode code="C28161" displayName="INTRAMUSCULAR" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <approachSiteCode code="368208006" displayName="Left upper arm structure" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+              <doseQuantity value="0.5" unit="mL"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.54"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.54" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="216" displayName="Pneumococcal conjugate PCV20, polysaccharide CRM197 conjugate, adjuvant, PF" codeSystem="2.16.840.1.113883.12.292" codeSystemName="CVX">
+                      <originalText>
+                        <reference value="#IMM3-N"/>
+                      </originalText>
+                    </code>
+                    <lotNumberText>LR4417</lotNumberText>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+              <performer>
+                <assignedEntity>
+                  <id root="2.16.840.1.113883.19.5.4.3" extension="OYELARAN-RPH"/>
+                  <assignedPerson>
+                    <name>
+                      <given>Grace</given>
+                      <family>Oyelaran</family>
+                      <suffix>PharmD</suffix>
+                    </name>
+                  </assignedPerson>
+                </assignedEntity>
+              </performer>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section nullFlavor="NI">
+          <templateId root="2.16.840.1.113883.10.20.22.2.3.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.3.1" extension="2015-08-01"/>
+          <code code="30954-2" displayName="Relevant diagnostic tests/laboratory data Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Results</title>
+          <text>No information</text>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

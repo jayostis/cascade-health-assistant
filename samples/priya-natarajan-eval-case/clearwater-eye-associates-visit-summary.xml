@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <realmCode code="US"/>
+  <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.2" extension="2015-08-01"/>
+  <id root="2.16.840.1.113883.19.5.5.1" extension="CEA-30177-20260514"/>
+  <code code="34133-9" displayName="Summarization of Episode Note" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+  <title>Clearwater Eye Associates Visit Summary</title>
+  <effectiveTime value="20260514201733+0000"/>
+  <confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25"/>
+  <languageCode code="en-US"/>
+  <recordTarget>
+    <patientRole>
+      <id root="2.16.840.1.113883.19.5.5.2" extension="30177"/>
+      <addr use="HP">
+        <streetAddressLine>48 Alder Lane</streetAddressLine>
+        <city>Fernhill</city>
+        <state>WA</state>
+        <postalCode>98000</postalCode>
+        <country>US</country>
+      </addr>
+      <telecom use="MC" value="tel:+1(555)555-0148"/>
+      <patient>
+        <name use="L">
+          <given>Priya</given>
+          <family>Natarajan</family>
+        </name>
+        <administrativeGenderCode code="F" displayName="Female" codeSystem="2.16.840.1.113883.5.1" codeSystemName="AdministrativeGender"/>
+        <birthTime value="19681104"/>
+        <raceCode code="2028-9" displayName="Asian" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
+        <ethnicGroupCode code="2186-5" displayName="Not Hispanic or Latino" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
+        <languageCommunication>
+          <languageCode code="en"/>
+          <preferenceInd value="true"/>
+        </languageCommunication>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <author>
+    <time value="20260514201733+0000"/>
+    <assignedAuthor>
+      <id root="2.16.840.1.113883.19.5.5.3" extension="REYES-OD"/>
+      <addr use="WP">
+        <streetAddressLine>455 Lakeview Drive</streetAddressLine>
+        <city>Kestrel Harbor</city>
+        <state>WA</state>
+        <postalCode>98000</postalCode>
+        <country>US</country>
+      </addr>
+      <telecom use="WP" value="tel:+1(555)555-0262"/>
+      <assignedPerson>
+        <name>
+          <given>Daniel</given>
+          <family>Reyes</family>
+          <suffix>OD</suffix>
+        </name>
+      </assignedPerson>
+      <representedOrganization>
+        <id root="2.16.840.1.113883.19.5.5"/>
+        <name>Clearwater Eye Associates</name>
+        <telecom use="WP" value="tel:+1(555)555-0262"/>
+        <addr use="WP">
+          <streetAddressLine>455 Lakeview Drive</streetAddressLine>
+          <city>Kestrel Harbor</city>
+          <state>WA</state>
+          <postalCode>98000</postalCode>
+          <country>US</country>
+        </addr>
+      </representedOrganization>
+    </assignedAuthor>
+  </author>
+  <custodian>
+    <assignedCustodian>
+      <representedCustodianOrganization>
+        <id root="2.16.840.1.113883.19.5.5"/>
+        <name>Clearwater Eye Associates</name>
+        <telecom use="WP" value="tel:+1(555)555-0262"/>
+        <addr use="WP">
+          <streetAddressLine>455 Lakeview Drive</streetAddressLine>
+          <city>Kestrel Harbor</city>
+          <state>WA</state>
+          <postalCode>98000</postalCode>
+          <country>US</country>
+        </addr>
+      </representedCustodianOrganization>
+    </assignedCustodian>
+  </custodian>
+  <documentationOf>
+    <serviceEvent classCode="PCPR">
+      <effectiveTime>
+        <low value="20260514"/>
+        <high value="20260514"/>
+      </effectiveTime>
+    </serviceEvent>
+  </documentationOf>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1" extension="2015-08-01"/>
+          <code code="48765-2" displayName="Allergies and adverse reactions Document" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Allergies</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Substance</th><th>Reaction</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="a1">
+                  <td ID="a1s">Aspirin</td>
+                  <td ID="a1r">Hives</td>
+                  <td>Active</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.30" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.5.4" extension="CE-AC-30177-1"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20260514"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.5.4" extension="CE-A-30177-1"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <text>
+                    <reference value="#a1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="2016"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="416098002" displayName="Allergy to drug" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                  <participant typeCode="CSM">
+                    <participantRole classCode="MANU">
+                      <playingEntity classCode="MMAT">
+                        <code code="1191" displayName="aspirin" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                          <originalText>
+                            <reference value="#a1s"/>
+                          </originalText>
+                        </code>
+                      </playingEntity>
+                    </participantRole>
+                  </participant>
+                  <entryRelationship typeCode="MFST" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9" extension="2014-06-09"/>
+                      <id root="2.16.840.1.113883.19.5.5.4" extension="CE-AR-30177-1"/>
+                      <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                      <text>
+                        <reference value="#a1r"/>
+                      </text>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="126485001" displayName="Urticaria" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                    </observation>
+                  </entryRelationship>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1" extension="2014-06-09"/>
+          <code code="10160-0" displayName="History of Medication use Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Medications</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Medication</th><th>Instructions</th><th>Source</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="m1">
+                  <td ID="m1n">losartan 50 mg tablet</td>
+                  <td>1 tablet daily</td>
+                  <td>Patient reported, May 14, 2026</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="m2">
+                  <td ID="m2n">amlodipine 5 mg tablet</td>
+                  <td>1 tablet daily</td>
+                  <td>Patient reported, May 14, 2026</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="m3">
+                  <td ID="m3n">metformin ER 500 mg tablet</td>
+                  <td>1 tablet daily with dinner</td>
+                  <td>Patient reported, May 14, 2026</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="m4">
+                  <td ID="m4n">hydrochlorothiazide 12.5 mg capsule</td>
+                  <td>1 capsule daily</td>
+                  <td>Patient reported, May 14, 2026</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="m5">
+                  <td ID="m5n">Claritin 10 mg tablet</td>
+                  <td>as needed</td>
+                  <td>Patient reported, May 14, 2026</td>
+                  <td>Active</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.5.5" extension="CE-M-30177-1"/>
+              <text>
+                <reference value="#m1"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low nullFlavor="UNK"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="979492" displayName="losartan potassium 50 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#m1n"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.5.5" extension="CE-M-30177-2"/>
+              <text>
+                <reference value="#m2"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low nullFlavor="UNK"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="197361" displayName="amlodipine 5 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#m2n"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.5.5" extension="CE-M-30177-3"/>
+              <text>
+                <reference value="#m3"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low nullFlavor="UNK"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="860975" displayName="24 HR metformin hydrochloride 500 MG Extended Release Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#m3n"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.5.5" extension="CE-M-30177-4"/>
+              <text>
+                <reference value="#m4"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low nullFlavor="UNK"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="199903" displayName="hydrochlorothiazide 12.5 MG Oral Capsule" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#m4n"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.5.5" extension="CE-M-30177-5"/>
+              <text>
+                <reference value="#m5"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low nullFlavor="UNK"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="206805" displayName="loratadine 10 MG Oral Tablet [Claritin]" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#m5n"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1" extension="2015-08-01"/>
+          <code code="11450-4" displayName="Problem list - Reported" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Problems</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Diagnosis</th><th>Code</th><th>Date</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="p1">
+                  <td ID="p1n">Type 2 diabetes mellitus without complications</td>
+                  <td>E11.9</td>
+                  <td>May 14, 2026</td>
+                </tr>
+                <tr ID="p2">
+                  <td ID="p2n">Presbyopia</td>
+                  <td>H52.4</td>
+                  <td>May 14, 2026</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.5.6" extension="CE-PC-30177-1"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20260514"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.5.6" extension="CE-P-30177-1"/>
+                  <code code="55607006" displayName="Problem" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <translation code="75326-9" displayName="Problem" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  </code>
+                  <text>
+                    <reference value="#p1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="202509"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="E11.9" displayName="Type 2 diabetes mellitus without complications" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD-10-CM">
+                    <originalText>
+                      <reference value="#p1n"/>
+                    </originalText>
+                  </value>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.5.6" extension="CE-PC-30177-2"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20260514"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.5.6" extension="CE-P-30177-2"/>
+                  <code code="55607006" displayName="Problem" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <translation code="75326-9" displayName="Problem" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  </code>
+                  <text>
+                    <reference value="#p2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20260514"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="H52.4" displayName="Presbyopia" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD-10-CM">
+                    <originalText>
+                      <reference value="#p2n"/>
+                    </originalText>
+                  </value>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.7.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.7.1" extension="2014-06-09"/>
+          <code code="47519-4" displayName="History of Procedures Document" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Procedures</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Procedure</th><th>Date</th><th>Performed by</th><th>Findings</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="x1">
+                  <td ID="x1n">Comprehensive eye examination with dilation</td>
+                  <td>May 14, 2026</td>
+                  <td>Daniel Reyes, OD</td>
+                  <td>Visual acuity with correction 20/20 OD, 20/20 OS. Intraocular pressure 15 mmHg OD, 16 mmHg OS. Dilated fundus examination: no diabetic retinopathy and no macular edema in either eye. Optic nerves healthy. Lenses clear.</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <procedure classCode="PROC" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.14"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.14" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.5.7" extension="CE-X-30177-1"/>
+              <code code="92004" displayName="Ophthalmological services: medical examination and evaluation with initiation of diagnostic and treatment program; comprehensive, new patient, 1 or more visits" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT-4">
+                <originalText>
+                  <reference value="#x1n"/>
+                </originalText>
+              </code>
+              <text>
+                <reference value="#x1"/>
+              </text>
+              <statusCode code="completed"/>
+              <effectiveTime value="20260514"/>
+            </procedure>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section nullFlavor="NI">
+          <templateId root="2.16.840.1.113883.10.20.22.2.3.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.3.1" extension="2015-08-01"/>
+          <code code="30954-2" displayName="Relevant diagnostic tests/laboratory data Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Results</title>
+          <text>No laboratory results.</text>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.10"/>
+          <code code="18776-5" displayName="Plan of care note" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Plan of Treatment</title>
+          <text>
+            <paragraph>Assessment, May 14, 2026: Type 2 diabetes without diabetic retinopathy in either eye. Presbyopia.</paragraph>
+            <paragraph>Plan: New reading prescription given. Return in 12 months for a dilated diabetic eye examination. A copy of this report was sent to Elena Marsh, MD, Fernhill Family Clinic.</paragraph>
+          </text>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

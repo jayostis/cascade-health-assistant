@@ -1,0 +1,993 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <realmCode code="US"/>
+  <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.2" extension="2015-08-01"/>
+  <id root="2.16.840.1.113883.19.5.3.1" extension="SRMC-ED-7730412-20251018"/>
+  <code code="34133-9" displayName="Summarization of Episode Note" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+  <title>Saltmarsh Regional Medical Center Emergency Department Visit Summary</title>
+  <effectiveTime value="20251018125512+0000"/>
+  <confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25"/>
+  <languageCode code="en-US"/>
+  <recordTarget>
+    <patientRole>
+      <id root="2.16.840.1.113883.19.5.3.2" extension="7730412"/>
+      <addr use="HP">
+        <streetAddressLine>48 Alder Lane</streetAddressLine>
+        <city>Fernhill</city>
+        <state>WA</state>
+        <postalCode>98000</postalCode>
+        <country>US</country>
+      </addr>
+      <telecom use="MC" value="tel:+1(555)555-0148"/>
+      <patient>
+        <name use="L">
+          <given>Priya</given>
+          <family>Natarajan</family>
+        </name>
+        <administrativeGenderCode code="F" displayName="Female" codeSystem="2.16.840.1.113883.5.1" codeSystemName="AdministrativeGender"/>
+        <birthTime value="19681104"/>
+        <raceCode code="2028-9" displayName="Asian" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
+        <ethnicGroupCode code="2186-5" displayName="Not Hispanic or Latino" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
+        <languageCommunication>
+          <languageCode code="en"/>
+          <preferenceInd value="true"/>
+        </languageCommunication>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <author>
+    <time value="20251018125512+0000"/>
+    <assignedAuthor>
+      <id root="2.16.840.1.113883.19.5.3.3" extension="OSEI-4471"/>
+      <addr use="WP">
+        <streetAddressLine>900 Estuary Road</streetAddressLine>
+        <city>Saltmarsh</city>
+        <state>WA</state>
+        <postalCode>98000</postalCode>
+        <country>US</country>
+      </addr>
+      <telecom use="WP" value="tel:+1(555)555-0230"/>
+      <assignedPerson>
+        <name>
+          <given>Malik</given>
+          <family>Osei</family>
+          <suffix>MD</suffix>
+        </name>
+      </assignedPerson>
+      <representedOrganization>
+        <id root="2.16.840.1.113883.19.5.3"/>
+        <name>Saltmarsh Regional Medical Center</name>
+        <telecom use="WP" value="tel:+1(555)555-0230"/>
+        <addr use="WP">
+          <streetAddressLine>900 Estuary Road</streetAddressLine>
+          <city>Saltmarsh</city>
+          <state>WA</state>
+          <postalCode>98000</postalCode>
+          <country>US</country>
+        </addr>
+      </representedOrganization>
+    </assignedAuthor>
+  </author>
+  <custodian>
+    <assignedCustodian>
+      <representedCustodianOrganization>
+        <id root="2.16.840.1.113883.19.5.3"/>
+        <name>Saltmarsh Regional Medical Center</name>
+        <telecom use="WP" value="tel:+1(555)555-0230"/>
+        <addr use="WP">
+          <streetAddressLine>900 Estuary Road</streetAddressLine>
+          <city>Saltmarsh</city>
+          <state>WA</state>
+          <postalCode>98000</postalCode>
+          <country>US</country>
+        </addr>
+      </representedCustodianOrganization>
+    </assignedCustodian>
+  </custodian>
+  <documentationOf>
+    <serviceEvent classCode="PCPR">
+      <effectiveTime>
+        <low value="20251018"/>
+        <high value="20251018"/>
+      </effectiveTime>
+    </serviceEvent>
+  </documentationOf>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1" extension="2015-08-01"/>
+          <code code="48765-2" displayName="Allergies and adverse reactions Document" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Allergies</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Substance</th><th>Reaction</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="AL1">
+                  <td ID="AL1-S">Aspirin</td>
+                  <td ID="AL1-R">Hives</td>
+                  <td>Active</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.30" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.3.4" extension="SRM-AC-551"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20251018064500+0000"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.3.4" extension="SRM-A-551"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <text>
+                    <reference value="#AL1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="2016"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="416098002" displayName="Allergy to drug" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                  <participant typeCode="CSM">
+                    <participantRole classCode="MANU">
+                      <playingEntity classCode="MMAT">
+                        <code code="1191" displayName="aspirin" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                          <originalText>
+                            <reference value="#AL1-S"/>
+                          </originalText>
+                        </code>
+                      </playingEntity>
+                    </participantRole>
+                  </participant>
+                  <entryRelationship typeCode="MFST" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9" extension="2014-06-09"/>
+                      <id root="2.16.840.1.113883.19.5.3.4" extension="SRM-AR-551"/>
+                      <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                      <text>
+                        <reference value="#AL1-R"/>
+                      </text>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="126485001" displayName="Urticaria" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                    </observation>
+                  </entryRelationship>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1" extension="2014-06-09"/>
+          <code code="10160-0" displayName="History of Medication use Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Medications</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Medication</th><th>Instructions</th><th>Start</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="MD1">
+                  <td ID="MD1-N">losartan potassium 50 MG Oral Tablet</td>
+                  <td>1 tablet by mouth daily (home medication, patient reported)</td>
+                  <td>Home medication</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="MD2">
+                  <td ID="MD2-N">amlodipine 5 MG Oral Tablet</td>
+                  <td>1 tablet by mouth daily (home medication, patient reported)</td>
+                  <td>Home medication</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="MD3">
+                  <td ID="MD3-N">metformin ER 500 MG Extended Release Oral Tablet</td>
+                  <td>1 tablet by mouth daily with evening meal (home medication, patient reported)</td>
+                  <td>Home medication</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="MD4">
+                  <td ID="MD4-N">tamsulosin 0.4 MG Oral Capsule</td>
+                  <td>Take 1 capsule by mouth once daily for 14 days.</td>
+                  <td>October 18, 2025</td>
+                  <td>Prescribed at discharge</td>
+                </tr>
+                <tr ID="MD5">
+                  <td ID="MD5-N">ondansetron 4 MG Disintegrating Oral Tablet</td>
+                  <td>Dissolve 1 tablet on the tongue every 8 hours as needed for nausea.</td>
+                  <td>October 18, 2025</td>
+                  <td>Prescribed at discharge</td>
+                </tr>
+                <tr ID="MD6">
+                  <td ID="MD6-N">acetaminophen 325 MG Oral Tablet</td>
+                  <td>Take 2 tablets by mouth every 6 hours as needed for pain. Do not exceed 3,000 mg in 24 hours.</td>
+                  <td>October 18, 2025</td>
+                  <td>Prescribed at discharge</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.3.5" extension="SRM-M-1"/>
+              <text>
+                <reference value="#MD1"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low nullFlavor="UNK"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="979492" displayName="losartan potassium 50 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#MD1-N"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.3.5" extension="SRM-M-2"/>
+              <text>
+                <reference value="#MD2"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low nullFlavor="UNK"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="197361" displayName="amlodipine 5 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#MD2-N"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.3.5" extension="SRM-M-3"/>
+              <text>
+                <reference value="#MD3"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low nullFlavor="UNK"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="860975" displayName="24 HR metformin hydrochloride 500 MG Extended Release Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#MD3-N"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="INT">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.3.5" extension="SRM-RX-1"/>
+              <text>
+                <reference value="#MD4"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20251018"/>
+              <high value="20251101"/>
+              </effectiveTime>
+              <effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+                <period value="24" unit="h"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="863669" displayName="tamsulosin hydrochloride 0.4 MG Oral Capsule" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#MD4-N"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="INT">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.3.5" extension="SRM-RX-2"/>
+              <text>
+                <reference value="#MD5"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20251018"/>
+              <high value="20251025"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="104894" displayName="ondansetron 4 MG Disintegrating Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#MD5-N"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="INT">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.3.5" extension="SRM-RX-3"/>
+              <text>
+                <reference value="#MD6"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20251018"/>
+              <high value="20251101"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="2"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="313782" displayName="acetaminophen 325 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#MD6-N"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1" extension="2015-08-01"/>
+          <code code="11450-4" displayName="Problem list - Reported" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Problems</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Problem</th><th>Noted</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="PB1">
+                  <td ID="PB1-N">Kidney stone</td>
+                  <td>October 18, 2025</td>
+                  <td>Active</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.3.6" extension="SRM-PC-1"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20251018"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.6" extension="SRM-P-1"/>
+                  <code code="55607006" displayName="Problem" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <translation code="75326-9" displayName="Problem" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  </code>
+                  <text>
+                    <reference value="#PB1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20251018"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="95570007" displayName="Kidney stone" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <originalText>
+                      <reference value="#PB1-N"/>
+                    </originalText>
+                  </value>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.3.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.3.1" extension="2015-08-01"/>
+          <code code="30954-2" displayName="Relevant diagnostic tests/laboratory data Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Results</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Test</th><th>Result</th><th>Reference range</th><th>Collected</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="RS1-1">
+                  <td>Blood, urine (dipstick)</td>
+                  <td>Large (3+) (Abnormal)</td>
+                  <td>Negative</td>
+                  <td>October 18, 2025 07:10 UTC</td>
+                </tr>
+                <tr ID="RS1-2">
+                  <td>Protein, urine (dipstick)</td>
+                  <td>Negative</td>
+                  <td>Negative</td>
+                  <td>October 18, 2025 07:10 UTC</td>
+                </tr>
+                <tr ID="RS1-3">
+                  <td>Glucose, urine (dipstick)</td>
+                  <td>Negative</td>
+                  <td>Negative</td>
+                  <td>October 18, 2025 07:10 UTC</td>
+                </tr>
+                <tr ID="RS1-4">
+                  <td>Nitrite, urine (dipstick)</td>
+                  <td>Negative</td>
+                  <td>Negative</td>
+                  <td>October 18, 2025 07:10 UTC</td>
+                </tr>
+                <tr ID="RS1-5">
+                  <td>Leukocyte esterase, urine (dipstick)</td>
+                  <td>Negative</td>
+                  <td>Negative</td>
+                  <td>October 18, 2025 07:10 UTC</td>
+                </tr>
+                <tr ID="RS2-1">
+                  <td>Sodium</td>
+                  <td>138 mmol/L</td>
+                  <td>136-145 mmol/L</td>
+                  <td>October 18, 2025 07:05 UTC</td>
+                </tr>
+                <tr ID="RS2-2">
+                  <td>Potassium</td>
+                  <td>3.9 mmol/L</td>
+                  <td>3.5-5.1 mmol/L</td>
+                  <td>October 18, 2025 07:05 UTC</td>
+                </tr>
+                <tr ID="RS2-3">
+                  <td>BUN</td>
+                  <td>18 mg/dL</td>
+                  <td>7-20 mg/dL</td>
+                  <td>October 18, 2025 07:05 UTC</td>
+                </tr>
+                <tr ID="RS2-4">
+                  <td>Creatinine</td>
+                  <td>1.02 mg/dL</td>
+                  <td>0.51-1.10 mg/dL</td>
+                  <td>October 18, 2025 07:05 UTC</td>
+                </tr>
+                <tr ID="RS2-5">
+                  <td>eGFR (CKD-EPI 2021)</td>
+                  <td>63 mL/min/{1.73_m2}</td>
+                  <td>&gt;=60 mL/min/{1.73_m2}</td>
+                  <td>October 18, 2025 07:05 UTC</td>
+                </tr>
+                <tr ID="RS2-6">
+                  <td>Glucose</td>
+                  <td>146 mg/dL (High)</td>
+                  <td>70-139 mg/dL</td>
+                  <td>October 18, 2025 07:05 UTC</td>
+                </tr>
+              </tbody>
+            </table>
+            <paragraph><content styleCode="Bold">CT ABDOMEN AND PELVIS WITHOUT CONTRAST</content> (performed October 18, 2025 07:52 UTC; accession SRM-CT-2510-88412)</paragraph>
+            <paragraph>Indication: Right flank pain radiating to the groin, hematuria.</paragraph>
+            <paragraph>Technique: Helical CT of the abdomen and pelvis without intravenous or oral contrast. Dose reduction technique was used.</paragraph>
+            <paragraph>Findings: There is a 4 mm calculus at the right ureterovesical junction with mild right hydroureteronephrosis and mild perinephric stranding. No other renal or ureteral calculi. The left kidney is unremarkable. The liver, gallbladder, spleen, pancreas and adrenal glands are unremarkable for a non-contrast study. The appendix is normal. No bowel obstruction. No free fluid. The urinary bladder is decompressed. Uterus and adnexa are unremarkable. Lung bases: a 7 mm solid nodule is present in the right lower lobe (series 2, image 14). No pleural effusion. No acute osseous abnormality.</paragraph>
+            <paragraph>Impression: 1. 4 mm obstructing calculus at the right ureterovesical junction with mild right hydroureteronephrosis. 2. Incidental 7 mm solid pulmonary nodule in the right lower lobe, partially imaged. Per Fleischner Society guidelines, a non-contrast CT of the chest is recommended in 6-12 months.</paragraph>
+            <paragraph>Electronically signed by Hannah Lindqvist, MD (Radiology), October 18, 2025 08:31 UTC.</paragraph>
+          </text>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-LP-1"/>
+              <code code="24357-6" displayName="Urinalysis macro (dipstick) panel - Urine" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20251018071000+0000"/>
+                <high value="20251018071000+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-L-101"/>
+                  <code code="5794-3" displayName="Hemoglobin [Presence] in Urine by Test strip" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RS1-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018071000+0000"/>
+                  <value xsi:type="ST">Large (3+)</value>
+                  <interpretationCode code="A" displayName="Abnormal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <text>Negative</text>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-L-102"/>
+                  <code code="5804-0" displayName="Protein [Mass/volume] in Urine by Test strip" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RS1-2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018071000+0000"/>
+                  <value xsi:type="ST">Negative</value>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <text>Negative</text>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-L-103"/>
+                  <code code="5792-7" displayName="Glucose [Mass/volume] in Urine by Test strip" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RS1-3"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018071000+0000"/>
+                  <value xsi:type="ST">Negative</value>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <text>Negative</text>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-L-104"/>
+                  <code code="5802-4" displayName="Nitrite [Presence] in Urine by Test strip" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RS1-4"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018071000+0000"/>
+                  <value xsi:type="ST">Negative</value>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <text>Negative</text>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-L-105"/>
+                  <code code="5799-2" displayName="Leukocyte esterase [Presence] in Urine by Test strip" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RS1-5"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018071000+0000"/>
+                  <value xsi:type="ST">Negative</value>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <text>Negative</text>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-LP-2"/>
+              <code code="51990-0" displayName="Basic metabolic panel - Blood" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20251018070500+0000"/>
+                <high value="20251018070500+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-L-201"/>
+                  <code code="2951-2" displayName="Sodium [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RS2-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018070500+0000"/>
+                  <value xsi:type="PQ" value="138" unit="mmol/L"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="136" unit="mmol/L"/>
+                        <high value="145" unit="mmol/L"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-L-202"/>
+                  <code code="2823-3" displayName="Potassium [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RS2-2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018070500+0000"/>
+                  <value xsi:type="PQ" value="3.9" unit="mmol/L"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="3.5" unit="mmol/L"/>
+                        <high value="5.1" unit="mmol/L"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-L-203"/>
+                  <code code="3094-0" displayName="Urea nitrogen [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RS2-3"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018070500+0000"/>
+                  <value xsi:type="PQ" value="18" unit="mg/dL"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="7" unit="mg/dL"/>
+                        <high value="20" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-L-204"/>
+                  <code code="2160-0" displayName="Creatinine [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RS2-4"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018070500+0000"/>
+                  <value xsi:type="PQ" value="1.02" unit="mg/dL"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="0.51" unit="mg/dL"/>
+                        <high value="1.10" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-L-205"/>
+                  <code code="98979-8" displayName="Glomerular filtration rate [Volume Rate/Area] in Serum, Plasma or Blood by Creatinine-based formula (CKD-EPI 2021)/1.73 sq M" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RS2-5"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018070500+0000"/>
+                  <value xsi:type="PQ" value="63" unit="mL/min/{1.73_m2}"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="60" unit="mL/min/{1.73_m2}"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.3.7" extension="SRM-L-206"/>
+                  <code code="2345-7" displayName="Glucose [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RS2-6"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018070500+0000"/>
+                  <value xsi:type="PQ" value="146" unit="mg/dL"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="70" unit="mg/dL"/>
+                        <high value="139" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.4.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.4.1" extension="2015-08-01"/>
+          <code code="8716-3" displayName="Vital signs" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Vital Signs</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Taken</th><th>Blood pressure</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>October 18, 2025 06:45 UTC</td>
+                  <td><content ID="VS1">158</content>/<content ID="VS2">94</content> mm[Hg]</td>
+                </tr>
+                <tr>
+                  <td>October 18, 2025 11:30 UTC</td>
+                  <td><content ID="VS3">136</content>/<content ID="VS4">82</content> mm[Hg]</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <organizer classCode="CLUSTER" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.26"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.26" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.3.8" extension="SRM-V-1"/>
+              <code code="46680005" displayName="Vital signs" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                <translation code="74728-7" displayName="Vital signs, weight, height, head circumference, oximetry, BMI, and BSA panel - HL7.CCDAr1.1" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              </code>
+              <statusCode code="completed"/>
+              <effectiveTime value="20251018064500+0000"/>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.3.8" extension="SRM-V-11"/>
+                  <code code="8480-6" displayName="Systolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#VS1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018064500+0000"/>
+                  <value xsi:type="PQ" value="158" unit="mm[Hg]"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.3.8" extension="SRM-V-12"/>
+                  <code code="8462-4" displayName="Diastolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#VS2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018064500+0000"/>
+                  <value xsi:type="PQ" value="94" unit="mm[Hg]"/>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="CLUSTER" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.26"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.26" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.3.8" extension="SRM-V-2"/>
+              <code code="46680005" displayName="Vital signs" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                <translation code="74728-7" displayName="Vital signs, weight, height, head circumference, oximetry, BMI, and BSA panel - HL7.CCDAr1.1" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              </code>
+              <statusCode code="completed"/>
+              <effectiveTime value="20251018113000+0000"/>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.3.8" extension="SRM-V-21"/>
+                  <code code="8480-6" displayName="Systolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#VS3"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018113000+0000"/>
+                  <value xsi:type="PQ" value="136" unit="mm[Hg]"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.3.8" extension="SRM-V-22"/>
+                  <code code="8462-4" displayName="Diastolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#VS4"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251018113000+0000"/>
+                  <value xsi:type="PQ" value="82" unit="mm[Hg]"/>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.17"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.17" extension="2015-08-01"/>
+          <code code="29762-2" displayName="Social history Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Social History</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Smoking status</th><th>Recorded</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="SH1">
+                  <td>Never smoker</td>
+                  <td>October 18, 2025</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <observation classCode="OBS" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.78"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.78" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.3.8" extension="SRM-S-1"/>
+              <code code="72166-2" displayName="Tobacco smoking status" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <text>
+                <reference value="#SH1"/>
+              </text>
+              <statusCode code="completed"/>
+              <effectiveTime value="20251018064500+0000"/>
+              <value xsi:type="CD" code="266919005" displayName="Never smoked tobacco" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+            </observation>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.22"/>
+          <code code="46240-8" displayName="History of Hospitalizations+Outpatient visits Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Encounters</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Encounter</th><th>Date</th><th>Location</th><th>Provider</th><th>Diagnosis</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="EN1">
+                  <td>Emergency department visit</td>
+                  <td>October 18, 2025 06:40-11:55 UTC</td>
+                  <td>Saltmarsh Regional Medical Center Emergency Department</td>
+                  <td>Malik Osei, MD</td>
+                  <td>Right ureteral stone with renal colic</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.10"/>
+          <code code="18776-5" displayName="Plan of care note" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Plan of Treatment</title>
+          <text>
+            <paragraph>Discharge instructions, October 18, 2025.</paragraph>
+            <paragraph>You were seen for a kidney stone on the right side. The stone is small (4 mm) and is likely to pass on its own.</paragraph>
+            <paragraph>Take tamsulosin 0.4 mg once a day for 14 days to help the stone pass. Use acetaminophen for pain and ondansetron if you feel sick to your stomach. Ibuprofen and ketorolac were not given because of your aspirin allergy.</paragraph>
+            <paragraph>Drink plenty of fluids and strain your urine. Follow up with your primary care provider in 1 week. If the stone has not passed in 2 weeks, see urology.</paragraph>
+            <paragraph>Return to the emergency department for fever, pain that is not controlled, or vomiting that does not stop.</paragraph>
+          </text>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

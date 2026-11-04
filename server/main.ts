@@ -18,7 +18,7 @@ import {
 } from "@the-cascade-protocol/sandbox/node";
 import { nodeHospitals, nodeHost } from "../node-host.ts";
 import { podApi } from "../pod-api.ts";
-import { PODS } from "../pods.ts";
+import { PODS, resetAll } from "../pods.ts";
 import { demoPeople, worldInstant } from "../said.ts";
 import { appServer, type ChatServed, type Served } from "./app.ts";
 import { builtPages } from "./built.ts";
@@ -89,6 +89,9 @@ function startingDate(): string | undefined {
   }
   return asOf;
 }
+
+// A first start, before any `pods/` folder, loads the sample as `npm run reset` does: a fresh clone opens on Priya's pod.
+if (!existsSync(PODS)) await resetAll((text) => stdout.write(text));
 
 const host = nodeHost({ folder: PODS, unsaid });
 const api = podApi(host);

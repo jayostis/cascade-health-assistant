@@ -1,0 +1,1266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <realmCode code="US"/>
+  <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.2" extension="2015-08-01"/>
+  <id root="2.16.840.1.113883.19.5.2.1" extension="FFC-CCD-0622-20931"/>
+  <code code="34133-9" displayName="Summarization of Episode Note" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+  <title>Fernhill Family Clinic Summary of Care</title>
+  <effectiveTime value="20260622180344+0000"/>
+  <confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25"/>
+  <languageCode code="en-US"/>
+  <recordTarget>
+    <patientRole>
+      <id root="2.16.840.1.113883.19.5.2.2" extension="20931"/>
+      <addr use="HP">
+        <streetAddressLine>48 Alder Lane</streetAddressLine>
+        <city>Fernhill</city>
+        <state>WA</state>
+        <postalCode>98000</postalCode>
+        <country>US</country>
+      </addr>
+      <telecom use="MC" value="tel:+1(555)555-0148"/>
+      <patient>
+        <name use="L">
+          <given>Priya</given>
+          <family>Natarajan</family>
+        </name>
+        <administrativeGenderCode code="F" displayName="Female" codeSystem="2.16.840.1.113883.5.1" codeSystemName="AdministrativeGender"/>
+        <birthTime value="19681104"/>
+        <raceCode code="2028-9" displayName="Asian" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
+        <ethnicGroupCode code="2186-5" displayName="Not Hispanic or Latino" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
+        <languageCommunication>
+          <languageCode code="en"/>
+          <preferenceInd value="true"/>
+        </languageCommunication>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <author>
+    <time value="20260622180344+0000"/>
+    <assignedAuthor>
+      <id root="2.16.840.1.113883.19.5.2.3" extension="ELM-114"/>
+      <addr use="WP">
+        <streetAddressLine>310 Fern Street</streetAddressLine>
+        <city>Fernhill</city>
+        <state>WA</state>
+        <postalCode>98000</postalCode>
+        <country>US</country>
+      </addr>
+      <telecom use="WP" value="tel:+1(555)555-0190"/>
+      <assignedPerson>
+        <name>
+          <given>Elena</given>
+          <family>Marsh</family>
+          <suffix>MD</suffix>
+        </name>
+      </assignedPerson>
+      <representedOrganization>
+        <id root="2.16.840.1.113883.19.5.2"/>
+        <name>Fernhill Family Clinic</name>
+        <telecom use="WP" value="tel:+1(555)555-0190"/>
+        <addr use="WP">
+          <streetAddressLine>310 Fern Street</streetAddressLine>
+          <city>Fernhill</city>
+          <state>WA</state>
+          <postalCode>98000</postalCode>
+          <country>US</country>
+        </addr>
+      </representedOrganization>
+    </assignedAuthor>
+  </author>
+  <custodian>
+    <assignedCustodian>
+      <representedCustodianOrganization>
+        <id root="2.16.840.1.113883.19.5.2"/>
+        <name>Fernhill Family Clinic</name>
+        <telecom use="WP" value="tel:+1(555)555-0190"/>
+        <addr use="WP">
+          <streetAddressLine>310 Fern Street</streetAddressLine>
+          <city>Fernhill</city>
+          <state>WA</state>
+          <postalCode>98000</postalCode>
+          <country>US</country>
+        </addr>
+      </representedCustodianOrganization>
+    </assignedCustodian>
+  </custodian>
+  <documentationOf>
+    <serviceEvent classCode="PCPR">
+      <effectiveTime>
+        <low value="20241015"/>
+        <high value="20260622"/>
+      </effectiveTime>
+    </serviceEvent>
+  </documentationOf>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1" extension="2015-08-01"/>
+          <code code="48765-2" displayName="Allergies and adverse reactions Document" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Allergies</title>
+          <text>
+            <list>
+              <item ID="fa-1"><content ID="fa-1-name">Aspirin</content>: hives</item>
+              <item ID="fa-2"><content ID="fa-2-name">Lisinopril</content>: dry cough (intolerance), September 2025</item>
+            </list>
+          </text>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.30" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.4" extension="ALC-77"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20241015"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.2.4" extension="AL-77"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <text>
+                    <reference value="#fa-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="2016"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="416098002" displayName="Allergy to drug" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                  <participant typeCode="CSM">
+                    <participantRole classCode="MANU">
+                      <playingEntity classCode="MMAT">
+                        <code code="1191" displayName="aspirin" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                          <originalText>
+                            <reference value="#fa-1-name"/>
+                          </originalText>
+                        </code>
+                      </playingEntity>
+                    </participantRole>
+                  </participant>
+                  <entryRelationship typeCode="MFST" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9" extension="2014-06-09"/>
+                      <id root="2.16.840.1.113883.19.5.2.4" extension="ALR-77"/>
+                      <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="126485001" displayName="Urticaria" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                    </observation>
+                  </entryRelationship>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.30" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.4" extension="ALC-91"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20250922"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.2.4" extension="AL-91"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <text>
+                    <reference value="#fa-2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20250922"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="59037007" displayName="Drug intolerance" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                  <participant typeCode="CSM">
+                    <participantRole classCode="MANU">
+                      <playingEntity classCode="MMAT">
+                        <code code="29046" displayName="lisinopril" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                          <originalText>
+                            <reference value="#fa-2-name"/>
+                          </originalText>
+                        </code>
+                      </playingEntity>
+                    </participantRole>
+                  </participant>
+                  <entryRelationship typeCode="SUBJ" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.28"/>
+                      <templateId root="2.16.840.1.113883.10.20.22.4.28" extension="2019-06-20"/>
+                      <code code="33999-4" displayName="Status" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CE" code="55561003" displayName="Active" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                    </observation>
+                  </entryRelationship>
+                  <entryRelationship typeCode="MFST" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9" extension="2014-06-09"/>
+                      <id root="2.16.840.1.113883.19.5.2.4" extension="ALR-91"/>
+                      <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="49727002" displayName="Cough" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                    </observation>
+                  </entryRelationship>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1" extension="2014-06-09"/>
+          <code code="10160-0" displayName="History of Medication use Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Medications</title>
+          <text>
+            <list>
+              <item ID="fm-1"><content ID="fm-1-name">Claritin 10 MG Oral Tablet</content>: 1 tablet daily as needed; start date not recorded</item>
+              <item ID="fm-2"><content ID="fm-2-name">fluticasone propionate 50 MCG/ACTUAT Nasal Spray</content>: 1 spray in each nostril daily, from October 15, 2024; completed</item>
+              <item ID="fm-3"><content ID="fm-3-name">lisinopril 10 MG Oral Tablet</content>: 1 tablet daily, from June 15, 2023; stopped September 22, 2025 because of dry cough, changed to losartan</item>
+              <item ID="fm-4"><content ID="fm-4-name">losartan potassium 50 MG Oral Tablet</content>: 1 tablet daily, from September 22, 2025</item>
+              <item ID="fm-5"><content ID="fm-5-name">amlodipine 5 MG Oral Tablet</content>: 1 tablet daily, from April 1, 2025</item>
+              <item ID="fm-6"><content ID="fm-6-name">metformin ER 500 MG 24 HR Extended Release Oral Tablet</content>: 1 tablet daily with the evening meal, from September 22, 2025</item>
+              <item ID="fm-7"><content ID="fm-7-name">hydrochlorothiazide 12.5 MG Oral Capsule</content>: 1 capsule daily, from December 9, 2025</item>
+            </list>
+          </text>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.2.5" extension="RX"/>
+              <text>
+                <reference value="#fm-1"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low nullFlavor="UNK"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="206805" displayName="loratadine 10 MG Oral Tablet [Claritin]" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#fm-1-name"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.2.5" extension="RX"/>
+              <text>
+                <reference value="#fm-2"/>
+              </text>
+              <statusCode code="completed"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20241015"/>
+              </effectiveTime>
+              <routeCode code="C38284" displayName="NASAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="1797907" displayName="fluticasone propionate 0.05 MG/ACTUAT Metered Dose Nasal Spray" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#fm-2-name"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.2.5" extension="RX"/>
+              <text>
+                <reference value="#fm-3"/>
+              </text>
+              <statusCode code="aborted"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20230615"/>
+              <high value="20250922"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="314076" displayName="lisinopril 10 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#fm-3-name"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.2.5" extension="RX"/>
+              <text>
+                <reference value="#fm-4"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20250922"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="979492" displayName="losartan potassium 50 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#fm-4-name"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.2.5" extension="RX"/>
+              <text>
+                <reference value="#fm-5"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20250401"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="197361" displayName="amlodipine 5 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#fm-5-name"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.2.5" extension="RX"/>
+              <text>
+                <reference value="#fm-6"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20250922"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="860975" displayName="24 HR metformin hydrochloride 500 MG Extended Release Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#fm-6-name"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.2.5" extension="RX"/>
+              <text>
+                <reference value="#fm-7"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20251209"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="199903" displayName="hydrochlorothiazide 12.5 MG Oral Capsule" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#fm-7-name"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1" extension="2015-08-01"/>
+          <code code="11450-4" displayName="Problem list - Reported" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Problems</title>
+          <text>
+            <list>
+              <item ID="fp-1"><content ID="fp-1-name">Hay fever</content>, since October 2024</item>
+              <item ID="fp-2"><content ID="fp-2-name">Essential hypertension</content>, since June 2023</item>
+              <item ID="fp-3"><content ID="fp-3-name">Type 2 diabetes mellitus</content>, since September 2025</item>
+            </list>
+          </text>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.6" extension="PC-410"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20241015"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.6" extension="P-410"/>
+                  <code code="55607006" displayName="Problem" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <translation code="75326-9" displayName="Problem" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  </code>
+                  <text>
+                    <reference value="#fp-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20241015"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="367498001" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <originalText>
+                      <reference value="#fp-1-name"/>
+                    </originalText>
+                  </value>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.6" extension="PC-455"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20250922"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.6" extension="P-455"/>
+                  <code code="55607006" displayName="Problem" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <translation code="75326-9" displayName="Problem" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  </code>
+                  <text>
+                    <reference value="#fp-2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20230615"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="59621000" displayName="Essential hypertension" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <originalText>
+                      <reference value="#fp-2-name"/>
+                    </originalText>
+                  </value>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.6" extension="PC-470"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20250922"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.6" extension="P-470"/>
+                  <code code="55607006" displayName="Problem" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <translation code="75326-9" displayName="Problem" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  </code>
+                  <text>
+                    <reference value="#fp-3"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20250922"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="44054006" displayName="Diabetes mellitus type 2" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <originalText>
+                      <reference value="#fp-3-name"/>
+                    </originalText>
+                  </value>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.2.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.2.1" extension="2015-08-01"/>
+          <code code="11369-6" displayName="History of Immunization Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Immunizations</title>
+          <text>
+            <list>
+              <item ID="fi-1"><content ID="fi-1-name">Influenza vaccine</content>, given October 15, 2024</item>
+            </list>
+          </text>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN" negationInd="false">
+              <templateId root="2.16.840.1.113883.10.20.22.4.52"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.52" extension="2015-08-01"/>
+              <id nullFlavor="NI"/>
+              <text>
+                <reference value="#fi-1"/>
+              </text>
+              <statusCode code="completed"/>
+              <effectiveTime value="20241015"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.54"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.54" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="141" displayName="Influenza, seasonal, injectable" codeSystem="2.16.840.1.113883.12.292" codeSystemName="CVX">
+                      <originalText>
+                        <reference value="#fi-1-name"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.3.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.3.1" extension="2015-08-01"/>
+          <code code="30954-2" displayName="Relevant diagnostic tests/laboratory data Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Results</title>
+          <text>
+            <list>
+              <item ID="fr-1-1">Hemoglobin A1c 6.9 % (High), reference 4.0-5.6 %, collected September 22, 2025</item>
+              <item ID="fr-2-1">Glucose, fasting 138 mg/dL (High), reference 70-99 mg/dL, collected September 22, 2025</item>
+              <item ID="fr-2-2">Sodium 139 mmol/L, reference 135-145 mmol/L, collected September 22, 2025</item>
+              <item ID="fr-2-3">Potassium 4.3 mmol/L, reference 3.5-5.1 mmol/L, collected September 22, 2025</item>
+              <item ID="fr-2-4">Creatinine 0.88 mg/dL, reference 0.50-1.10 mg/dL, collected September 22, 2025</item>
+              <item ID="fr-2-5">eGFR (CKD-EPI 2021) 75 mL/min/{1.73_m2}, reference &gt;=60 mL/min/{1.73_m2}, collected September 22, 2025</item>
+              <item ID="fr-3-1">Cholesterol, total 221 mg/dL (High), reference &lt;200 mg/dL, collected September 22, 2025</item>
+              <item ID="fr-3-2">HDL cholesterol 48 mg/dL (Low), reference &gt;=50 mg/dL, collected September 22, 2025</item>
+              <item ID="fr-3-3">Triglycerides 155 mg/dL (High), reference &lt;150 mg/dL, collected September 22, 2025</item>
+              <item ID="fr-3-4">LDL cholesterol, calculated 142 mg/dL (High), reference &lt;100 mg/dL, collected September 22, 2025</item>
+              <item ID="fr-4-1">Hemoglobin A1c 6.7 % (High), reference 4.0-5.6 %, collected December 9, 2025</item>
+              <item ID="fr-5-1">Hemoglobin A1c 6.6 % (High), reference 4.0-5.6 %, collected June 15, 2026</item>
+              <item ID="fr-6-1">Glucose, fasting 124 mg/dL (High), reference 70-99 mg/dL, collected June 15, 2026</item>
+              <item ID="fr-6-2">Sodium 134 mmol/L (Low), reference 135-145 mmol/L, collected June 15, 2026</item>
+              <item ID="fr-6-3">Potassium 4.2 mmol/L, reference 3.5-5.1 mmol/L, collected June 15, 2026</item>
+              <item ID="fr-6-4">Creatinine 0.93 mg/dL, reference 0.50-1.10 mg/dL, collected June 15, 2026</item>
+              <item ID="fr-6-5">eGFR (CKD-EPI 2021) 71 mL/min/{1.73_m2}, reference &gt;=60 mL/min/{1.73_m2}, collected June 15, 2026</item>
+            </list>
+          </text>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.9" extension="LRP-a1c-0922"/>
+              <code code="4548-4" displayName="Hemoglobin A1c/Hemoglobin.total in Blood" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20250922161500+0000"/>
+                <high value="20250922161500+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-a1c-0922-a1c"/>
+                  <code code="4548-4" displayName="Hemoglobin A1c/Hemoglobin.total in Blood" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-1-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922161500+0000"/>
+                  <value xsi:type="PQ" value="6.9" unit="%"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="4.0" unit="%"/>
+                        <high value="5.6" unit="%"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.9" extension="LRP-cmp-0922"/>
+              <code code="24323-8" displayName="Comprehensive metabolic 2000 panel - Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20250922161500+0000"/>
+                <high value="20250922161500+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-cmp-0922-glu"/>
+                  <code code="1558-6" displayName="Fasting glucose [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-2-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922161500+0000"/>
+                  <value xsi:type="PQ" value="138" unit="mg/dL"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="70" unit="mg/dL"/>
+                        <high value="99" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-cmp-0922-na"/>
+                  <code code="2951-2" displayName="Sodium [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-2-2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922161500+0000"/>
+                  <value xsi:type="PQ" value="139" unit="mmol/L"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="135" unit="mmol/L"/>
+                        <high value="145" unit="mmol/L"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-cmp-0922-k"/>
+                  <code code="2823-3" displayName="Potassium [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-2-3"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922161500+0000"/>
+                  <value xsi:type="PQ" value="4.3" unit="mmol/L"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="3.5" unit="mmol/L"/>
+                        <high value="5.1" unit="mmol/L"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-cmp-0922-cr"/>
+                  <code code="2160-0" displayName="Creatinine [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-2-4"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922161500+0000"/>
+                  <value xsi:type="PQ" value="0.88" unit="mg/dL"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="0.50" unit="mg/dL"/>
+                        <high value="1.10" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-cmp-0922-egfr"/>
+                  <code code="98979-8" displayName="Glomerular filtration rate [Volume Rate/Area] in Serum, Plasma or Blood by Creatinine-based formula (CKD-EPI 2021)/1.73 sq M" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-2-5"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922161500+0000"/>
+                  <value xsi:type="PQ" value="75" unit="mL/min/{1.73_m2}"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="60" unit="mL/min/{1.73_m2}"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.9" extension="LRP-lipid-0922"/>
+              <code code="24331-1" displayName="Lipid 1996 panel - Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20250922161500+0000"/>
+                <high value="20250922161500+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-lipid-0922-chol"/>
+                  <code code="2093-3" displayName="Cholesterol [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-3-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922161500+0000"/>
+                  <value xsi:type="PQ" value="221" unit="mg/dL"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <high value="199" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-lipid-0922-hdl"/>
+                  <code code="2085-9" displayName="Cholesterol in HDL [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-3-2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922161500+0000"/>
+                  <value xsi:type="PQ" value="48" unit="mg/dL"/>
+                  <interpretationCode code="L" displayName="Low" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="50" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-lipid-0922-tg"/>
+                  <code code="2571-8" displayName="Triglyceride [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-3-3"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922161500+0000"/>
+                  <value xsi:type="PQ" value="155" unit="mg/dL"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <high value="149" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-lipid-0922-ldl"/>
+                  <code code="13457-7" displayName="Cholesterol in LDL [Mass/volume] in Serum or Plasma by calculation" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-3-4"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922161500+0000"/>
+                  <value xsi:type="PQ" value="142" unit="mg/dL"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <high value="99" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.9" extension="LRP-a1c-1209"/>
+              <code code="4548-4" displayName="Hemoglobin A1c/Hemoglobin.total in Blood" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20251209164000+0000"/>
+                <high value="20251209164000+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-a1c-1209-a1c"/>
+                  <code code="4548-4" displayName="Hemoglobin A1c/Hemoglobin.total in Blood" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-4-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251209164000+0000"/>
+                  <value xsi:type="PQ" value="6.7" unit="%"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="4.0" unit="%"/>
+                        <high value="5.6" unit="%"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.9" extension="LRP-a1c-0615"/>
+              <code code="4548-4" displayName="Hemoglobin A1c/Hemoglobin.total in Blood" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20260615153000+0000"/>
+                <high value="20260615153000+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-a1c-0615-a1c"/>
+                  <code code="4548-4" displayName="Hemoglobin A1c/Hemoglobin.total in Blood" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-5-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260615153000+0000"/>
+                  <value xsi:type="PQ" value="6.6" unit="%"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="4.0" unit="%"/>
+                        <high value="5.6" unit="%"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.9" extension="LRP-bmp-0615"/>
+              <code code="51990-0" displayName="Basic metabolic panel - Blood" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20260615153000+0000"/>
+                <high value="20260615153000+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-bmp-0615-glu"/>
+                  <code code="1558-6" displayName="Fasting glucose [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-6-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260615153000+0000"/>
+                  <value xsi:type="PQ" value="124" unit="mg/dL"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="70" unit="mg/dL"/>
+                        <high value="99" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-bmp-0615-na"/>
+                  <code code="2951-2" displayName="Sodium [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-6-2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260615153000+0000"/>
+                  <value xsi:type="PQ" value="134" unit="mmol/L"/>
+                  <interpretationCode code="L" displayName="Low" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="135" unit="mmol/L"/>
+                        <high value="145" unit="mmol/L"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-bmp-0615-k"/>
+                  <code code="2823-3" displayName="Potassium [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-6-3"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260615153000+0000"/>
+                  <value xsi:type="PQ" value="4.2" unit="mmol/L"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="3.5" unit="mmol/L"/>
+                        <high value="5.1" unit="mmol/L"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-bmp-0615-cr"/>
+                  <code code="2160-0" displayName="Creatinine [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-6-4"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260615153000+0000"/>
+                  <value xsi:type="PQ" value="0.93" unit="mg/dL"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="0.50" unit="mg/dL"/>
+                        <high value="1.10" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.2.9" extension="LR-bmp-0615-egfr"/>
+                  <code code="98979-8" displayName="Glomerular filtration rate [Volume Rate/Area] in Serum, Plasma or Blood by Creatinine-based formula (CKD-EPI 2021)/1.73 sq M" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fr-6-5"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260615153000+0000"/>
+                  <value xsi:type="PQ" value="71" unit="mL/min/{1.73_m2}"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="60" unit="mL/min/{1.73_m2}"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.4.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.4.1" extension="2015-08-01"/>
+          <code code="8716-3" displayName="Vital signs" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Vital Signs</title>
+          <text>
+            <list>
+              <item ID="fv-1">September 22, 2025: blood pressure <content ID="fv-1-s">138</content>/<content ID="fv-1-d">86</content> mm[Hg]</item>
+              <item ID="fv-2">December 9, 2025: blood pressure <content ID="fv-2-s">142</content>/<content ID="fv-2-d">88</content> mm[Hg]</item>
+              <item ID="fv-3">June 15, 2026: blood pressure <content ID="fv-3-s">128</content>/<content ID="fv-3-d">80</content> mm[Hg]</item>
+            </list>
+          </text>
+          <entry typeCode="DRIV">
+            <organizer classCode="CLUSTER" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.26"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.26" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.7" extension="V-0922"/>
+              <code code="46680005" displayName="Vital signs" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                <translation code="74728-7" displayName="Vital signs, weight, height, head circumference, oximetry, BMI, and BSA panel - HL7.CCDAr1.1" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              </code>
+              <statusCode code="completed"/>
+              <effectiveTime value="20250922160000+0000"/>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.2.7" extension="V-0922-1"/>
+                  <code code="8480-6" displayName="Systolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fv-1-s"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922160000+0000"/>
+                  <value xsi:type="PQ" value="138" unit="mm[Hg]"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.2.7" extension="V-0922-2"/>
+                  <code code="8462-4" displayName="Diastolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fv-1-d"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20250922160000+0000"/>
+                  <value xsi:type="PQ" value="86" unit="mm[Hg]"/>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="CLUSTER" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.26"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.26" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.7" extension="V-1209"/>
+              <code code="46680005" displayName="Vital signs" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                <translation code="74728-7" displayName="Vital signs, weight, height, head circumference, oximetry, BMI, and BSA panel - HL7.CCDAr1.1" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              </code>
+              <statusCode code="completed"/>
+              <effectiveTime value="20251209163000+0000"/>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.2.7" extension="V-1209-1"/>
+                  <code code="8480-6" displayName="Systolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fv-2-s"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251209163000+0000"/>
+                  <value xsi:type="PQ" value="142" unit="mm[Hg]"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.2.7" extension="V-1209-2"/>
+                  <code code="8462-4" displayName="Diastolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fv-2-d"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20251209163000+0000"/>
+                  <value xsi:type="PQ" value="88" unit="mm[Hg]"/>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="CLUSTER" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.26"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.26" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.2.7" extension="V-0615"/>
+              <code code="46680005" displayName="Vital signs" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                <translation code="74728-7" displayName="Vital signs, weight, height, head circumference, oximetry, BMI, and BSA panel - HL7.CCDAr1.1" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              </code>
+              <statusCode code="completed"/>
+              <effectiveTime value="20260615152000+0000"/>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.2.7" extension="V-0615-1"/>
+                  <code code="8480-6" displayName="Systolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fv-3-s"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260615152000+0000"/>
+                  <value xsi:type="PQ" value="128" unit="mm[Hg]"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.2.7" extension="V-0615-2"/>
+                  <code code="8462-4" displayName="Diastolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#fv-3-d"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260615152000+0000"/>
+                  <value xsi:type="PQ" value="80" unit="mm[Hg]"/>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.17"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.17" extension="2015-08-01"/>
+          <code code="29762-2" displayName="Social history Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Social History</title>
+          <text>
+            <list>
+              <item ID="fs-1">Never smoker, recorded September 22, 2025</item>
+            </list>
+          </text>
+          <entry typeCode="DRIV">
+            <observation classCode="OBS" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.78"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.78" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.2.8" extension="S-0922"/>
+              <code code="72166-2" displayName="Tobacco smoking status" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <text>
+                <reference value="#fs-1"/>
+              </text>
+              <statusCode code="completed"/>
+              <effectiveTime value="20250922160000+0000"/>
+              <value xsi:type="CD" code="266919005" displayName="Never smoked tobacco" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+            </observation>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.10"/>
+          <code code="18776-5" displayName="Plan of care note" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Plan of Treatment</title>
+          <text>
+            <paragraph>September 22, 2025 (annual visit, Elena Marsh, MD): Fasting glucose 138 and hemoglobin A1c 6.9%: new diagnosis of type 2 diabetes. Start metformin ER 500 mg with the evening meal; referred to diabetes education. Dry cough for several months on lisinopril: stop lisinopril, start losartan 50 mg daily. Continue amlodipine 5 mg.</paragraph>
+            <paragraph>December 9, 2025 (follow-up, Elena Marsh, MD): Cough resolved. Blood pressure 142/88, above goal. Add hydrochlorothiazide 12.5 mg daily. A1c 6.7%. Return in 3 months.</paragraph>
+            <paragraph>June 15, 2026 (follow-up, Elena Marsh, MD): Blood pressure 128/80, at goal. A1c 6.6%. Continue current medications. Return in 6 months.</paragraph>
+          </text>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

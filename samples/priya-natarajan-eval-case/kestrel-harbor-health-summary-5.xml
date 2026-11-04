@@ -1,0 +1,1264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <realmCode code="US"/>
+  <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.2" extension="2015-08-01"/>
+  <id root="2.16.840.1.113883.19.5.1.1" extension="CCD-KH48213-20260310"/>
+  <code code="34133-9" displayName="Summarization of Episode Note" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+  <title>Kestrel Harbor Hospital Health Summary</title>
+  <effectiveTime value="20260310081544+0000"/>
+  <confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25"/>
+  <languageCode code="en-US"/>
+  <recordTarget>
+    <patientRole>
+      <id root="2.16.840.1.113883.19.5.1.2" extension="KH48213"/>
+      <addr use="HP">
+        <streetAddressLine>48 Alder Lane</streetAddressLine>
+        <city>Fernhill</city>
+        <state>WA</state>
+        <postalCode>98000</postalCode>
+        <country>US</country>
+      </addr>
+      <telecom use="MC" value="tel:+1(555)555-0148"/>
+      <patient>
+        <name use="L">
+          <given>Priya</given>
+          <family>Natarajan</family>
+        </name>
+        <administrativeGenderCode code="F" displayName="Female" codeSystem="2.16.840.1.113883.5.1" codeSystemName="AdministrativeGender"/>
+        <birthTime value="19681104"/>
+        <raceCode code="2028-9" displayName="Asian" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
+        <ethnicGroupCode code="2186-5" displayName="Not Hispanic or Latino" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
+        <languageCommunication>
+          <languageCode code="en"/>
+          <preferenceInd value="true"/>
+        </languageCommunication>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <author>
+    <time value="20260310081544+0000"/>
+    <assignedAuthor>
+      <id root="2.16.840.1.113883.19.5.1.8" extension="KH-EHR"/>
+      <addr use="WP">
+        <streetAddressLine>1200 Harbor Way</streetAddressLine>
+        <city>Kestrel Harbor</city>
+        <state>WA</state>
+        <postalCode>98000</postalCode>
+        <country>US</country>
+      </addr>
+      <telecom use="WP" value="tel:+1(555)555-0100"/>
+      <assignedAuthoringDevice>
+        <manufacturerModelName>Kestrel Harbor EHR</manufacturerModelName>
+        <softwareName>Kestrel Harbor Patient Portal</softwareName>
+      </assignedAuthoringDevice>
+      <representedOrganization>
+        <id root="2.16.840.1.113883.19.5.1"/>
+        <name>Kestrel Harbor Hospital</name>
+        <telecom use="WP" value="tel:+1(555)555-0100"/>
+        <addr use="WP">
+          <streetAddressLine>1200 Harbor Way</streetAddressLine>
+          <city>Kestrel Harbor</city>
+          <state>WA</state>
+          <postalCode>98000</postalCode>
+          <country>US</country>
+        </addr>
+      </representedOrganization>
+    </assignedAuthor>
+  </author>
+  <custodian>
+    <assignedCustodian>
+      <representedCustodianOrganization>
+        <id root="2.16.840.1.113883.19.5.1"/>
+        <name>Kestrel Harbor Hospital</name>
+        <telecom use="WP" value="tel:+1(555)555-0100"/>
+        <addr use="WP">
+          <streetAddressLine>1200 Harbor Way</streetAddressLine>
+          <city>Kestrel Harbor</city>
+          <state>WA</state>
+          <postalCode>98000</postalCode>
+          <country>US</country>
+        </addr>
+      </representedCustodianOrganization>
+    </assignedCustodian>
+  </custodian>
+  <documentationOf>
+    <serviceEvent classCode="PCPR">
+      <effectiveTime>
+        <low value="20160822"/>
+        <high value="20260310"/>
+      </effectiveTime>
+    </serviceEvent>
+  </documentationOf>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.6.1" extension="2015-08-01"/>
+          <code code="48765-2" displayName="Allergies and adverse reactions Document" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Allergies</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Substance</th><th>Reaction</th><th>Criticality</th><th>Status</th><th>Noted</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="ALG-01">
+                  <td ID="ALG-01-SUB">Aspirin</td>
+                  <td ID="ALG-01-RXN">Hives</td>
+                  <td>Low</td>
+                  <td>Active</td>
+                  <td>August 2016</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.30"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.30" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.1.3" extension="ALGC-1001"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20160822151000+0000"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.7" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.1.3" extension="ALG-1001"/>
+                  <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                  <text>
+                    <reference value="#ALG-01"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="201608"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="416098002" displayName="Allergy to drug" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                  <participant typeCode="CSM">
+                    <participantRole classCode="MANU">
+                      <playingEntity classCode="MMAT">
+                        <code code="1191" displayName="aspirin" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                          <originalText>
+                            <reference value="#ALG-01-SUB"/>
+                          </originalText>
+                        </code>
+                      </playingEntity>
+                    </participantRole>
+                  </participant>
+                  <entryRelationship typeCode="SUBJ" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.145"/>
+                      <code code="82606-5" displayName="Allergy or intolerance criticality" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="CRITL" displayName="low criticality" codeSystem="2.16.840.1.113883.5.1063" codeSystemName="ObservationValue"/>
+                    </observation>
+                  </entryRelationship>
+                  <entryRelationship typeCode="MFST" inversionInd="true">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9"/>
+                      <templateId root="2.16.840.1.113883.10.20.22.4.9" extension="2014-06-09"/>
+                      <id root="2.16.840.1.113883.19.5.1.3" extension="ALGR-1001"/>
+                      <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4"/>
+                      <text>
+                        <reference value="#ALG-01-RXN"/>
+                      </text>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="126485001" displayName="Urticaria" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                      <entryRelationship typeCode="SUBJ" inversionInd="true">
+                        <observation classCode="OBS" moodCode="EVN">
+                          <templateId root="2.16.840.1.113883.10.20.22.4.8"/>
+                          <templateId root="2.16.840.1.113883.10.20.22.4.8" extension="2014-06-09"/>
+                          <code code="SEV" displayName="Severity Observation" codeSystem="2.16.840.1.113883.5.4"/>
+                          <statusCode code="completed"/>
+                          <value xsi:type="CD" code="6736007" displayName="Moderate" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                        </observation>
+                      </entryRelationship>
+                    </observation>
+                  </entryRelationship>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.1.1" extension="2014-06-09"/>
+          <code code="10160-0" displayName="History of Medication use Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Medications</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Medication</th><th>Instructions</th><th>Start</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="MED-01">
+                  <td ID="MED-01-NAME">losartan potassium 50 MG Oral Tablet</td>
+                  <td>Take 1 tablet by mouth once daily.</td>
+                  <td>September 22, 2025</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="MED-02">
+                  <td ID="MED-02-NAME">amlodipine 5 MG Oral Tablet</td>
+                  <td>Take 1 tablet by mouth once daily.</td>
+                  <td>April 1, 2025</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="MED-03">
+                  <td ID="MED-03-NAME">metformin hydrochloride 500 MG 24 HR Extended Release Oral Tablet</td>
+                  <td>Take 1 tablet by mouth once daily with the evening meal.</td>
+                  <td>September 22, 2025</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="MED-04">
+                  <td ID="MED-04-NAME">hydrochlorothiazide 12.5 MG Oral Capsule</td>
+                  <td>STOP taking this medicine.</td>
+                  <td>December 9, 2025</td>
+                  <td>Discontinued March 5, 2026 (hyponatremia)</td>
+                </tr>
+                <tr ID="MED-05">
+                  <td ID="MED-05-NAME">lisinopril 10 MG Oral Tablet</td>
+                  <td>Take 1 tablet by mouth once daily.</td>
+                  <td>June 15, 2023</td>
+                  <td>Discontinued September 22, 2025 by outside provider (cough); replaced by losartan</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.1.4" extension="MED-2604"/>
+              <text>
+                <reference value="#MED-01"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20250922"/>
+              </effectiveTime>
+              <effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+                <period value="24" unit="h"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="979492" displayName="losartan potassium 50 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#MED-01-NAME"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.1.4" extension="MED-2391"/>
+              <text>
+                <reference value="#MED-02"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20250401"/>
+              </effectiveTime>
+              <effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+                <period value="24" unit="h"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="197361" displayName="amlodipine 5 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#MED-02-NAME"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.1.4" extension="MED-2605"/>
+              <text>
+                <reference value="#MED-03"/>
+              </text>
+              <statusCode code="active"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20250922"/>
+              </effectiveTime>
+              <effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+                <period value="24" unit="h"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="860975" displayName="24 HR metformin hydrochloride 500 MG Extended Release Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#MED-03-NAME"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.1.4" extension="MED-2611"/>
+              <text>
+                <reference value="#MED-04"/>
+              </text>
+              <statusCode code="aborted"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20251209"/>
+              <high value="20260305"/>
+              </effectiveTime>
+              <effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+                <period value="24" unit="h"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="199903" displayName="hydrochlorothiazide 12.5 MG Oral Capsule" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm">
+                      <originalText>
+                        <reference value="#MED-04-NAME"/>
+                      </originalText>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+          <entry typeCode="DRIV">
+            <substanceAdministration classCode="SBADM" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.16"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.1.4" extension="MED-2207"/>
+              <text>
+                <reference value="#MED-05"/>
+              </text>
+              <statusCode code="aborted"/>
+              <effectiveTime xsi:type="IVL_TS">
+                <low value="20230615"/>
+              <high value="20250922"/>
+              </effectiveTime>
+              <effectiveTime xsi:type="PIVL_TS" institutionSpecified="true" operator="A">
+                <period value="24" unit="h"/>
+              </effectiveTime>
+              <routeCode code="C38288" displayName="ORAL" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus"/>
+              <doseQuantity value="1"/>
+              <consumable>
+                <manufacturedProduct classCode="MANU">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
+                  <manufacturedMaterial>
+                    <code code="KH-20417" displayName="lisinopril 10 MG Oral Tablet" codeSystem="2.16.840.1.113883.19.5.1.9" codeSystemName="Kestrel Harbor Formulary">
+                      <originalText>
+                        <reference value="#MED-05-NAME"/>
+                      </originalText>
+                      <translation code="314076" displayName="lisinopril 10 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm"/>
+                    </code>
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1" extension="2015-08-01"/>
+          <code code="11450-4" displayName="Problem list - Reported" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Problems</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Problem</th><th>Onset</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="PRB-01">
+                  <td ID="PRB-01-NAME">Essential hypertension</td>
+                  <td>June 15, 2023</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="PRB-02">
+                  <td ID="PRB-02-NAME">Type 2 diabetes mellitus</td>
+                  <td>September 22, 2025</td>
+                  <td>Active</td>
+                </tr>
+                <tr ID="PRB-03">
+                  <td ID="PRB-03-NAME">Hyponatremia</td>
+                  <td>March 2, 2026</td>
+                  <td>Resolved March 5, 2026</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.1.6" extension="PRBC-3310"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20230615"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.6" extension="PRB-3310"/>
+                  <code code="55607006" displayName="Problem" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <translation code="75326-9" displayName="Problem" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  </code>
+                  <text>
+                    <reference value="#PRB-01"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20230615"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="59621000" displayName="Essential hypertension" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <originalText>
+                      <reference value="#PRB-01-NAME"/>
+                    </originalText>
+                  </value>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.1.6" extension="PRBC-3502"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="active"/>
+              <effectiveTime>
+                <low value="20260302"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.6" extension="PRB-3502"/>
+                  <code code="55607006" displayName="Problem" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <translation code="75326-9" displayName="Problem" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  </code>
+                  <text>
+                    <reference value="#PRB-02"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20250922"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="44054006" displayName="Diabetes mellitus type 2" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <originalText>
+                      <reference value="#PRB-02-NAME"/>
+                    </originalText>
+                  </value>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+          <entry typeCode="DRIV">
+            <act classCode="ACT" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.3"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.1.6" extension="PRBC-3519"/>
+              <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20260302"/>
+                <high value="20260305"/>
+              </effectiveTime>
+              <entryRelationship typeCode="SUBJ">
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.6" extension="PRB-3519"/>
+                  <code code="55607006" displayName="Problem" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <translation code="75326-9" displayName="Problem" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  </code>
+                  <text>
+                    <reference value="#PRB-03"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime>
+                    <low value="20260302"/>
+                    <high value="20260305"/>
+                  </effectiveTime>
+                  <value xsi:type="CD" code="89627008" displayName="Hyponatremia" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                    <originalText>
+                      <reference value="#PRB-03-NAME"/>
+                    </originalText>
+                  </value>
+                  <entryRelationship typeCode="REFR">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.22.4.6"/>
+                      <code code="33999-4" displayName="Status" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                      <statusCode code="completed"/>
+                      <value xsi:type="CD" code="413322009" displayName="Resolved" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                    </observation>
+                  </entryRelationship>
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.7.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.7.1" extension="2014-06-09"/>
+          <code code="47519-4" displayName="History of Procedures Document" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Procedures</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Procedure</th><th>Date</th><th>Location</th><th>Result</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="PRC-01">
+                  <td ID="PRC-01-NAME">Colonoscopy</td>
+                  <td>April 16, 2019</td>
+                  <td>Kestrel Harbor Hospital Endoscopy</td>
+                  <td>Screening colonoscopy to the cecum, good preparation. Normal colon; no polyps. Repeat colonoscopy in 10 years.</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <procedure classCode="PROC" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.14"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.14" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.1.10" extension="PROC-1907"/>
+              <code code="73761001" displayName="Colonoscopy" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                <originalText>
+                  <reference value="#PRC-01-NAME"/>
+                </originalText>
+              </code>
+              <text>
+                <reference value="#PRC-01"/>
+              </text>
+              <statusCode code="completed"/>
+              <effectiveTime value="20190416"/>
+            </procedure>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.3.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.3.1" extension="2015-08-01"/>
+          <code code="30954-2" displayName="Relevant diagnostic tests/laboratory data Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Results</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Test</th><th>Result</th><th>Reference range</th><th>Collected</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="RES-1-1">
+                  <td>Sodium</td>
+                  <td>123 mmol/l (Low)</td>
+                  <td>136-145 mmol/l</td>
+                  <td>March 2, 2026 19:40 UTC</td>
+                </tr>
+                <tr ID="RES-1-2">
+                  <td>Potassium</td>
+                  <td>3.6 mmol/l</td>
+                  <td>3.5-5.1 mmol/l</td>
+                  <td>March 2, 2026 19:40 UTC</td>
+                </tr>
+                <tr ID="RES-1-3">
+                  <td>Chloride</td>
+                  <td>88 mmol/l (Low)</td>
+                  <td>98-107 mmol/l</td>
+                  <td>March 2, 2026 19:40 UTC</td>
+                </tr>
+                <tr ID="RES-1-4">
+                  <td>Creatinine</td>
+                  <td>1.04 mg/dL</td>
+                  <td>0.57-1.11 mg/dL</td>
+                  <td>March 2, 2026 19:40 UTC</td>
+                </tr>
+                <tr ID="RES-1-5">
+                  <td>eGFR (CKD-EPI 2021)</td>
+                  <td>62 mL/min/{1.73_m2}</td>
+                  <td>&gt;=60 mL/min/{1.73_m2}</td>
+                  <td>March 2, 2026 19:40 UTC</td>
+                </tr>
+                <tr ID="RES-1-6">
+                  <td>Glucose</td>
+                  <td>141 mg/dL (High)</td>
+                  <td>70-99 mg/dL</td>
+                  <td>March 2, 2026 19:40 UTC</td>
+                </tr>
+                <tr ID="RES-2-1">
+                  <td>Osmolality, serum</td>
+                  <td>256 mosm/kg (Low)</td>
+                  <td>275-295 mosm/kg</td>
+                  <td>March 2, 2026 19:40 UTC</td>
+                </tr>
+                <tr ID="RES-3-1">
+                  <td>TSH</td>
+                  <td>7.9 m[IU]/L (High)</td>
+                  <td>0.40-4.00 m[IU]/L</td>
+                  <td>March 3, 2026 06:10 UTC</td>
+                </tr>
+                <tr ID="RES-3-2">
+                  <td>Free T4</td>
+                  <td>1.0 ng/dL</td>
+                  <td>0.8-1.8 ng/dL</td>
+                  <td>March 3, 2026 06:10 UTC</td>
+                </tr>
+                <tr ID="RES-4-1">
+                  <td>Sodium</td>
+                  <td>133 mmol/l (Low)</td>
+                  <td>136-145 mmol/l</td>
+                  <td>March 5, 2026 06:05 UTC</td>
+                </tr>
+                <tr ID="RES-4-2">
+                  <td>Potassium</td>
+                  <td>4.0 mmol/l</td>
+                  <td>3.5-5.1 mmol/l</td>
+                  <td>March 5, 2026 06:05 UTC</td>
+                </tr>
+                <tr ID="RES-4-3">
+                  <td>Chloride</td>
+                  <td>97 mmol/l (Low)</td>
+                  <td>98-107 mmol/l</td>
+                  <td>March 5, 2026 06:05 UTC</td>
+                </tr>
+                <tr ID="RES-4-4">
+                  <td>Creatinine</td>
+                  <td>0.92 mg/dL</td>
+                  <td>0.57-1.11 mg/dL</td>
+                  <td>March 5, 2026 06:05 UTC</td>
+                </tr>
+                <tr ID="RES-4-5">
+                  <td>eGFR (CKD-EPI 2021)</td>
+                  <td>70 mL/min/{1.73_m2}</td>
+                  <td>&gt;=60 mL/min/{1.73_m2}</td>
+                  <td>March 5, 2026 06:05 UTC</td>
+                </tr>
+                <tr ID="RES-4-6">
+                  <td>Glucose</td>
+                  <td>118 mg/dL (High)</td>
+                  <td>70-99 mg/dL</td>
+                  <td>March 5, 2026 06:05 UTC</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.1.5" extension="LABP-61200"/>
+              <code code="51990-0" displayName="Basic metabolic panel - Blood" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20260302194000+0000"/>
+                <high value="20260302194000+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61202"/>
+                  <code code="2951-2" displayName="Sodium [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-1-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260302194000+0000"/>
+                  <value xsi:type="PQ" value="123" unit="mmol/l"/>
+                  <interpretationCode code="L" displayName="Low" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="136" unit="mmol/l"/>
+                        <high value="145" unit="mmol/l"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61203"/>
+                  <code code="2823-3" displayName="Potassium [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-1-2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260302194000+0000"/>
+                  <value xsi:type="PQ" value="3.6" unit="mmol/l"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="3.5" unit="mmol/l"/>
+                        <high value="5.1" unit="mmol/l"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61204"/>
+                  <code code="2075-0" displayName="Chloride [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-1-3"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260302194000+0000"/>
+                  <value xsi:type="PQ" value="88" unit="mmol/l"/>
+                  <interpretationCode code="L" displayName="Low" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="98" unit="mmol/l"/>
+                        <high value="107" unit="mmol/l"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61205"/>
+                  <code code="2160-0" displayName="Creatinine [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-1-4"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260302194000+0000"/>
+                  <value xsi:type="PQ" value="1.04" unit="mg/dL"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="0.57" unit="mg/dL"/>
+                        <high value="1.11" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61206"/>
+                  <code code="98979-8" displayName="Glomerular filtration rate [Volume Rate/Area] in Serum, Plasma or Blood by Creatinine-based formula (CKD-EPI 2021)/1.73 sq M" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-1-5"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260302194000+0000"/>
+                  <value xsi:type="PQ" value="62" unit="mL/min/{1.73_m2}"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="60" unit="mL/min/{1.73_m2}"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61207"/>
+                  <code code="2345-7" displayName="Glucose [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-1-6"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260302194000+0000"/>
+                  <value xsi:type="PQ" value="141" unit="mg/dL"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="70" unit="mg/dL"/>
+                        <high value="99" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.1.5" extension="LABP-61201"/>
+              <code code="2692-2" displayName="Osmolality of Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20260302194000+0000"/>
+                <high value="20260302194000+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61208"/>
+                  <code code="2692-2" displayName="Osmolality of Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-2-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260302194000+0000"/>
+                  <value xsi:type="PQ" value="256" unit="mosm/kg"/>
+                  <interpretationCode code="L" displayName="Low" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="275" unit="mosm/kg"/>
+                        <high value="295" unit="mosm/kg"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.1.5" extension="LABP-61230"/>
+              <code code="3016-3" displayName="Thyrotropin [Units/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20260303061000+0000"/>
+                <high value="20260303061000+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61209"/>
+                  <code code="3016-3" displayName="Thyrotropin [Units/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-3-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260303061000+0000"/>
+                  <value xsi:type="PQ" value="7.9" unit="m[IU]/L"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="0.40" unit="m[IU]/L"/>
+                        <high value="4.00" unit="m[IU]/L"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61210"/>
+                  <code code="3024-7" displayName="Thyroxine (T4) free [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-3-2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260303061000+0000"/>
+                  <value xsi:type="PQ" value="1.0" unit="ng/dL"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="0.8" unit="ng/dL"/>
+                        <high value="1.8" unit="ng/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="BATTERY" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.1"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.1" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.1.5" extension="LABP-61290"/>
+              <code code="51990-0" displayName="Basic metabolic panel - Blood" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <statusCode code="completed"/>
+              <effectiveTime>
+                <low value="20260305060500+0000"/>
+                <high value="20260305060500+0000"/>
+              </effectiveTime>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61211"/>
+                  <code code="2951-2" displayName="Sodium [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-4-1"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260305060500+0000"/>
+                  <value xsi:type="PQ" value="133" unit="mmol/l"/>
+                  <interpretationCode code="L" displayName="Low" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="136" unit="mmol/l"/>
+                        <high value="145" unit="mmol/l"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61212"/>
+                  <code code="2823-3" displayName="Potassium [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-4-2"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260305060500+0000"/>
+                  <value xsi:type="PQ" value="4.0" unit="mmol/l"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="3.5" unit="mmol/l"/>
+                        <high value="5.1" unit="mmol/l"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61213"/>
+                  <code code="2075-0" displayName="Chloride [Moles/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-4-3"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260305060500+0000"/>
+                  <value xsi:type="PQ" value="97" unit="mmol/l"/>
+                  <interpretationCode code="L" displayName="Low" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="98" unit="mmol/l"/>
+                        <high value="107" unit="mmol/l"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61214"/>
+                  <code code="2160-0" displayName="Creatinine [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-4-4"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260305060500+0000"/>
+                  <value xsi:type="PQ" value="0.92" unit="mg/dL"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="0.57" unit="mg/dL"/>
+                        <high value="1.11" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61215"/>
+                  <code code="98979-8" displayName="Glomerular filtration rate [Volume Rate/Area] in Serum, Plasma or Blood by Creatinine-based formula (CKD-EPI 2021)/1.73 sq M" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-4-5"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260305060500+0000"/>
+                  <value xsi:type="PQ" value="70" unit="mL/min/{1.73_m2}"/>
+                  <interpretationCode code="N" displayName="Normal" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="60" unit="mL/min/{1.73_m2}"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.2" extension="2015-08-01"/>
+                  <id root="2.16.840.1.113883.19.5.1.5" extension="LAB-61216"/>
+                  <code code="2345-7" displayName="Glucose [Mass/volume] in Serum or Plasma" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#RES-4-6"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260305060500+0000"/>
+                  <value xsi:type="PQ" value="118" unit="mg/dL"/>
+                  <interpretationCode code="H" displayName="High" codeSystem="2.16.840.1.113883.5.83" codeSystemName="ObservationInterpretation"/>
+                  <referenceRange>
+                    <observationRange>
+                      <value xsi:type="IVL_PQ">
+                        <low value="70" unit="mg/dL"/>
+                        <high value="99" unit="mg/dL"/>
+                      </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.4.1"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.4.1" extension="2015-08-01"/>
+          <code code="8716-3" displayName="Vital signs" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Vital Signs</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Taken</th><th>Blood pressure</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>March 2, 2026 18:55 UTC</td>
+                  <td><content ID="VS-01-S">104</content>/<content ID="VS-01-D">62</content> mm[Hg]</td>
+                </tr>
+                <tr>
+                  <td>March 5, 2026 08:10 UTC</td>
+                  <td><content ID="VS-02-S">126</content>/<content ID="VS-02-D">78</content> mm[Hg]</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <organizer classCode="CLUSTER" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.26"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.26" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.1.7" extension="VS-9120"/>
+              <code code="46680005" displayName="Vital signs" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                <translation code="74728-7" displayName="Vital signs, weight, height, head circumference, oximetry, BMI, and BSA panel - HL7.CCDAr1.1" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              </code>
+              <statusCode code="completed"/>
+              <effectiveTime value="20260302185500+0000"/>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.1.7" extension="VS-9121"/>
+                  <code code="8480-6" displayName="Systolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#VS-01-S"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260302185500+0000"/>
+                  <value xsi:type="PQ" value="104" unit="mm[Hg]"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.1.7" extension="VS-9122"/>
+                  <code code="8462-4" displayName="Diastolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#VS-01-D"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260302185500+0000"/>
+                  <value xsi:type="PQ" value="62" unit="mm[Hg]"/>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+          <entry typeCode="DRIV">
+            <organizer classCode="CLUSTER" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.26"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.26" extension="2015-08-01"/>
+              <id root="2.16.840.1.113883.19.5.1.7" extension="VS-9180"/>
+              <code code="46680005" displayName="Vital signs" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+                <translation code="74728-7" displayName="Vital signs, weight, height, head circumference, oximetry, BMI, and BSA panel - HL7.CCDAr1.1" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              </code>
+              <statusCode code="completed"/>
+              <effectiveTime value="20260305081000+0000"/>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.1.7" extension="VS-9181"/>
+                  <code code="8480-6" displayName="Systolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#VS-02-S"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260305081000+0000"/>
+                  <value xsi:type="PQ" value="126" unit="mm[Hg]"/>
+                </observation>
+              </component>
+              <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27"/>
+                  <templateId root="2.16.840.1.113883.10.20.22.4.27" extension="2014-06-09"/>
+                  <id root="2.16.840.1.113883.19.5.1.7" extension="VS-9182"/>
+                  <code code="8462-4" displayName="Diastolic blood pressure" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+                  <text>
+                    <reference value="#VS-02-D"/>
+                  </text>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20260305081000+0000"/>
+                  <value xsi:type="PQ" value="78" unit="mm[Hg]"/>
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.17"/>
+          <templateId root="2.16.840.1.113883.10.20.22.2.17" extension="2015-08-01"/>
+          <code code="29762-2" displayName="Social history Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Social History</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Smoking status</th><th>Recorded</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="SOC-01">
+                  <td>Never smoker</td>
+                  <td>March 2, 2026</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+          <entry typeCode="DRIV">
+            <observation classCode="OBS" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.78"/>
+              <templateId root="2.16.840.1.113883.10.20.22.4.78" extension="2014-06-09"/>
+              <id root="2.16.840.1.113883.19.5.1.7" extension="SH-9120"/>
+              <code code="72166-2" displayName="Tobacco smoking status" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+              <text>
+                <reference value="#SOC-01"/>
+              </text>
+              <statusCode code="completed"/>
+              <effectiveTime value="20260302185500+0000"/>
+              <value xsi:type="CD" code="266919005" displayName="Never smoked tobacco" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+            </observation>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.22"/>
+          <code code="46240-8" displayName="History of Hospitalizations+Outpatient visits Narrative" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Encounters</title>
+          <text>
+            <table border="1" width="100%">
+              <thead>
+                <tr><th>Encounter</th><th>Dates</th><th>Department</th><th>Attending</th><th>Discharge diagnosis</th></tr>
+              </thead>
+              <tbody>
+                <tr ID="ENC-01">
+                  <td>Inpatient admission</td>
+                  <td>March 2, 2026 - March 5, 2026</td>
+                  <td>Kestrel Harbor Hospital, Internal Medicine</td>
+                  <td>Rahul Venkat, MD</td>
+                  <td>Hyponatremia, likely due to hydrochlorothiazide; dizziness with a fall at home, no injury</td>
+                </tr>
+              </tbody>
+            </table>
+          </text>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.10"/>
+          <code code="18776-5" displayName="Plan of care note" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+          <title>Plan of Treatment</title>
+          <text>
+            <paragraph>Discharge instructions, March 5, 2026.</paragraph>
+            <paragraph>You were admitted with dizziness and a low sodium level (123). Your sodium improved after hydrochlorothiazide was stopped and with fluid restriction.</paragraph>
+            <paragraph>STOP taking hydrochlorothiazide. Continue losartan 50 mg once daily, amlodipine 5 mg once daily and metformin ER 500 mg with the evening meal.</paragraph>
+            <paragraph>Follow up with your primary care provider, Elena Marsh, MD, at Fernhill Family Clinic within 1-2 weeks.</paragraph>
+            <paragraph>Your thyroid test (TSH) was mildly high during your stay. Please have TSH and free T4 repeated in 6-8 weeks, once you have recovered.</paragraph>
+          </text>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

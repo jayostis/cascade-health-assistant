@@ -33,7 +33,7 @@
   ],
   "reset": [
     "npm run reset",
-    "remove every pod and load Alex's, Priya's, Martin's and Tamsin's again, as when the app was made"
+    "remove every pod and load Priya's sample pod again, as when the app was cloned"
   ],
   "pod:load": [
     "npm run pod:load -- <kit> [--through <step>] [--as <name>]",
