@@ -73,13 +73,23 @@ describe("a checked reply drawn as cards", () => {
 
   test("an absence names what was searched and whether the search is backed", () => {
     const [first] = points(html);
-    expect(first).toContain("Searched: a TSH or free T4 after 6 Mar 2026");
-    expect(first).toContain("all sources");
+    expect(first).toContain(
+      "Searched: codes 3016-3, 3024-7 · after Mar 6, 2026 · ask call 1",
+    );
     expect(first).toContain("nothing found");
     expect(first).toContain(
-      "Searched: a TSH after 6 Mar 2026, from a search that was never run",
+      "Searched: code 3016-3 · after Mar 6, 2026 · ask call 9",
     );
     expect(first).toContain("no such call");
+  });
+
+  test("the line of what was searched is drawn from what the program re-ran, never the model's words for it", () => {
+    for (const said of [
+      "a TSH or free T4 after 6 Mar 2026",
+      "a TSH after 6 Mar 2026, from a search that was never run",
+      "all sources",
+    ])
+      expect(html).not.toContain(said);
   });
 
   test("the model's knowledge is labelled, with its source or the lack of one", () => {
@@ -163,6 +173,24 @@ describe("a quote", () => {
 
   test("is not set as the source's words when the check did not find it", () => {
     expect(quoting(false)).not.toContain("<q");
+  });
+
+  test("is never drawn inside the reason a chip could not confirm", () => {
+    const chip = chipWith(quoting(false), "Thyrotropin")!;
+    expect(chip).toContain("says otherwise");
+    expect(chip).not.toContain("STOP taking");
+  });
+});
+
+describe("an entry whose IRI has odd characters", () => {
+  test("opens at an address with the part encoded", () => {
+    const clone = structuredClone(checked) as unknown as {
+      items: { facts: { filled?: { entry: string } }[] }[];
+    };
+    clone.items[0].facts[0].filled!.entry = "urn:cascade:a/b?c d#e/f?g h&i";
+    expect(draw(clone as unknown as CheckedReply)).toContain(
+      `href="/pods/${POD}/entries/e%2Ff%3Fg%20h%26i"`,
+    );
   });
 });
 

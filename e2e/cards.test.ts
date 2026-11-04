@@ -72,7 +72,7 @@ test("each point of a checked reply is a card, and a chip opens the entry and wh
     points.first().locator(".chip.unconfirmed").first(),
   ).toContainText("couldn't confirm");
   await expect(points.first().locator(".absence").first()).toContainText(
-    "Searched: a TSH or free T4 after 6 Mar 2026",
+    "Searched: codes 3016-3, 3024-7 · after Mar 6, 2026",
   );
   await expect(points.first().locator(".knowledge")).toContainText(
     "General information, not from your records",

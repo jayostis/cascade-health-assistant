@@ -32,14 +32,37 @@ const sourcesOf = (sources: readonly string[]) => [
 
 /**
  * Why a fact could not be confirmed, in the checker's words: `no such field: end`. What it missed of a record that is
- * not there is the model's handle, which says nothing to a person.
+ * not there is the model's handle, which says nothing to a person; a `quote …` it missed is the model's own words, and
+ * the screen shows none of those as the record.
  */
 const whyNot = ({ verdict, filled }: Fact) =>
   verdict.ok
     ? ""
-    : [verdict.reason, ...(filled === undefined ? [] : verdict.missing)].join(
-        ": ",
-      );
+    : [
+        verdict.reason,
+        ...(filled === undefined
+          ? []
+          : verdict.missing.filter(
+              (part) => part !== "quote" && !part.startsWith("quote "),
+            )),
+      ].join(": ");
+
+/** What a program re-ran for an absence, as a person reads it: the codes and words looked for, and from which day. */
+const searchedFor = ({ match, query }: Absence["absence"]) =>
+  [
+    match.codes === undefined || match.codes.length === 0
+      ? undefined
+      : `${match.codes.length === 1 ? "code" : "codes"} ${match.codes.join(", ")}`,
+    match.terms === undefined || match.terms.length === 0
+      ? undefined
+      : `${match.terms.length === 1 ? "word" : "words"} ${match.terms.join(", ")}`,
+    match.after === undefined ? undefined : `after ${day(match.after)}`,
+    query === undefined
+      ? undefined
+      : `${query.tool}${query.call === undefined ? "" : ` call ${query.call}`}`,
+  ]
+    .filter((part) => part !== undefined)
+    .join(" · ");
 
 const CHIP =
   "chip inline-flex max-w-full items-baseline gap-[0.35rem] rounded-[1rem] border px-[0.65rem] py-[0.2rem] text-[0.85rem] leading-snug no-underline";
@@ -90,14 +113,13 @@ function FactChip({ checked, pod }: { checked: Fact; pod: string }) {
   );
 }
 
-/** One absence: what was searched, over what, and whether the search a program re-ran found nothing, as the model said. */
+/** One absence: what the program searched for, drawn from the match it re-ran, and whether that found nothing, as the model said. */
 function Searched({ checked: { absence, backing } }: { checked: Absence }) {
   return (
     <p
       className={`absence ${backing.backed ? "backed" : "unbacked"} m-0 ${muted}`}
     >
-      {`Searched: ${absence.what}`}
-      {` · ${absence.coverage} · `}
+      {`Searched: ${searchedFor(absence)} · `}
       {backing.backed ? (
         "re-run, nothing found"
       ) : (
