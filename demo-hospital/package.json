@@ -1,0 +1,14 @@
+{
+  "name": "@the-cascade-protocol/sandbox",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./node": "./dist/src/node/index.js",
+    "./testing": "./dist/src/testing.js",
+    "./web": "./dist/src/web/index.js",
+    "./web/worker": "./dist/src/web/worker.js",
+    "./package.json": "./package.json"
+  },
+  "license": "Apache-2.0"
+}

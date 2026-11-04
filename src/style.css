@@ -1,0 +1,174 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@theme {
+  --color-page: #f6f7f8;
+  --color-panel: #ffffff;
+  --color-text: #1f2933;
+  --color-muted: #5f6b76;
+  --color-line: #e1e5e8;
+  --color-soft: #eef1f3;
+  --color-accent: #2b6a8e;
+  --color-on-accent: #ffffff;
+  --color-tint: #eaf3f8;
+  --color-bar: #243b4a;
+  --color-on-bar: #f3f5f6;
+  --color-warm: #b0432f;
+  --color-warm-bg: #fbeae6;
+  --breakpoint-md: 46rem;
+  --shadow-pop: 0 6px 24px rgb(0 0 0 / 0.25);
+  --shadow-modal: 0 10px 40px rgb(0 0 0 / 0.3);
+  --shadow-float: 0 4px 16px rgb(0 0 0 / 0.2);
+  --animate-arrive: arrive 0.15s;
+  --animate-spin-slow: spin 0.8s linear infinite;
+  @keyframes arrive {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-page: #1a1d20;
+    --color-panel: #23272b;
+    --color-text: #e6e9ec;
+    --color-muted: #9aa5ae;
+    --color-line: #353b41;
+    --color-soft: #2c3237;
+    --color-accent: #8fc1dc;
+    --color-on-accent: #14202a;
+    --color-tint: #243239;
+    --color-bar: #101417;
+    --color-on-bar: #e6e9ec;
+    --color-warm: #f0a08f;
+    --color-warm-bg: #3c2622;
+  }
+}
+
+/*
+ * No Preflight: the screens rely on the browser's own margins and lists, and the look is kept as it was. These are
+ * the element defaults every screen shares; everything else is a utility on its element.
+ */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+  }
+  [hidden]:not([hidden="until-found"]) {
+    display: none !important;
+  }
+  body {
+    margin: 0;
+    font:
+      16px/1.55 system-ui,
+      sans-serif;
+    background: var(--color-page);
+    color: var(--color-text);
+  }
+  body[data-state="busy"] {
+    cursor: progress;
+  }
+  a {
+    color: var(--color-accent);
+  }
+  h1 {
+    font-size: 1.75rem;
+    margin: 0 0 0.2rem;
+  }
+  h2 {
+    font-size: 1.05rem;
+    margin: 0 0 0.6rem;
+  }
+  button,
+  input {
+    font: inherit;
+  }
+  button {
+    display: inline-block;
+    padding: 0.45rem 1rem;
+    border-radius: 7px;
+    border: 1px solid var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    cursor: pointer;
+  }
+  input {
+    padding: 0.45rem 0.65rem;
+    border: 1px solid var(--color-line);
+    border-radius: 7px;
+    background: var(--color-page);
+    color: var(--color-text);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.95rem;
+  }
+  th,
+  td {
+    text-align: left;
+    vertical-align: baseline;
+    padding: 0.45rem 0.6rem;
+    border-top: 1px solid var(--color-line);
+  }
+  th {
+    border-top: 0;
+    position: sticky;
+    top: 0;
+    background: var(--color-panel);
+  }
+  td:first-child {
+    font-weight: 500;
+  }
+}
+
+/*
+ * What utilities cannot say: the loading placeholder's shimmer, which needs its own keyframes and a gradient on the
+ * lines, and the reduced-motion rule that ends it.
+ */
+@layer components {
+  .pending {
+    position: relative;
+    animation: arrive 0.15s 0.3s backwards;
+  }
+  .pending [role="status"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .pending span {
+    display: block;
+    height: 0.9rem;
+    margin-block: calc((var(--pitch, 1.4rem) - 0.9rem) / 2);
+    border-radius: 0.25rem;
+    background: linear-gradient(
+        90deg,
+        var(--color-line) 35%,
+        var(--color-soft) 50%,
+        var(--color-line) 65%
+      )
+      0 0 / 300% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+  .pending span:last-child {
+    width: 60%;
+  }
+  @keyframes shimmer {
+    to {
+      background-position-x: -200%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pending {
+      animation-duration: 0.01s;
+    }
+    .pending span {
+      animation: none;
+    }
+  }
+}
