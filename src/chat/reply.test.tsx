@@ -200,17 +200,15 @@ describe("a reply that did not fit the contract", () => {
     items: [],
   };
 
-  test("is not drawn as cards, and says it was not checked", () => {
-    const html = draw(broken);
-    expect(points(html)).toHaveLength(0);
-    expect(html).toContain("Not checked");
+  test("is not drawn as cards; that it was not checked is the folded line's to say (turn.test.tsx)", () => {
+    expect(draw(broken)).toBe("");
   });
 
   test("nor is a part that is not a checked reply at all, which draws no error of its own", () => {
-    expect(draw({} as CheckedReply)).toContain("Not checked");
-    expect(
-      draw({ errors: [], items: "none" } as unknown as CheckedReply),
-    ).toContain("Not checked");
+    expect(draw({} as CheckedReply)).toBe("");
+    expect(draw({ errors: [], items: "none" } as unknown as CheckedReply)).toBe(
+      "",
+    );
   });
 
   test("a checked reply with no points draws nothing", () => {

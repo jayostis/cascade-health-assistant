@@ -118,7 +118,7 @@ const stream = (data: unknown) =>
     { type: "finish" },
   ]);
 
-test("a turn shows its progress, then the answer and its cards, with what it looked at folded; a chip opens the entry and where it came from", async ({
+test("a turn shows its progress, then the answer with one folded line; opening it shows the cards, then what it looked at; a chip opens the entry and where it came from", async ({
   page,
 }) => {
   let release = () => {};
@@ -163,29 +163,32 @@ test("a turn shows its progress, then the answer and its cards, with what it loo
   release();
   await expect(working).toHaveCount(0);
 
+  // The answer and one folded line under it that carries the check's verdict and counts: no card, no step shown.
   const points = page.locator(".chat .point");
-  await expect(points).toHaveCount(4);
+  const supporting = page.locator(".chat .supporting");
+  const looked = page.locator(".chat .looked-at");
+  await expect(supporting.locator("summary")).toHaveText(
+    "Checked against your records · 5 facts confirmed · 3 could not be confirmed · 1 step",
+  );
+  await expect(supporting).not.toHaveAttribute("open");
+  await expect(page.getByText("Here is what I would raise.")).toBeVisible();
+  await expect(page.locator(".chat .point:visible")).toHaveCount(0);
+  await expect(looked).toBeHidden();
 
-  // The answer, then its cards, then what it looked at, folded; the five changes are never cards of their own.
+  // Opened, it shows the cards, then what it looked at; the five changes are never cards of their own.
+  await supporting.locator("summary").click();
+  await expect(points).toHaveCount(4);
+  await expect(points.first()).toBeVisible();
   const answer = page.getByText("Here is what I would raise.");
-  const folded = page.locator(".chat .looked-at");
   const at = async (target: typeof answer) =>
     (await target.boundingBox())!.y;
-  expect(await at(answer)).toBeLessThan(await at(points.first()));
-  expect(await at(points.last())).toBeLessThan(await at(folded));
-  await expect(folded.locator("summary")).toHaveText(
-    "What it looked at (1 step)",
-  );
-  await expect(folded).not.toHaveAttribute("open");
+  expect(await at(answer)).toBeLessThan(await at(supporting));
+  expect(await at(points.last())).toBeLessThan(await at(looked));
   await expect(page.locator(".chat .card")).toHaveCount(0);
-  await folded.locator("summary").click();
-  await expect(folded).toContainText(
-    "Looked at lab results after ondansetron",
-  );
-  await expect(folded.locator(".thin")).toHaveText(
+  await expect(looked).toContainText("Looked at lab results after ondansetron");
+  await expect(looked.locator(".thin")).toHaveText(
     "Not enough results to compare: Creatinine, Sodium, Potassium, Glucose, Calcium around ondansetron 4 MG Disintegrating Oral Tablet",
   );
-  await folded.locator("summary").click();
 
   await expect(points.first().locator(".chip.confirmed").first()).toContainText(
     "Thyrotropin",
@@ -210,14 +213,13 @@ test("a turn shows its progress, then the answer and its cards, with what it loo
   ).toBeVisible();
   await expect(page.getByText("Kestrel Harbor Hospital").first()).toBeVisible();
 
-  // A change with a direction is reached from the fold: Open the trend moves the app, the chat staying open.
-  await folded.locator("summary").click();
-  await expect(folded).toContainText(
+  // A change with a direction is reached from what it looked at: Open the trend moves the app, the chat staying open.
+  await expect(looked).toContainText(
     "Before: mean 2.50 mIU/L over 1 result (2.50 to 2.50)",
   );
-  await folded.getByRole("button", { name: "Open the trend" }).click();
+  await looked.getByRole("button", { name: "Open the trend" }).click();
   await expect(page).toHaveURL(new RegExp(`/pods/${POD}/trend\\?test=3016-3$`));
-  await expect(folded).toBeVisible();
+  await expect(looked).toBeVisible();
 });
 
 test("a reply tool part that never gets an output does not hold the turn on 'Using reply': the answer is drawn", async ({
@@ -262,7 +264,9 @@ test("a reply tool part that never gets an output does not hold the turn on 'Usi
   await page.getByRole("button", { name: "Send" }).click();
 
   await expect(page.getByText("Here is what I would raise.")).toBeVisible();
-  await expect(page.locator(".chat .point").first()).toBeVisible();
+  await expect(page.locator(".chat .supporting summary")).toContainText(
+    "Checked against your records",
+  );
   await expect(page.locator(".chat .working")).toHaveCount(0);
   await expect(page.locator(".chat")).not.toContainText("Using reply");
   await expect(page.locator(".chat .looked-at")).toHaveCount(0);
