@@ -8,6 +8,7 @@ import {
   type PodAsker,
   podReplyParts,
   type Ran,
+  type Reply,
   replyContract,
 } from "cascade-runtime";
 
@@ -55,8 +56,12 @@ export async function repliedTo(
   try {
     value = JSON.parse(text);
   } catch {
-    if (!text.trimStart().startsWith("{")) return unchecked(text, NOT_JSON);
-    const { value: partial } = await parsePartialJson(text);
+    const unfenced = text
+      .trim()
+      .replace(/^```[a-z]*\s*/i, "")
+      .replace(/\s*```$/, "");
+    if (!unfenced.startsWith("{")) return unchecked(text, NOT_JSON);
+    const { value: partial } = await parsePartialJson(unfenced);
     const begun = (partial as { answer?: unknown } | undefined)?.answer;
     return unchecked(
       typeof begun === "string" && begun.trim() !== "" ? begun : CUT_OFF,
@@ -78,26 +83,50 @@ export async function repliedTo(
 }
 
 /**
- * Whether a checked reply says "recommend" in its own voice: in its answer, short, or an item's says, why or knowledge,
- * outside the quotes of facts that passed their check. Source text is quoted exactly, the word included.
+ * Whether a checked reply says "recommend" in its own voice: in any text the model wrote, outside the quotation marks
+ * round a passed fact's quote. Source text is quoted exactly, the word included; the same words said unquoted, or a
+ * quote that failed its check, do not excuse it. Case and spacing do not matter to the match.
  */
-function recommending({ reply, items }: CheckedReply): boolean {
+export function recommending({ reply, items }: CheckedReply): boolean {
   const quotes = items.flatMap(({ facts }) =>
     facts.flatMap(({ fact, verdict }) =>
-      verdict.ok && "quote" in fact && fact.quote ? [fact.quote] : [],
+      verdict.ok && "quote" in fact && fact.quote?.trim()
+        ? [
+            new RegExp(
+              fact.quote
+                .trim()
+                .split(/\s+/)
+                .map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+                .join("\\s+"),
+              "gi",
+            ),
+          ]
+        : [],
     ),
   );
   const outside = (text: string) =>
-    quotes.reduce((rest, quote) => rest.replaceAll(quote, ""), text);
+    text.replace(/"[^"]*"|“[^”]*”/g, (marked) =>
+      quotes.reduce((rest, quote) => rest.replace(quote, ""), marked),
+    );
+  return textsOf(reply!).some((text) => /recommend/i.test(outside(text)));
+}
+
+/** Every text of a reply the model wrote. */
+function textsOf(reply: Reply): string[] {
   return [
-    reply!.answer,
-    reply!.short,
-    ...reply!.items.flatMap((item) => [
+    reply.answer,
+    reply.short,
+    ...(reply.links ?? []).map(({ says }) => says),
+    ...reply.items.flatMap((item) => [
       item.says,
       item.why,
       item.knowledge?.says ?? "",
+      item.knowledge?.guideline ?? "",
+      ...(item.facts ?? []).map(({ says }) => says),
+      ...(item.absences ?? []).flatMap(({ what, coverage }) => [what, coverage]),
+      ...(item.links ?? []).map(({ says }) => says),
     ]),
-  ].some((text) => /recommend/i.test(outside(text)));
+  ];
 }
 
 function unchecked(said: string, why: string): Replied {

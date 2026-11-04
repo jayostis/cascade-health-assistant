@@ -15,7 +15,7 @@ import { podApi } from "../pod-api.ts";
 import { loadSample, SAMPLE } from "../sample.ts";
 import { appServer } from "../server/app.ts";
 import { chatRoutes } from "../server/chat.ts";
-import { asker, repliedTo } from "../server/reply.ts";
+import { asker, recommending, repliedTo } from "../server/reply.ts";
 
 const ORIGIN = "http://app.test";
 const POD = SAMPLE.pod;
@@ -324,6 +324,11 @@ test.each([
     "Her A1c was 6.6 % in Ju",
   ],
   ["half-written JSON before its answer", `{"ans`, "The answer was cut off."],
+  [
+    "half-written JSON in a code fence",
+    '```json\n{"answer":"Her A1c was 6.6 % in Ju',
+    "Her A1c was 6.6 % in Ju",
+  ],
 ])(
   "a reply cut off at the length limit with %s never shows the person raw JSON",
   async (_, said, shown) => {
@@ -375,7 +380,81 @@ test("a reply that says recommend in its own voice is not checked, and one that 
   expect(failed.checked!.errors.length).toBeGreaterThan(0);
 });
 
-test("a turn that ended in a page tool keeps its earlier reads for the absence of the request after it", async () => {
+const QUOTE = "Recommend follow-up CT";
+
+/** A checked reply whose one fact passed its check with `QUOTE`, and the model's texts as `set`. */
+function checkedWith(set: {
+  quote?: string;
+  answer?: string;
+  factSays?: string;
+  coverage?: string;
+  guideline?: string;
+  itemLink?: string;
+  link?: string;
+}): CheckedReply {
+  const fact = {
+    says: set.factSays ?? "Her A1c",
+    cite: { entry: A1C },
+    field: "text" as const,
+    quote: set.quote ?? QUOTE,
+  };
+  const reply = {
+    answer: set.answer ?? "Her A1c was 6.6 % in June.",
+    short: "A1c 6.6 %.",
+    items: [
+      {
+        n: 1,
+        says: "Her A1c was high in June.",
+        why: "It is above the lab's range.",
+        confidence: "high",
+        facts: [fact],
+        absences: [
+          {
+            what: "a mammogram",
+            match: { terms: ["mammogram"] },
+            coverage: set.coverage ?? "her procedures",
+            query: { tool: "ask", input: {} },
+          },
+        ],
+        ...(set.guideline === undefined
+          ? {}
+          : { knowledge: { says: "Screening is yearly.", guideline: set.guideline } }),
+        ...(set.itemLink === undefined
+          ? {}
+          : { links: [{ from: 1, to: 1, says: set.itemLink }] }),
+      },
+    ],
+    ...(set.link === undefined
+      ? {}
+      : {
+          links: [
+            { from: { item: 1, fact: 1 }, to: { item: 1, fact: 1 }, says: set.link },
+          ],
+        }),
+  };
+  return {
+    errors: [],
+    reply,
+    items: [{ facts: [{ fact, verdict: { ok: true } }], absences: [] }],
+  } as unknown as CheckedReply;
+}
+
+test.each([
+  ["a passed quote said in the model's own voice", { quote: "recommend rest daily", answer: "I recommend rest daily" }, true],
+  ["a quote that is the model's own words, passed", { answer: "I recommend follow-up CT" }, true],
+  ["a passed quote inside straight quotation marks, in another case and spacing", { answer: 'I\'d ask about it: the report says "recommend  FOLLOW-UP ct"' }, false],
+  ["a passed quote inside curly quotation marks", { answer: "I'd ask about it: the report says “Recommend follow-up CT”" }, false],
+  ["a quote and then the word outside the marks", { answer: 'The report says "Recommend follow-up CT" and I recommend it' }, true],
+  ["the word in a fact's says", { factSays: "The report recommends a CT" }, true],
+  ["the word in an absence's coverage", { coverage: "where one would recommend it" }, true],
+  ["the word in a knowledge guideline", { guideline: "Guidelines recommend yearly screening" }, true],
+  ["the word in an item's link", { itemLink: "this recommends that" }, true],
+  ["the word in a link between items", { link: "this recommends that" }, true],
+])("the word recommend is held to quotes that passed: %s", (_, set, flagged) => {
+  expect(recommending(checkedWith(set))).toBe(flagged);
+});
+
+test("an absence over an earlier request's read is not checked, even when that turn ended in a page tool", async () => {
   const procedures = { pod: POD, question: "pod/My procedures" };
   const absent = replyOf([
     point(
@@ -437,7 +516,8 @@ test("a turn that ended in a page tool keeps its earlier reads for the absence o
       ],
     },
   ]);
-  expect(second.checked!.items[0]!.absences[0]!.backing).toEqual({
-    backed: true,
+  expect(second.checked!.items[0]!.absences[0]!.backing).toMatchObject({
+    backed: false,
+    reason: "query not run",
   });
 });
