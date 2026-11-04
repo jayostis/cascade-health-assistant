@@ -2,6 +2,11 @@
 // runs the free reads of `tools.ts` for up to `MAX_ROUNDS` rounds; every other tool it offers goes to the page with
 // no server `execute`, so the page moves itself and asks the person before a write. `POST /chat` answers with the
 // AI SDK's UI message stream; `GET /chat` names the model.
+//
+// The model replies in `cascade-runtime`'s contract (`reply.ts`): points that cite entries by handle, never copying a
+// value. When it has stopped, its last words are checked against the pod, with the tool calls this request ran, and the
+// stream ends with the answer as a text part and the checked reply as a `data-reply` part. The JSON the model wrote is
+// not streamed.
 import {
   convertToModelMessages,
   createUIMessageStreamResponse,
@@ -11,6 +16,7 @@ import {
   jsonSchema,
   type JSONValue,
   NoSuchToolError,
+  Output,
   streamText,
   tool,
   type ToolSet,
@@ -18,8 +24,15 @@ import {
   type UIMessageChunk,
   validateUIMessages,
 } from "ai";
-import { checkInput, type InputSchema, Refusal } from "cascade-runtime";
+import {
+  checkInput,
+  type InputSchema,
+  type Ran,
+  Refusal,
+  replySchema,
+} from "cascade-runtime";
 import { withPod } from "cascade-runtime/tools";
+import { randomUUID } from "node:crypto";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
@@ -30,6 +43,7 @@ import { podPath, trendPath } from "../pods.ts";
 import { CHANGED, changeSaid, entryId } from "../said.ts";
 import { TOOLS } from "../tools.ts";
 import type { ChatServed } from "./app.ts";
+import { asker, CONTRACT, podOf, type Replied, repliedTo } from "./reply.ts";
 
 /** How many rounds of tool calls a chat runs before the model must answer. */
 export const MAX_ROUNDS = 6;
@@ -38,12 +52,17 @@ const MAX_CHARACTERS = 100_000;
 const MAX_BODY_BYTES = 1024 * 1024;
 const MAX_CONTEXT = 200;
 
-/** The rules the model is given, apart from where the person is. */
+/** The rules the model is given, and the reply contract it answers in, apart from where the person is. */
 export const RULES = `You answer questions about the health records in the pods of this app, for the person who owns them.
 Every number, date and name you give comes from a tool's result, never from memory or estimate. Say when a tool finds nothing.
 A finding says what changed after what: a test's results were lower or higher after a medication started or stopped. It never says why, never that the medication caused the change, and never advice about what to do. A clinician can say why.
 A record's date is a fact of the record. Never call a date "in the future" or "in the past" because of what you believe the date today to be.
-Write plain text with no links and no markdown. The app shows a finding's rows under your answer, and open_trend, open_entry and open_pod move the app to a page: use them when the person asks to see something.`;
+Never say that you recommend anything: offer what the person might ask their clinician as questions.
+Write every text of your reply as plain text with no links and no markdown. The app shows a finding's rows under your answer, and open_trend, open_entry and open_pod move the app to a page: use them when the person asks to see something.
+
+A person's records are read with the ask tool: with the pod's name and format "compact", and no question, it gives the whole pod a page at a time, each entry by a short handle and each source by a short name its legend explains. Ask again with the page's next input until there is none. You cite an entry by its handle.
+
+${CONTRACT}`;
 
 /** What a chat that began with "Ask about this" is also told: its answer is about the thing, not the person. */
 export const EXPLAIN_THE_THING =
@@ -154,6 +173,40 @@ export const CLIENT_OUTPUTS = {
   set_world_date: z.object({ asOf: z.string().optional() }),
 };
 
+/** Takes a tool call the server ran, as the checker reads it. */
+export type Recorder = (ran: Ran) => void;
+
+/**
+ * `run`, the server's own call of a tool, noted with the answer the model saw (`seen` of what it gave, or the
+ * refusal's words): the checker holds an absence to these and to nothing the page sends back.
+ */
+async function recorded<T>(
+  record: Recorder | undefined,
+  tool: string,
+  input: Input,
+  run: () => Promise<T>,
+  seen: (output: T) => unknown = (output) => output,
+): Promise<T> {
+  try {
+    const output = await run();
+    record?.({
+      tool,
+      input,
+      ok: true,
+      answer: JSON.stringify(seen(output)) ?? "",
+    });
+    return output;
+  } catch (error) {
+    record?.({
+      tool,
+      input,
+      ok: false,
+      answer: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
+}
+
 /** Runs a tool: a `Refusal` goes to the model as it is, any other error to the log and a fixed sentence. */
 async function running<T>(run: () => Promise<T>): Promise<T> {
   try {
@@ -165,12 +218,18 @@ async function running<T>(run: () => Promise<T>): Promise<T> {
   }
 }
 
+/** A finding as the model sees it: without the sentence and rows the page shows. */
+const compactOf = (
+  output: { said?: unknown; rows?: unknown; [key: string]: unknown }[],
+) => output.map(({ said: _said, rows: _rows, ...compact }) => compact);
+
 /**
  * Every tool of the one list, for the AI SDK. The free reads run here over `api`; `find_changes` gives the page each
  * finding with its rows and the app's sentence, and the model the compact finding. The navigation and ask tools have
- * no `execute`: the model's call to one ends the server's turn and goes to the page.
+ * no `execute`: the model's call to one ends the server's turn and goes to the page. Each call the server runs is
+ * given to `record`.
  */
-export function chatTools(api: PodApi): ToolSet {
+export function chatTools(api: PodApi, record?: Recorder): ToolSet {
   return Object.fromEntries(
     LISTED.map((each) => {
       const schema = each.ofPod ? withPod(each.inputSchema) : each.inputSchema;
@@ -195,28 +254,35 @@ export function chatTools(api: PodApi): ToolSet {
           tool({
             ...offered,
             execute: (input) =>
-              running(async () => {
-                const [{ value, found }, said] = await Promise.all([
-                  findings(api, input, { address: ADDRESS }),
-                  api.said({ pod: input.pod } as never),
-                ]);
-                const { about } = maps(said as never) as {
-                  about: Map<string, unknown>;
-                };
-                return value.map((finding) => {
-                  const whole = found.find(({ key }) => key === finding.key)!;
-                  return {
-                    ...finding,
-                    said: saidOf(whole, about),
-                    rows: rowsOf(whole),
-                  };
-                });
-              }),
+              recorded(
+                record,
+                each.name,
+                input,
+                () =>
+                  running(async () => {
+                    const [{ value, found }, said] = await Promise.all([
+                      findings(api, input, { address: ADDRESS }),
+                      api.said({ pod: input.pod } as never),
+                    ]);
+                    const { about } = maps(said as never) as {
+                      about: Map<string, unknown>;
+                    };
+                    return value.map((finding) => {
+                      const whole = found.find(
+                        ({ key }) => key === finding.key,
+                      )!;
+                      return {
+                        ...finding,
+                        said: saidOf(whole, about),
+                        rows: rowsOf(whole),
+                      };
+                    });
+                  }),
+                (output) => compactOf(output),
+              ),
             toModelOutput: ({ output }) => ({
               type: "json",
-              value: output.map(
-                ({ said: _said, rows: _rows, ...compact }) => compact,
-              ) as JSONValue,
+              value: compactOf(output) as JSONValue,
             }),
           }),
         ];
@@ -225,7 +291,9 @@ export function chatTools(api: PodApi): ToolSet {
         tool({
           ...offered,
           execute: (input) =>
-            running(async () => each.run(api, input, { address: ADDRESS })),
+            recorded(record, each.name, input, () =>
+              running(async () => each.run(api, input, { address: ADDRESS })),
+            ),
         }),
       ];
     }),
@@ -267,14 +335,20 @@ const MESSAGE = z
       ),
   );
 
-/** How much a message weighs against `MAX_CHARACTERS`: a text part its text, any other part (a tool's output, its error) its JSON. */
+/**
+ * How much a message weighs against `MAX_CHARACTERS`: a text part its text, a reply's data part nothing (the model
+ * never sees it, and it grows with the pod's records, not with what was said), any other part (a tool's output, its
+ * error) its JSON. The body's size is held to `MAX_BODY_BYTES` whatever the parts are.
+ */
 const sizeOf = ({ parts }: z.output<typeof MESSAGE>) =>
   parts.reduce(
     (sum, part) =>
       sum +
       (part.type === "text" && typeof part.text === "string"
         ? part.text.length
-        : JSON.stringify(part).length),
+        : part.type === "data-reply"
+          ? 0
+          : JSON.stringify(part).length),
     0,
   );
 
@@ -435,17 +509,38 @@ const spent = () =>
     },
   });
 
+/** The parts of a reply the page is sent: its text, then the reply checked as a `data-reply` part. */
+function replyParts({ answer, checked }: Replied): UIMessageChunk[] {
+  const id = `reply-${randomUUID()}`;
+  return [
+    { type: "text-start", id },
+    { type: "text-delta", id, delta: answer },
+    { type: "text-end", id },
+    { type: "data-reply", data: checked },
+  ];
+}
+
 /**
- * The model's turn as the UI message stream, with its end said: a refusal as a `data-refused` part, and a round of tool
- * calls past `MAX_ROUNDS` as an error, each before the stream's `finish`. `earlier` steps of the question were made
- * already; the tool chunks of every step after the `MAX_ROUNDS`th are dropped, so that the page runs no tool past it.
+ * The model's turn as the UI message stream, with its end said: a refusal as a `data-refused` part, a round of tool
+ * calls past `MAX_ROUNDS` as an error, and the model's last words, once it has stopped, as `replying` makes them of
+ * the reply (the text it wrote is JSON, which the page is not sent), each before the stream's `finish`. `earlier` steps
+ * of the question were made already; the tool chunks of every step after the `MAX_ROUNDS`th are dropped, so that the
+ * page runs no tool past it.
  */
-function ending(stream: ReadableStream<UIMessageChunk>, earlier: number) {
+function ending(
+  stream: ReadableStream<UIMessageChunk>,
+  earlier: number,
+  replying: (said: string) => Promise<Replied>,
+) {
   let steps = earlier;
+  let said = "";
   return stream.pipeThrough(
     new TransformStream<UIMessageChunk, UIMessageChunk>({
-      transform(chunk, controller) {
+      async transform(chunk, controller) {
         if (steps >= MAX_ROUNDS && chunk.type.startsWith("tool-")) return;
+        if (chunk.type === "start-step") said = "";
+        if (chunk.type === "text-delta") said += chunk.delta;
+        if (chunk.type.startsWith("text-")) return;
         if (chunk.type === "finish-step") steps += 1;
         if (chunk.type === "finish") {
           if (chunk.finishReason === "content-filter")
@@ -455,12 +550,31 @@ function ending(stream: ReadableStream<UIMessageChunk>, earlier: number) {
             });
           else if (chunk.finishReason === "tool-calls" && steps > MAX_ROUNDS)
             controller.enqueue({ type: "error", errorText: ROUNDS });
+          else if (
+            chunk.finishReason !== "tool-calls" &&
+            chunk.finishReason !== "error"
+          )
+            for (const part of replyParts(await replying(said)))
+              controller.enqueue(part);
         }
         controller.enqueue(chunk);
       },
     }),
   );
 }
+
+type Rows = readonly Readonly<Record<string, string>>[];
+
+/** A question's rows in a pod, read through `api.ask`, as the checker asks for them. */
+const rowsOfPod =
+  (api: PodApi, pod: string) =>
+  async (question: string): Promise<Rows> =>
+    (
+      await (api.ask as (input: object) => Promise<{ rows: Rows }>)({
+        pod,
+        question,
+      })
+    ).rows;
 
 /**
  * `GET /chat` and `POST /chat` over `api`, with `model`, or none when none is set. A body the rules refuse is 400
@@ -474,7 +588,6 @@ export function chatRoutes({
   api: PodApi;
   model: Model | undefined;
 }) {
-  const tools = chatTools(api);
   return new Hono()
     .get("/chat", (c) =>
       c.json(
@@ -502,6 +615,8 @@ export function chatRoutes({
           return c.json({ error: "the body must be JSON" }, 400);
         }
         try {
+          const ran: Ran[] = [];
+          const tools = chatTools(api, (each) => ran.push(each));
           const body = await bodyOf(given, tools);
           const names = (await api.pods({} as never)) as {
             pods: { name: string }[];
@@ -519,6 +634,12 @@ export function chatRoutes({
             instructions: instructionsOf(body),
             messages: await convertToModelMessages(body.messages, { tools }),
             tools,
+            output: Output.object({
+              schema: jsonSchema<unknown>(
+                replySchema as unknown as JSONSchema7,
+              ),
+              name: "reply",
+            }),
             stopWhen: isStepCount(MAX_ROUNDS + 1 - earlier),
             maxRetries: 0,
             abortSignal: c.req.raw.signal,
@@ -531,6 +652,14 @@ export function chatRoutes({
                 onError: errorText(model),
               }),
               earlier,
+              (said) => {
+                const pod = podOf(body.pod, ran);
+                return repliedTo(said, {
+                  ask:
+                    pod === undefined ? undefined : asker(rowsOfPod(api, pod)),
+                  ran,
+                });
+              },
             ),
           });
         } catch (error) {
