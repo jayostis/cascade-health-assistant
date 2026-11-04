@@ -672,7 +672,7 @@ export function chatRoutes({
               made = [...made, ...response.messages];
             },
           });
-          const again = async (text: string): Promise<string> => {
+          const again = async (text: string) => {
             try {
               return await streamText({
                 ...asked,
@@ -685,7 +685,7 @@ export function chatRoutes({
               }).text;
             } catch (error) {
               console.error(error);
-              return "";
+              return undefined;
             }
           };
           return createUIMessageStreamResponse({
@@ -704,9 +704,11 @@ export function chatRoutes({
                 };
                 const replied = await repliedTo(said, checking);
                 const why = askAgain(replied);
-                return why === undefined
-                  ? replied
-                  : repliedTo(await again(why), checking);
+                const saidAgain =
+                  why === undefined ? undefined : await again(why);
+                if (saidAgain === undefined) return replied;
+                const second = await repliedTo(saidAgain, checking);
+                return askAgain(second) === undefined ? second : replied;
               },
             ),
           });
