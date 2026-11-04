@@ -11,6 +11,7 @@ import {
   APICallError,
   defaultSettingsMiddleware,
   type LanguageModel,
+  type LanguageModelMiddleware,
   RetryError,
   StreamProviderError,
   wrapLanguageModel,
@@ -191,6 +192,34 @@ function callFailure(
  */
 const ANTHROPIC_MAX_TOKENS = 64_000;
 
+const EPHEMERAL = { anthropic: { cacheControl: { type: "ephemeral" } } };
+
+/**
+ * Marks the system prompt and the last message of each call for Anthropic's cache, so that a step of a turn, and the
+ * reply asked for again, read the transcript before them from the cache and pay for the new part alone.
+ */
+const cachingMiddleware: LanguageModelMiddleware = {
+  specificationVersion: "v4",
+  transformParams: async ({ params }) => {
+    const { prompt } = params;
+    const marked = new Set([
+      ...prompt.flatMap((message, at) => (message.role === "system" ? [at] : [])),
+      prompt.length - 1,
+    ]);
+    return {
+      ...params,
+      prompt: prompt.map((message, at) =>
+        marked.has(at)
+          ? {
+              ...message,
+              providerOptions: { ...message.providerOptions, ...EPHEMERAL },
+            }
+          : message,
+      ),
+    };
+  },
+};
+
 function languageOf(
   provider: ProviderName,
   { url, name, key }: { url: string; name: string; key: string | undefined },
@@ -203,9 +232,12 @@ function languageOf(
           baseURL: `${url.replace(/\/+$/, "")}/v1`,
           apiKey,
         })(name),
-        middleware: defaultSettingsMiddleware({
-          settings: { maxOutputTokens: ANTHROPIC_MAX_TOKENS },
-        }),
+        middleware: [
+          defaultSettingsMiddleware({
+            settings: { maxOutputTokens: ANTHROPIC_MAX_TOKENS },
+          }),
+          cachingMiddleware,
+        ],
       });
     case "groq":
       return createGroq({ baseURL: url, apiKey })(name);

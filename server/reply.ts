@@ -42,7 +42,8 @@ const AGAIN =
 
 /**
  * What the model is asked once more when its reply was not checked for a fault of its own, with why; nothing when
- * the reply was checked, or when asking again cannot help (no pod to check it against, or one that could not be read).
+ * the reply was checked, or when asking again cannot help (no pod to check it against, or one that could not be read)
+ * or costs what it cannot repay (a reply cut off at the bound on every reply is a runaway one, and would run on again).
  */
 export function askAgain({ checked }: Replied): string | undefined {
   const [why] = checked.errors;
@@ -50,7 +51,8 @@ export function askAgain({ checked }: Replied): string | undefined {
     checked.reply !== undefined ||
     why === undefined ||
     why === NO_POD ||
-    why === UNCHECKABLE
+    why === UNCHECKABLE ||
+    why === CUT_OFF_WHY
   )
     return undefined;
   if (why === RECOMMENDS)

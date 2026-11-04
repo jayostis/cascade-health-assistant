@@ -212,7 +212,6 @@ test.each([
 
 test.each([
   ["is not JSON", says("Her A1c was high in June.")],
-  ["is cut off", says(`{"answer":"Her A1c was 6.6 % in Ju`, "length")],
   [
     "breaks the contract",
     says(JSON.stringify({ answer: "Her A1c was high in June." })),
@@ -610,6 +609,86 @@ test("a reply asked for again that still cannot be checked leaves the first show
   expect(failed.chunks.some(({ type }) => type === "error")).toBe(false);
 });
 
+test("a reply cut off at the length limit is not asked for again, and the page is not told it is being checked", async () => {
+  modelSays(says(`{"answer":"Her A1c was 6.6 % in Ju`, "length"));
+  const { chunks, checked, text } = await chat([user("How is my A1c?")]);
+  expect(mock.doStreamCalls).toHaveLength(1);
+  expect(chunks.some(({ type }) => type === "data-checking")).toBe(false);
+  expect(text).toBe("Her A1c was 6.6 % in Ju");
+  expect(checked!.errors.length).toBeGreaterThan(0);
+});
+
+test("a reply asked for again is asked within a small bound the first was not, and a call to a tool in it runs nothing", async () => {
+  const procedures = { pod: POD, question: "pod/My procedures" };
+  const ask = vi.spyOn(api, "ask");
+  try {
+    modelSays(
+      calls("ask", procedures),
+      says("Her A1c was high in June."),
+      calls("ask", procedures),
+    );
+    const { checked, text } = await chat([user("How is my A1c?")]);
+    expect(mock.doStreamCalls).toHaveLength(3);
+    expect(ask).toHaveBeenCalledTimes(1);
+    expect(mock.doStreamCalls[0]!.maxOutputTokens).toBeUndefined();
+    expect(mock.doStreamCalls[1]!.maxOutputTokens).toBeUndefined();
+    expect(mock.doStreamCalls[2]!.maxOutputTokens).toBe(8000);
+    expect(text).toBe("Her A1c was high in June.");
+    expect(checked!.errors.length).toBeGreaterThan(0);
+  } finally {
+    ask.mockRestore();
+  }
+});
+
+test("the page is told the answer is being checked, in a part never kept, before the model is asked again", async () => {
+  let told = false;
+  let toldBefore: boolean | undefined;
+  mock = new MockLanguageModelV4({
+    doStream: async () => {
+      if (mock.doStreamCalls.length === 1)
+        return says("Her A1c was high in June.");
+      for (let waited = 0; !told && waited < 200; waited++)
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      toldBefore = told;
+      return says(
+        replyOf([
+          point([{ says: "Her A1c", cite: { entry: A1C }, field: "value" }]),
+        ]),
+      );
+    },
+  });
+  const response = await app.request(`${ORIGIN}/chat`, {
+    method: "POST",
+    headers: { origin: ORIGIN, "content-type": "application/json" },
+    body: JSON.stringify({
+      pod: POD,
+      page: `/pods/${POD}/`,
+      messages: [user("How is my A1c?")],
+    }),
+  });
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder();
+  let all = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const read = decoder.decode(value, { stream: true });
+    all += read;
+    if (read.includes('"data-checking"')) told = true;
+  }
+  expect(toldBefore).toBe(true);
+  const types = all
+    .split("\n\n")
+    .filter((event) => event.startsWith("data: {"))
+    .map((event) => JSON.parse(event.slice("data: ".length)));
+  const checking = types.filter(({ type }) => type === "data-checking");
+  expect(checking).toHaveLength(1);
+  expect(checking[0].transient).toBe(true);
+  expect(types.findIndex(({ type }) => type === "data-checking")).toBeLessThan(
+    types.findIndex(({ type }) => type === "text-delta"),
+  );
+});
+
 const ANTHROPIC = "http://anthropic.test";
 /** The thinking tokens Haiku spent before its reply in the live probe's last step (#12), with room to spare. */
 const THINKING = 5000;
@@ -721,4 +800,51 @@ test("an Anthropic model that thinks at length before its reply still gives the 
   } finally {
     vi.unstubAllGlobals();
   }
+});
+
+test("an Anthropic request marks its system prompt and its last message for the cache, and another provider's does not", async () => {
+  const asked: Record<string, unknown>[] = [];
+  vi.stubGlobal(
+    "fetch",
+    anthropicSays(
+      replyOf([
+        point([{ says: "Her A1c", cite: { entry: A1C }, field: "value" }]),
+      ]),
+      asked as { max_tokens: number }[],
+    ),
+  );
+  try {
+    const anthropic = chatRoutes({
+      api,
+      model: modelOf({
+        provider: "anthropic",
+        url: ANTHROPIC,
+        name: "claude-haiku-5-5",
+        key: "k",
+      }),
+    });
+    await chat([user("How is my A1c?")], POD, anthropic);
+    const [request] = asked as {
+      system: { cache_control?: unknown }[];
+      messages: { content: { cache_control?: unknown }[] }[];
+    }[];
+    const mark = { type: "ephemeral" };
+    expect(request!.system.at(-1)!.cache_control).toEqual(mark);
+    const last = request!.messages.at(-1)!;
+    expect(last.content.at(-1)!.cache_control).toEqual(mark);
+    expect(
+      request!.messages
+        .slice(0, -1)
+        .flatMap(({ content }) => content)
+        .some((block) => block.cache_control !== undefined),
+    ).toBe(false);
+  } finally {
+    vi.unstubAllGlobals();
+  }
+
+  modelSays(says(replyOf([])));
+  await chat([user("How is my A1c?")]);
+  expect(JSON.stringify(mock.doStreamCalls[0]!.prompt)).not.toContain(
+    "cacheControl",
+  );
 });

@@ -517,6 +517,12 @@ const spent = () =>
     },
   });
 
+/**
+ * The bound on a reply asked for again: it only rewrites points the model has already worked out, so a runaway one is
+ * cut short rather than paid for twice.
+ */
+const REPAIR_MAX_TOKENS = 8_000;
+
 /** `tools` offered and never run: a call to one in a reply asked for again ends it with no reply. */
 const unrun = (tools: ToolSet): ToolSet =>
   Object.fromEntries(
@@ -542,12 +548,12 @@ function replyParts({ answer, checked }: Replied): UIMessageChunk[] {
  * calls past `MAX_ROUNDS` as an error, and the model's last words, once it has stopped, as `replying` makes them of
  * the reply (the text it wrote is JSON, which the page is not sent), each before the stream's `finish`. `earlier` steps
  * of the question were made already; the tool chunks of every step after the `MAX_ROUNDS`th are dropped, so that the
- * page runs no tool past it.
+ * page runs no tool past it. A reply asked for again is preceded by a transient `data-checking` part, so the page can say so.
  */
 function ending(
   stream: ReadableStream<UIMessageChunk>,
   earlier: number,
-  replying: (said: string) => Promise<Replied>,
+  replying: (said: string, announce: () => void) => Promise<Replied>,
 ) {
   let steps = earlier;
   let said = "";
@@ -571,7 +577,15 @@ function ending(
             chunk.finishReason !== "tool-calls" &&
             chunk.finishReason !== "error"
           )
-            for (const part of replyParts(await replying(said)))
+            for (const part of replyParts(
+              await replying(said, () =>
+                controller.enqueue({
+                  type: "data-checking",
+                  data: {},
+                  transient: true,
+                }),
+              ),
+            ))
               controller.enqueue(part);
         }
         controller.enqueue(chunk);
@@ -682,6 +696,7 @@ export function chatRoutes({
                   { role: "user", content: text },
                 ],
                 tools: unrun(tools),
+                maxOutputTokens: REPAIR_MAX_TOKENS,
               }).text;
             } catch (error) {
               console.error(error);
@@ -695,7 +710,7 @@ export function chatRoutes({
                 onError: errorText(model),
               }),
               earlier,
-              async (said) => {
+              async (said, announce) => {
                 const pod = podOf(body.pod, ran);
                 const checking = {
                   ask:
@@ -704,8 +719,9 @@ export function chatRoutes({
                 };
                 const replied = await repliedTo(said, checking);
                 const why = askAgain(replied);
-                const saidAgain =
-                  why === undefined ? undefined : await again(why);
+                if (why === undefined) return replied;
+                announce();
+                const saidAgain = await again(why);
                 if (saidAgain === undefined) return replied;
                 const second = await repliedTo(saidAgain, checking);
                 return askAgain(second) === undefined ? second : replied;
