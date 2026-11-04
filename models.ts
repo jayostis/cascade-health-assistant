@@ -185,8 +185,11 @@ function callFailure(
     : undefined;
 }
 
-/** Anthropic's API asks for a bound on each answer; the others are left their own. */
-const ANTHROPIC_MAX_TOKENS = 4096;
+/**
+ * Anthropic's API asks for a bound on each answer, and counts the model's thinking against it, so the bound leaves room
+ * for thinking at length before the reply; the others are left their own.
+ */
+const ANTHROPIC_MAX_TOKENS = 64_000;
 
 function languageOf(
   provider: ProviderName,
