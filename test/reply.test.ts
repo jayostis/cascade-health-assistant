@@ -253,7 +253,8 @@ test("the model is asked in the runtime's contract, and told to ask, not to reco
   });
   const system = JSON.stringify(options.prompt[0]);
   expect(system).toContain("Reply, and nothing else, as JSON");
-  expect(system).toContain("never say you recommend");
+  expect(system).not.toContain("the command printed");
+  expect(system).toContain("Never say that you recommend");
   expect(options.tools?.map(({ name }) => name)).toContain("ask");
 });
 
