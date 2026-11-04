@@ -1032,7 +1032,7 @@ export function fromLabel(label = ""): Item {
  * today, which `said` (`variantsSaid`'s answer, none until the tables can say) gives; then each pair of medications in
  * two entries whose codes have an ingredient in common, which the tables' `about` gives. A line that needs the tables
  * comes after those that do not, so the part only grows when they load. `answers` holds the rows of each of
- * `QUESTIONS`, by question. A sentence said by two lines is shown once.
+ * `QUESTIONS`, by question. A sentence said twice about one entry is shown once.
  *
  * The pair is a hint the starter gives, not something the pod knows: a pod's questions never read the tables' rows.
  * A combination maps to its own multiple-ingredient concept (MIN), never to each of its ingredients, so lisinopril and
@@ -1061,8 +1061,9 @@ export function worthALook(
       set === undefined
         ? reviewSaid(row, item)
         : sharedCodeSaid(set, item, answers[SOURCES] ?? []);
-    if (!review.has(sentence))
-      review.set(sentence, { sentence, entry: row.entry, tag: NEEDS_REVIEW });
+    const key = `${row.entry}\n${sentence}`;
+    if (!review.has(key))
+      review.set(key, { sentence, entry: row.entry, tag: NEEDS_REVIEW });
   }
   const named = variantReports(answers, said);
   const differing =
@@ -1094,9 +1095,10 @@ export function worthALook(
     })),
   ].map((line) => ({ ...line, sentence: capitalised(line.sentence) }));
   const first = new Set<string>();
-  return lines.filter(
-    ({ sentence }) => !first.has(sentence) && first.add(sentence),
-  );
+  return lines.filter(({ sentence, entry }) => {
+    const key = `${entry}\n${sentence}`;
+    return !first.has(key) && first.add(key);
+  });
 }
 
 /**
@@ -1138,7 +1140,7 @@ function sharedCodeSaid(
   const places = new Set(
     sources.filter((row) => records.has(row.record)).map(placeOf),
   );
-  return `${name === UNNAMED ? `An unnamed ${one}` : name} is recorded ${records.size} times${places.size === 0 ? "" : `, from ${listed([...places].sort())}`}, under one code, which Cascade keeps apart. Cascade cannot confirm that the shared code names one product, so they may or may not be the same.`;
+  return `${name === UNNAMED ? `An unnamed ${one}` : name} is recorded ${records.size} times${places.size === 0 ? "" : `, from ${listed([...places].sort())}`}; some of these records share a code but Cascade keeps them apart. Cascade cannot confirm that a shared code names one product, so they may or may not be the same.`;
 }
 
 /** The sentence a row of "What needs review" is told in, of `item`, the entry's `name` and what `one` of its kind is called. */
