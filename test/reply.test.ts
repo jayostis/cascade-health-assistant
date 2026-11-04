@@ -317,6 +317,7 @@ test("with no pod open, the pod the model read is the one the reply is checked a
   expect(unread.checked).toMatchObject({ items: [] });
   expect(unread.checked!.errors).toHaveLength(1);
   expect(unread.text).toBe("Her A1c was 6.6 % in June.");
+  expect(mock.doStreamCalls).toHaveLength(1);
 });
 
 test("a pod that cannot be read leaves the reply unchecked, with its answer", async () => {
