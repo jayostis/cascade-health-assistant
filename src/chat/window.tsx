@@ -744,7 +744,7 @@ function Window({ model, pod }: { model: ChatModel; pod: string }) {
   const here = chats.filter((each) => each.pod === pod);
   return (
     <section
-      className="chat group sticky bottom-0 z-8 flex max-h-[max(33vh,15rem)] flex-col border-t border-line bg-panel px-5 py-[0.6rem] shadow-[0_-4px_16px_rgb(0_0_0/0.08)] data-[folded=true]:[&>:not(.chat-bar)]:hidden"
+      className="chat group sticky bottom-0 z-8 flex max-h-[max(60vh,15rem)] flex-col border-t border-line bg-panel px-5 py-[0.6rem] shadow-[0_-4px_16px_rgb(0_0_0/0.08)] data-[folded=true]:[&>:not(.chat-bar)]:hidden"
       aria-label="Chat"
       data-folded={folded ? "true" : "false"}
     >
@@ -832,7 +832,7 @@ export function ChatWindow({
   if (model === undefined)
     return (
       <section
-        className="chat sticky bottom-0 z-8 flex max-h-[max(33vh,15rem)] flex-col border-t border-line bg-panel px-5 py-[0.6rem] shadow-[0_-4px_16px_rgb(0_0_0/0.08)]"
+        className="chat sticky bottom-0 z-8 flex max-h-[max(60vh,15rem)] flex-col border-t border-line bg-panel px-5 py-[0.6rem] shadow-[0_-4px_16px_rgb(0_0_0/0.08)]"
         aria-label="Chat"
       >
         <p className="chat-off m-0 flex-none text-[0.9rem] text-muted">
