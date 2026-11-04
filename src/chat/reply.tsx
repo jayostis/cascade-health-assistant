@@ -205,7 +205,7 @@ export function pointsOf(checked: CheckedReply) {
 
 /**
  * What the check found, in the checker's own counts and words and never the model's: that the reply was not checked and
- * why, or that it was, with how many facts passed and how many facts and searches could not be confirmed.
+ * why, or that it was, with how many facts and searches held and how many could not be confirmed, counted over the points the cards show.
  */
 export function verdictOf(checked: CheckedReply): {
   said: string;
@@ -218,25 +218,28 @@ export function verdictOf(checked: CheckedReply): {
       kind: "not-checked",
     };
   }
-  const facts = checked.items.flatMap((item) => item.facts ?? []);
-  const confirmed = facts.filter(({ verdict }) => verdict.ok).length;
-  const unconfirmed =
-    facts.length -
-    confirmed +
-    checked.items.flatMap((item) => item.absences ?? []).filter(
-      ({ backing }) => !backing.backed,
-    ).length;
+  const points = pointsOf(checked);
+  const facts = points.flatMap(({ item }) => item.facts ?? []);
+  const absences = points.flatMap(({ item }) => item.absences ?? []);
+  const confirmed =
+    facts.filter(({ verdict }) => verdict.ok).length +
+    absences.filter(({ backing }) => backing.backed).length;
+  const unconfirmed = facts.length + absences.length - confirmed;
+  const general = points.filter(({ said }) => said.knowledge !== undefined).length;
+  const lead =
+    confirmed + unconfirmed === 0
+      ? "Nothing in this reply was checked against your records"
+      : unconfirmed > 0
+        ? `${unconfirmed} of ${confirmed + unconfirmed} could not be confirmed against your records · ${confirmed} confirmed`
+        : `Checked against your records · ${confirmed} confirmed`;
   return {
     said: [
-      "Checked against your records",
-      confirmed === 0
-        ? undefined
-        : `${confirmed} ${confirmed === 1 ? "fact" : "facts"} confirmed`,
-      unconfirmed === 0 ? undefined : `${unconfirmed} could not be confirmed`,
+      lead,
+      general === 0 ? undefined : `${general} general, not from your records`,
     ]
       .filter((part) => part !== undefined)
       .join(" · "),
-    kind: unconfirmed === 0 ? "confirmed" : "unconfirmed",
+    kind: confirmed + unconfirmed > 0 && unconfirmed === 0 ? "confirmed" : "unconfirmed",
   };
 }
 

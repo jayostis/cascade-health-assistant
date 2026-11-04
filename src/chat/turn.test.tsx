@@ -179,7 +179,7 @@ describe("the one folded line under the answer", () => {
     expect(drawn).toContain("<details");
     expect(drawn).not.toContain('open=""');
     expect(line(drawn)).toBe(
-      "Checked against your records · 7 facts confirmed · 2 steps",
+      "Checked against your records · 9 confirmed · 2 general, not from your records · 2 steps",
     );
   });
 
@@ -194,7 +194,7 @@ describe("the one folded line under the answer", () => {
   test("a fact or a search the check could not confirm is counted on the line, which says so in the warm colours", () => {
     const drawn = draw(reply);
     expect(line(drawn)).toBe(
-      "Checked against your records · 5 facts confirmed · 3 could not be confirmed · 2 steps",
+      "3 of 9 could not be confirmed against your records · 6 confirmed · 2 general, not from your records · 2 steps",
     );
     expect(drawn).toMatch(/<summary[^>]*class="[^"]*unconfirmed/);
     expect(drawn).not.toMatch(/<summary[^>]*class="[^"]*not-checked/);
@@ -206,11 +206,43 @@ describe("the one folded line under the answer", () => {
     };
     one.items = [{ ...one.items[2], absences: [] }];
     expect(line(draw(one as unknown as CheckedReply, [steps[0]!]))).toBe(
-      "Checked against your records · 1 fact confirmed · 1 step",
+      "Checked against your records · 1 confirmed · 1 general, not from your records · 1 step",
     );
     expect(line(draw(one as unknown as CheckedReply, []))).toBe(
-      "Checked against your records · 1 fact confirmed",
+      "Checked against your records · 1 confirmed · 1 general, not from your records",
     );
+  });
+
+  test("a failed fact leads the line, a reply with nothing to check says so, and an item with a verdict and no words is in neither the line nor the cards", () => {
+    const failing = passing() as unknown as {
+      items: { facts: { verdict: object }[] }[];
+    };
+    failing.items[0]!.facts[0]!.verdict = {
+      ok: false,
+      reason: "no such record",
+      missing: [],
+    };
+    expect(line(draw(failing as unknown as CheckedReply, []))).toMatch(
+      /^1 of 9 could not be confirmed against your records · 8 confirmed/,
+    );
+    const none = passing() as unknown as {
+      items: unknown[];
+      reply: { items: { knowledge?: unknown }[] };
+    };
+    none.items = [];
+    none.reply.items = none.reply.items.map(({ knowledge: _, ...rest }) => rest);
+    expect(
+      line(draw(none as unknown as CheckedReply, [steps[0]!])),
+    ).toBe("Nothing in this reply was checked against your records · 1 step");
+    const wordless = passing() as unknown as {
+      reply: { items: { n: number }[] };
+    };
+    wordless.reply.items = wordless.reply.items.filter(({ n }) => n !== 2);
+    const drawn = draw(wordless as unknown as CheckedReply, []);
+    expect(line(drawn)).toBe(
+      "Checked against your records · 7 confirmed · 2 general, not from your records",
+    );
+    expect(drawn.match(/class="point/g)).toHaveLength(2);
   });
 
   test("a reply that was not checked says so on the folded line, with the checker's reason", () => {
@@ -240,7 +272,9 @@ describe("the one folded line under the answer", () => {
   test("a checked reply with no points and no steps is only its verdict", () => {
     const drawn = draw({ ...reply, items: [] }, []);
     expect(drawn).not.toContain("<details");
-    expect(drawn).toContain("Checked against your records");
+    expect(drawn).toContain(
+      "Nothing in this reply was checked against your records",
+    );
   });
 
   test("a turn with steps and no reply keeps its steps behind a closed line of their own", () => {

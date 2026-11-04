@@ -168,7 +168,7 @@ test("a turn shows its progress, then the answer with one folded line; opening i
   const supporting = page.locator(".chat .supporting");
   const looked = page.locator(".chat .looked-at");
   await expect(supporting.locator("summary")).toHaveText(
-    "Checked against your records · 10 facts confirmed · 6 could not be confirmed · 1 step",
+    "6 of 18 could not be confirmed against your records · 12 confirmed · 4 general, not from your records · 1 step",
   );
   await expect(supporting).not.toHaveAttribute("open");
   await expect(page.getByText("Here is what I would raise.")).toBeVisible();
@@ -265,7 +265,7 @@ test("a reply tool part that never gets an output does not hold the turn on 'Usi
 
   await expect(page.getByText("Here is what I would raise.")).toBeVisible();
   await expect(page.locator(".chat .supporting summary")).toContainText(
-    "Checked against your records",
+    "3 of 9 could not be confirmed against your records",
   );
   await expect(page.locator(".chat .working")).toHaveCount(0);
   await expect(page.locator(".chat")).not.toContainText("Using reply");
