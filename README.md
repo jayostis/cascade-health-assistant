@@ -273,10 +273,12 @@ which Node runs as it is.
 
 Run `npm run model` once, then `npm start`: every page has a chat window, made
 with [assistant-ui](https://www.assistant-ui.com) over the
-[Vercel AI SDK](https://ai-sdk.dev). Ask "find anything interesting" and it answers from the pod's records,
-with the numbers of each change and the lab results behind it as a card under
-the answer, and "Open the trend" draws it. Ask it to "open Ines Calloway's pod"
-and the app goes there, with your chat open. Stop ends the model's answer. Chats are
+[Vercel AI SDK](https://ai-sdk.dev). Ask "find anything interesting" and while it works one line under your question says
+what it is doing ("Looking at lab results after ondansetron…"), with Stop beside it. Then
+comes the answer, a card for each point it makes with the pod's own records behind each
+fact, and after them, folded, "What it looked at", the steps it took. Ask it to "open
+Ines Calloway's pod" and the app goes there, with your chat open. Stop ends the model's
+answer. Chats are
 kept by your browser, under the pod they are about, and an encrypted pod's are
 kept nowhere. Each question goes to the
 model you chose with the newest part of the chat (its last 24,000 characters)
