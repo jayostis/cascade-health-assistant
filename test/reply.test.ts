@@ -6,7 +6,7 @@ import type {
   LanguageModelV4StreamPart,
 } from "@ai-sdk/provider";
 import { MockLanguageModelV4 } from "ai/test";
-import type { CheckedReply, Reply } from "cascade-runtime";
+import type { CheckedReply } from "cascade-runtime";
 import { replySchema } from "cascade-runtime";
 import { afterAll, beforeAll, expect, test, vi } from "vitest";
 import type { Model } from "../models.ts";
@@ -27,7 +27,9 @@ let api: ReturnType<typeof podApi>;
 let app: ReturnType<typeof appServer>;
 let mock: MockLanguageModelV4;
 
-const finish = (unified: "stop" | "tool-calls") =>
+const finish = (
+  unified: "stop" | "tool-calls" | "length" | "other",
+) =>
   ({
     type: "finish",
     finishReason: { unified, raw: undefined },
@@ -55,13 +57,16 @@ const streamOf = (parts: LanguageModelV4StreamPart[]) => ({
   }),
 });
 
-/** A step of the model that says `text`: what the reply is, as JSON text. */
-const says = (text: string) =>
+/** A step of the model that says `text`: what the reply is, as JSON text, and stops as `unified`. */
+const says = (
+  text: string,
+  unified: "stop" | "length" | "other" = "stop",
+) =>
   streamOf([
     { type: "text-start", id: "t" },
     { type: "text-delta", id: "t", delta: text },
     { type: "text-end", id: "t" },
-    finish("stop"),
+    finish(unified),
   ]);
 
 /** A step of the model that calls `tool` with `input`. */
@@ -127,26 +132,6 @@ async function chat(messages: object[], pod: string = POD) {
     .map(({ delta }) => delta)
     .join("");
   return { chunks, checked, text };
-}
-
-/** Where `reply` says "recommend" in its own voice: in its answer, short, or an item's says, why or knowledge, outside a quote. */
-function recommending(reply: Reply) {
-  const quotes = reply.items.flatMap(({ facts = [] }) =>
-    facts.flatMap((fact) =>
-      "quote" in fact && fact.quote ? [fact.quote] : [],
-    ),
-  );
-  const outside = (text: string) =>
-    quotes.reduce((rest, quote) => rest.replaceAll(quote, ""), text);
-  return [
-    reply.answer,
-    reply.short,
-    ...reply.items.flatMap((item) => [
-      item.says,
-      item.why,
-      item.knowledge?.says ?? "",
-    ]),
-  ].filter((text) => /recommend/i.test(outside(text)));
 }
 
 beforeAll(async () => {
@@ -314,33 +299,6 @@ test("the model is asked in the runtime's contract, and told to ask, not to reco
   expect(options.tools?.map(({ name }) => name)).toContain("ask");
 });
 
-test("a reply says 'recommend' only inside a quote of the records", async () => {
-  const reply = (says: string, quote?: string) =>
-    ({
-      answer: says,
-      short: "s",
-      items: [
-        {
-          n: 1,
-          says,
-          why: "w",
-          confidence: "high",
-          facts: [
-            {
-              says: "the report",
-              cite: { entry: "N1" },
-              field: "text",
-              ...(quote === undefined ? {} : { quote }),
-            },
-          ],
-        },
-      ],
-    }) satisfies Reply;
-  const report = "Repeat colonoscopy in 10 years; we recommend a sooner visit.";
-  expect(recommending(reply("The report says: " + report, report))).toEqual([]);
-  expect(recommending(reply("I recommend a sooner visit."))).toHaveLength(2);
-});
-
 test("the page's copy of an earlier reply, with its data part, is accepted and only its text reaches the model", async () => {
   modelSays(says(replyOf([])));
   const { chunks } = await chat([
@@ -362,4 +320,115 @@ test("the page's copy of an earlier reply, with its data part, is accepted and o
   const prompt = JSON.stringify(mock.doStreamCalls[0]!.prompt);
   expect(prompt).toContain("Her A1c was 6.6 % in June.");
   expect(prompt).not.toContain("filler");
+});
+
+test.each([
+  ["half-written JSON with its answer begun", `{"answer":"Her A1c was 6.6 % in Ju`, "Her A1c was 6.6 % in Ju"],
+  ["half-written JSON before its answer", `{"ans`, "The answer was cut off."],
+])("a reply cut off at the length limit with %s never shows the person raw JSON", async (_, said, shown) => {
+  modelSays(says(said, "length"));
+  const { checked, text } = await chat([user("How is my A1c?")]);
+  expect(text).toBe(shown);
+  expect(checked!.errors.length).toBeGreaterThan(0);
+});
+
+test.each(["other", "unknown"] as const)(
+  "a model that stops with %s still gets its reply checked and shown",
+  async (reason) => {
+    modelSays(
+      says(
+        replyOf([point([{ says: "Her A1c", cite: { entry: A1C }, field: "value" }])]),
+        reason as "other",
+      ),
+    );
+    const { checked, text } = await chat([user("How is my A1c?")]);
+    expect(text).toBe("Her A1c was 6.6 % in June.");
+    expect(checked!.items[0]!.facts[0]!.verdict.ok).toBe(true);
+  },
+);
+
+test("a reply that says recommend in its own voice is not checked, and one that quotes a record saying it is", async () => {
+  const fact = { says: "Her A1c", cite: { entry: A1C }, field: "value" };
+  modelSays(
+    says(replyOf([point([fact])], "I recommend you see Dr. Marsh sooner.")),
+  );
+  const own = await chat([user("What should I do?")]);
+  expect(own.checked!.errors.length).toBeGreaterThan(0);
+  expect(own.checked!.reply).toBeUndefined();
+  expect(own.text).toBe("I recommend you see Dr. Marsh sooner.");
+
+  // A quote that failed its check does not excuse the word.
+  const words = "we recommend a sooner visit now";
+  modelSays(
+    says(
+      replyOf(
+        [point([{ ...fact, field: "text", quote: words }])],
+        "The report says " + words,
+      ),
+    ),
+  );
+  const failed = await chat([user("What should I do?")]);
+  expect(failed.checked!.errors.length).toBeGreaterThan(0);
+});
+
+test("a turn that ended in a page tool keeps its earlier reads for the absence of the request after it", async () => {
+  const procedures = { pod: POD, question: "pod/My procedures" };
+  const absent = replyOf([
+    point([], [
+      {
+        what: "a mammogram",
+        match: { terms: ["mammogram"] },
+        coverage: "her procedures",
+        query: { tool: "ask", input: procedures },
+      },
+    ]),
+  ]);
+  modelSays(
+    streamOf([
+      {
+        type: "tool-call",
+        toolCallId: "call-ask",
+        toolName: "ask",
+        input: JSON.stringify(procedures),
+      },
+      finish("tool-calls"),
+    ]),
+    streamOf([
+      {
+        type: "tool-call",
+        toolCallId: "call-open",
+        toolName: "open_pod",
+        input: JSON.stringify({ pod: POD }),
+      },
+      finish("tool-calls"),
+    ]),
+  );
+  const first = await chat([user("Has she had a mammogram?")]);
+  expect(first.checked).toBeUndefined();
+
+  modelSays(says(absent));
+  const second = await chat([
+    user("Has she had a mammogram?"),
+    {
+      id: "a1",
+      role: "assistant",
+      parts: [
+        {
+          type: "tool-ask",
+          toolCallId: "call-ask",
+          state: "output-available",
+          input: procedures,
+          output: { question: procedures.question, total: 0, rows: [] },
+        },
+        {
+          type: "tool-open_pod",
+          toolCallId: "call-open",
+          state: "output-available",
+          input: { pod: POD },
+          output: { opened: POD },
+        },
+      ],
+    },
+  ]);
+  expect(second.checked!.items[0]!.absences[0]!.backing).toEqual({ backed: true });
 });
