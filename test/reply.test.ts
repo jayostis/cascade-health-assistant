@@ -586,6 +586,30 @@ test("an absence over an earlier request's read is not checked, even when that t
   });
 });
 
+test("a reply asked for again that still cannot be checked leaves the first shown, and one the model fails to give too", async () => {
+  const first = replyOf(
+    [point([{ says: "Her A1c", cite: { entry: A1C }, field: "value" }])],
+    "The lab recommended a repeat A1c.",
+  );
+  modelSays(says(first), says("Something else."));
+  const worse = await chat([user("How is my A1c?")]);
+  expect(worse.text).toBe("The lab recommended a repeat A1c.");
+  expect(worse.checked!.errors.length).toBeGreaterThan(0);
+
+  const error = vi.spyOn(console, "error").mockImplementation(() => {});
+  let call = 0;
+  mock = new MockLanguageModelV4({
+    doStream: async () => {
+      if (call++ === 0) return says(first);
+      throw new Error("the model is gone");
+    },
+  });
+  const failed = await chat([user("How is my A1c?")]);
+  error.mockRestore();
+  expect(failed.text).toBe("The lab recommended a repeat A1c.");
+  expect(failed.chunks.some(({ type }) => type === "error")).toBe(false);
+});
+
 const ANTHROPIC = "http://anthropic.test";
 /** The thinking tokens Haiku spent before its reply in the live probe's last step (#12), with room to spare. */
 const THINKING = 5000;
