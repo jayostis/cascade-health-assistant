@@ -1,0 +1,43 @@
+import { demoRouter, isDemoRequest } from "../route.js";
+import { CLAIM, WORLD_CACHE, WORLD_DATE, WORLD_KEY } from "./claim.js";
+const scope = globalThis;
+const options = {
+    authorizeBase: new URL("demo-hospitals/", scope.registration.scope).href,
+};
+/** The world's date a page set, an instant, or undefined when none is set. */
+async function worldDate() {
+    const kept = await (await caches.open(WORLD_CACHE)).match(new URL(WORLD_KEY, scope.registration.scope));
+    return kept === undefined ? undefined : await kept.text();
+}
+/**
+ * One hospital's data, from `demo-hospitals/<id>.json` beside this script, its world's date the one a page set, else the
+ * file's own `asOf`, else none: every version.
+ */
+async function load(id) {
+    if (!/^[a-z0-9-]+$/.test(id))
+        return undefined;
+    const response = await fetch(new URL(`demo-hospitals/${id}.json`, scope.location.href));
+    if (response.status === 404)
+        return undefined;
+    if (!response.ok)
+        throw new Error(`demo-hospitals/${id}.json answered ${response.status}`);
+    const loaded = (await response.json());
+    const asOf = (await worldDate()) ?? loaded.asOf;
+    return asOf === undefined ? loaded : { ...loaded, asOf };
+}
+let route = demoRouter(load, options);
+scope.addEventListener("install", (event) => event.waitUntil(scope.skipWaiting()));
+scope.addEventListener("activate", (event) => event.waitUntil(scope.clients.claim()));
+scope.addEventListener("message", (event) => {
+    if (event.data === CLAIM)
+        event.waitUntil(scope.clients.claim());
+    if (event.data === WORLD_DATE) {
+        route = demoRouter(load, options);
+        event.ports[0]?.postMessage("changed");
+    }
+});
+scope.addEventListener("fetch", (event) => {
+    if (isDemoRequest(event.request.url, options))
+        event.respondWith(route(event.request));
+});
+//# sourceMappingURL=worker.js.map

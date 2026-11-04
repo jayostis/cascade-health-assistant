@@ -164,7 +164,7 @@ export function Screen({ children }: { children: ReactNode }) {
           ? "Open this pod"
           : "Not found";
   useEffect(() => {
-    document.title = `${title} · Cascade`;
+    document.title = `${title} · Health assistant`;
   }, [title]);
   useEffect(() => {
     if (did?.refused !== undefined) closeBox();
@@ -206,7 +206,7 @@ export function Screen({ children }: { children: ReactNode }) {
 export function Broken() {
   const error = useRouteError();
   useEffect(() => {
-    document.title = "Something went wrong · Cascade";
+    document.title = "Something went wrong · Health assistant";
   }, []);
   return (
     <Wrong said={error instanceof Error ? error.message : String(error)} />

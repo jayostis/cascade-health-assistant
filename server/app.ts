@@ -64,7 +64,7 @@ export function withPages<T extends Hono<{ Bindings: HttpBindings }>>(
   return app;
 }
 
-const notWaiting = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Not waiting · Cascade</title></head><body><h1>No sign-in is waiting for this</h1></body></html>`;
+const notWaiting = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Not waiting · Health assistant</title></head><body><h1>No sign-in is waiting for this</h1></body></html>`;
 
 /** What the chat add-on's `server/chat.ts` gives the server: its routes over `api`, with the model the app was set up with. */
 export type ChatServed = (api: Operations) => Hono;

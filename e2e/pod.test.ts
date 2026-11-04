@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-test("Alex Rivera's pod draws its first tiles", async ({ page }) => {
-  await page.goto("/pods/alex-rivera/");
+test("Priya Natarajan's sample pod draws its first tiles", async ({ page }) => {
+  await page.goto("/pods/priya-natarajan-eval-case/");
   const body = page.locator("body");
   try {
     await expect(body).toHaveAttribute("data-state", /^(ready|error)$/);

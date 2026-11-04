@@ -67,9 +67,9 @@ const signedIn = (runtime: string) => `<!doctype html>
 
 /**
  * The plugin, for the browser target when `browser`. `CASCADE_NAME`, `CASCADE_VERSION` and `CASCADE_CODE` name the
- * app, what it was built from and where its code is, in its About box (the app's package by default; no link when it
- * names none), and `CASCADE_SAMPLES` the samples a first visit
- * copies, by folder, beside the base.
+ * app, what it was built from and where its code is, in its About box ("Health assistant", the package's version and
+ * repository by default; no link when it names none), and `CASCADE_SAMPLES` the samples a first visit copies, by
+ * folder, beside the base.
  */
 export function cascade({ browser }: { browser: boolean }): Plugin[] {
   return [cascadeRuntime({ browser }), appPlugin({ browser })];
@@ -86,7 +86,7 @@ function appPlugin({ browser }: { browser: boolean }): Plugin {
         homepage?: string;
       }>(join(APP, "package.json"));
       const body: Record<string, string> = {
-        "data-name": env.CASCADE_NAME ?? app.name,
+        "data-name": env.CASCADE_NAME ?? "Health assistant",
         "data-version": env.CASCADE_VERSION ?? app.version,
         "data-runtime": runtimePackage.version,
         "data-code":

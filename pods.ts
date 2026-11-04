@@ -9,25 +9,14 @@ import { parseArgs, type ParseArgsOptionsConfig } from "node:util";
 import { openPod, type Pod, Refusal, Unopened } from "cascade-runtime";
 import { addresses } from "./addresses.ts";
 import { notOpenedHere } from "./pod-api.ts";
-import {
-  phaseOn,
-  replayKit,
-  seconds,
-  setUpTables,
-} from "cascade-runtime/fixtures";
+import { phaseOn, seconds, setUpTables } from "cascade-runtime/fixtures";
+import { loadSample, SAMPLE } from "./sample.ts";
 
 /** Every pod of this app is a folder here, named as the pod. */
 export const PODS = fileURLToPath(new URL("pods/", import.meta.url));
-/** The kits whose pods the app was made with. */
-export const KITS = [
-  "alex-rivera",
-  "priya-natarajan",
-  "martin-okafor",
-  "tamsin-vale",
-];
 export const POD_NAME = /^[a-z0-9][a-z0-9._-]*$/;
 export const NO_POD =
-  "No pod loaded. Run `npm run reset` to load Alex's, Priya's, Martin's and Tamsin's pods.";
+  "No pod loaded. Run `npm run reset` to load Priya's pod, the app's sample.";
 
 export function podFolder(name: string): string {
   return join(PODS, name);
@@ -142,31 +131,34 @@ export async function deleteAll(): Promise<string[]> {
   return names;
 }
 
-/** Loads the kits' pods into `folder`; `out(text)`, when given, is told each kit with its seconds. Gives their names. */
-export async function restoreKits(
+/**
+ * Loads the sample's pod into `folder`; `out(text)`, when given, is told it with its seconds, and each download the
+ * runtime refused (the case holds some on purpose). Gives the pod's name in a list.
+ */
+export async function restoreSample(
   folder = PODS,
   out?: (text: string) => void,
 ): Promise<string[]> {
-  for (const kit of KITS) {
-    const started = performance.now();
-    out?.(`\nLoading the pod ${kit}, from the kit the package carries…`);
-    try {
-      await replayKit(kit, join(folder, kit));
-      out?.(` loaded in ${seconds(started)}\n`);
-    } catch (error) {
-      out?.("\n");
-      throw new Error(`the pod ${kit} did not load: ${messageOf(error)}`, {
-        cause: error,
-      });
-    }
+  const started = performance.now();
+  out?.(`\nLoading the pod ${SAMPLE.pod}, from samples/${SAMPLE.pod}/…`);
+  try {
+    const done = await loadSample(join(folder, SAMPLE.pod));
+    out?.(` loaded in ${seconds(started)}\n`);
+    for (const { download, refused } of done)
+      if (refused !== undefined) out?.(`  refused ${download}: ${refused}\n`);
+  } catch (error) {
+    out?.("\n");
+    throw new Error(`the pod ${SAMPLE.pod} did not load: ${messageOf(error)}`, {
+      cause: error,
+    });
   }
-  return [...KITS];
+  return [SAMPLE.pod];
 }
 
 /**
- * Removes every pod and loads the kits' pods again, the app as it was made: what `npm run reset` does. `out(text)`,
- * when given, is told what is under way: the tables' setup as its own step with each phase's seconds, then each kit
- * with its own. Gives the names of the pods there were.
+ * Removes every pod and loads the sample's pod again, the app as it was made: what `npm run reset` does. `out(text)`,
+ * when given, is told what is under way: the tables' setup as its own step with each phase's seconds, then the sample.
+ * Gives the names of the pods there were.
  */
 export async function resetAll(
   out?: (text: string) => void,
@@ -178,7 +170,7 @@ export async function resetAll(
     } catch (error) {
       out(`\nthe app's tables could not be set up: ${messageOf(error)}\n`);
     }
-  await restoreKits(PODS, out);
+  await restoreSample(PODS, out);
   return names;
 }
 

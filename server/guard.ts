@@ -10,7 +10,7 @@ export interface Own {
 }
 
 const refusedPage = (heading: string) =>
-  `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${heading} · Cascade</title></head><body><h1>${heading}</h1></body></html>`;
+  `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${heading} · Health assistant</title></head><body><h1>${heading}</h1></body></html>`;
 
 export function guard(own: () => Own): MiddlewareHandler {
   return async (c, next) => {

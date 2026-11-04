@@ -1,0 +1,251 @@
+export class HospitalDataError extends Error {
+    where;
+    reason;
+    constructor(where, reason) {
+        super(`${where}: ${reason}`);
+        this.name = "HospitalDataError";
+        this.where = where;
+        this.reason = reason;
+    }
+}
+const INSTANT = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:([0-5]\d|60)(\.\d{1,9})?(Z|[+-]((0\d|1[0-3]):[0-5]\d|14:00))$/;
+/** Whether `text` is a FHIR `instant`: a time to the second, with a timezone. */
+export function isInstant(text) {
+    if (typeof text !== "string" || !INSTANT.test(text))
+        return false;
+    const [year, month, day] = text.split("T")[0].split("-").map(Number);
+    if (year < 1000)
+        return false;
+    const written = new Date(0);
+    written.setUTCFullYear(year, month - 1, day);
+    return written.getUTCDate() === day;
+}
+/** Each record's versions in a patient file, oldest first, checked by the file's rules; throws HospitalDataError. */
+export function versionsOf(bundle, where) {
+    const refuse = (reason) => new HospitalDataError(where, reason);
+    const records = new Map();
+    const add = (version) => {
+        const versions = records.get(version.record);
+        if (versions)
+            versions.push(version);
+        else
+            records.set(version.record, [version]);
+    };
+    if (bundle.type === "collection") {
+        for (const { resource } of bundle.entry ?? []) {
+            if (!resource)
+                continue;
+            const record = `${resource.resourceType}/${resource.id}`;
+            if (records.has(record)) {
+                throw refuse(`a collection holds ${record} twice`);
+            }
+            add({ record, versionId: versionIdOf(resource) ?? "1", resource });
+        }
+        return records;
+    }
+    if (bundle.type !== "history") {
+        throw refuse(`a patient file is a Bundle of type collection or history, not ${bundle.type}`);
+    }
+    for (const entry of bundle.entry ?? [])
+        add(historyVersion(entry, refuse));
+    for (const [record, versions] of records) {
+        const seen = new Set();
+        for (const { versionId } of versions) {
+            if (seen.has(versionId)) {
+                throw refuse(`${record} reuses version ${versionId}`);
+            }
+            seen.add(versionId);
+        }
+        versions.sort((a, b) => time(a) - time(b));
+        let exists = false;
+        versions.forEach((version, index) => {
+            const before = versions[index - 1];
+            if (before && time(before) === time(version)) {
+                throw refuse(`${record} has two versions at ${version.recorded}`);
+            }
+            if (!version.resource && !exists) {
+                throw refuse(`${record} is deleted while it does not exist`);
+            }
+            exists = version.resource !== undefined;
+        });
+    }
+    return records;
+}
+function historyVersion(entry, refuse) {
+    const method = entry.request?.method;
+    if (method !== "POST" && method !== "PUT" && method !== "DELETE") {
+        throw refuse("a history entry has a request whose method is POST, PUT or DELETE");
+    }
+    const url = entry.request?.url ?? "";
+    const recorded = entry.response?.lastModified;
+    if (!isInstant(recorded)) {
+        throw refuse("a history entry has a response whose lastModified is an instant");
+    }
+    const etag = entry.response?.etag;
+    const { resource } = entry;
+    if (method === "DELETE") {
+        if (!/^[A-Za-z]+\/[A-Za-z0-9\-.]{1,64}$/.test(url)) {
+            throw refuse("request.url is not <type>/<id> of its resource");
+        }
+        const versionId = etag === undefined ? undefined : tagged(etag);
+        if (resource || versionId === undefined) {
+            throw refuse(`${url} is deleted with a resource, or with no etag`);
+        }
+        return { record: url, versionId, recorded };
+    }
+    if (!resource ||
+        url !==
+            (method === "POST"
+                ? resource.resourceType
+                : `${resource.resourceType}/${resource.id}`)) {
+        throw refuse("request.url is not <type>/<id> of its resource");
+    }
+    const record = `${resource.resourceType}/${resource.id}`;
+    const versionId = versionIdOf(resource);
+    if (versionId === undefined) {
+        throw refuse(`${record} has a version with no meta.versionId`);
+    }
+    const lastUpdated = metaOf(resource).lastUpdated;
+    if (typeof lastUpdated !== "string" ||
+        Date.parse(lastUpdated) !== Date.parse(recorded)) {
+        throw refuse(`${record} version ${versionId}: meta.lastUpdated is not the entry's response.lastModified`);
+    }
+    if (etag !== undefined && etag !== `W/"${versionId}"`) {
+        throw refuse(`${record} version ${versionId}: the etag is not W/"${versionId}"`);
+    }
+    return { record, versionId, recorded, resource };
+}
+function metaOf(resource) {
+    const meta = resource.meta;
+    return meta && typeof meta === "object"
+        ? meta
+        : {};
+}
+function versionIdOf(resource) {
+    const versionId = metaOf(resource).versionId;
+    return typeof versionId === "string" && versionId !== ""
+        ? versionId
+        : undefined;
+}
+function tagged(etag) {
+    return /^W\/"([^"]+)"$/.exec(etag)?.[1];
+}
+/** A version's record time in milliseconds; a plain record's one version is earlier than every time. */
+export function time(version) {
+    return version.recorded === undefined
+        ? Number.NEGATIVE_INFINITY
+        : Date.parse(version.recorded);
+}
+/** The versions of a record whose record time is at or before `asOf` (every version when it is absent), oldest first. */
+export function versionsUpTo(versions, asOf) {
+    if (asOf === undefined)
+        return versions;
+    const at = Date.parse(asOf);
+    return versions.filter((version) => time(version) <= at);
+}
+/**
+ * Each patient's records, by patient id, from a hospital's patient files: each file checked by `versionsOf`, its
+ * `fullUrl`s against the hospital's FHIR base, the Patient it holds against its name, and no record in two files. A
+ * refusal names the patient's file as `places` gives it, else `patient <id>`.
+ */
+export function patientRecords(fhirBase, patients, places = {}) {
+    const base = fhirBase.replace(/\/$/, "");
+    const owners = new Set();
+    const checked = new Map();
+    for (const [id, bundle] of Object.entries(patients)) {
+        const where = places[id] ?? `patient ${id}`;
+        const records = versionsOf(bundle, where);
+        for (const { fullUrl, resource, request } of bundle.entry ?? []) {
+            if (fullUrl === undefined)
+                continue;
+            const record = resource
+                ? `${resource.resourceType}/${resource.id}`
+                : (request?.url ?? "");
+            if (fullUrl !== `${base}/${record}`) {
+                throw new HospitalDataError(where, `fullUrl ${fullUrl} is not ${base}/${record}`);
+            }
+        }
+        for (const record of records.keys()) {
+            if (owners.has(record)) {
+                throw new HospitalDataError(where, `${record} is in two patient files`);
+            }
+            owners.add(record);
+        }
+        const held = [...records.keys()]
+            .find((record) => record.startsWith("Patient/"))
+            ?.slice("Patient/".length);
+        if (held !== id) {
+            throw new HospitalDataError(where, `holds Patient ${held ?? "(none)"}, not ${id}`);
+        }
+        checked.set(id, records);
+    }
+    return checked;
+}
+/** The resources present at `asOf` (every latest version when absent), each as its version then. */
+export function recordsAt(bundle, asOf) {
+    if (asOf !== undefined && !isInstant(asOf)) {
+        throw new HospitalDataError("asOf", "asOf is an instant, as 2024-02-01T00:00:00Z");
+    }
+    const resources = [];
+    for (const versions of versionsOf(bundle, "a patient file").values()) {
+        const resource = versionsUpTo(versions, asOf).at(-1)?.resource;
+        if (resource)
+            resources.push(resource);
+    }
+    return resources;
+}
+/** The period a FHIR date or dateTime names at its precision, in milliseconds, its end excluded: `2024` is the whole year. */
+export function periodOf(text) {
+    const date = /^(\d{4})(?:-(0[1-9]|1[0-2])(?:-(0[1-9]|[12]\d|3[01]))?)?$/.exec(text);
+    if (date) {
+        const [year, month, day] = date
+            .slice(1)
+            .map((part) => (part === undefined ? undefined : Number(part)));
+        const start = Date.UTC(year, (month ?? 1) - 1, day ?? 1);
+        const end = day !== undefined
+            ? Date.UTC(year, month - 1, day + 1)
+            : month !== undefined
+                ? Date.UTC(year, month, 1)
+                : Date.UTC(year + 1, 0, 1);
+        if (year < 1000 ||
+            (day !== undefined && new Date(start).getUTCDate() !== day)) {
+            return undefined;
+        }
+        return { start, end };
+    }
+    if (!isInstant(text))
+        return undefined;
+    const start = Date.parse(text);
+    return { start, end: start + (text.includes(".") ? 1 : 1000) };
+}
+/**
+ * A version of a record as a history entry: the one writer of the etag form `W/"<versionId>"`, which `versionsOf`
+ * checks. Version `1` is the creating POST, any other a PUT; `recorded` is both the entry's `lastModified` and the
+ * resource's `meta.lastUpdated`.
+ */
+export function historyEntry(resource, versionId, recorded, fullUrl) {
+    const created = versionId === "1";
+    const meta = resource.meta;
+    return {
+        ...(fullUrl === undefined ? {} : { fullUrl }),
+        resource: {
+            ...resource,
+            meta: {
+                ...(typeof meta === "object" && meta !== null && !Array.isArray(meta)
+                    ? meta
+                    : {}),
+                versionId,
+                lastUpdated: recorded,
+            },
+        },
+        request: created
+            ? { method: "POST", url: resource.resourceType }
+            : { method: "PUT", url: `${resource.resourceType}/${resource.id}` },
+        response: {
+            status: created ? "201" : "200",
+            lastModified: recorded,
+            etag: `W/"${versionId}"`,
+        },
+    };
+}
+//# sourceMappingURL=history.js.map

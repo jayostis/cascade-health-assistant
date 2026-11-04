@@ -2,6 +2,11 @@
   "name": "cascade-health-assistant",
   "version": "0.0.0",
   "private": true,
+  "description": "A health assistant on a Cascade pod: a chat with a model over a person's records.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jayostis/cascade-health-assistant.git"
+  },
   "type": "module",
   "engines": {
     "node": "^22.18.0 || >=23.6.0"

@@ -1,19 +1,20 @@
 # For an agent building on this app
 
-This app was made from the Cascade starter. It is a demonstration, not a
-foundation: rebuild it in any framework. What carries over is
-`cascade-runtime`, which keeps the pods, and the pods under `pods/<name>/`. It
-starts with four, Alex Rivera's, Priya Natarajan's, Martin Okafor's (two
-FHIR reports of one variant, beside what ClinVar says today) and Tamsin Vale's
-(two pulls from Cascade North a year apart), loaded from the
-kits the package carries; `npm run reset` puts them back as they were made, and
-`npm run help` lists every command. The app is the starter's base; an add-on
-that `create-cascade-app --with` added (the chat, the MCP server) has its own
-section at the end of this file, and its commands are under "The starter".
+This is the Health assistant (`README.md`), made from the Cascade starter with
+`create-cascade-app --with chat`. What carries over is `cascade-runtime`, which
+keeps the pods, and the pods under `pods/<name>/`. It starts with one,
+`priya-natarajan-eval-case`: Priya Natarajan's 16 downloads of the evals' case in
+cascade-runtime-js, committed in `samples/priya-natarajan-eval-case/` and
+imported in order by `sample.ts`; `npm run reset` puts it back as it was made (a
+first `npm start` with no `pods/` does the same), and `npm run help` lists every
+command. The starter's own kits (`alex-rivera`, `priya-natarajan`,
+`martin-okafor`, `tamsin-vale`) are no longer loaded, but `npm run pod:load` and
+`npm run kit:export` still reach them. The chat add-on has its own section at the
+end of this file, and its commands are under "The starter".
 `npm run kit:export -- alex-rivera x-e12` copies one of Alex's downloads into
 the app as `apple_health_export`, and
 `npm run kit:export -- priya-natarajan kestrel-harbor-health-summary.xml` one
-of Priya's C-CDA files under its own name.
+of the kit's C-CDA files under its own name.
 
 The app is TypeScript throughout. Its pages are one React app, `index.html`
 and `src/`, routed by React Router and built by Vite (`vite.config.ts`, with
@@ -159,8 +160,8 @@ returns to `signed-in.html`. The demo hospitals, in `demo-hospital/`, are
 pretend: on Node they answer on a loopback port of their own (`serveDemo`), in
 a browser from the service worker the build carries.
 The title bar's File menu runs `podApi`'s `deleteAll` and `resetAll`; both keep
-the reference tables, and on Node `resetAll` then loads the kits through
-`restoreKits` in `pods.ts`, as `npm run reset` does; Help, About says the app's
+the reference tables, and on Node `resetAll` then loads the sample through
+`restoreSample` in `pods.ts`, as `npm run reset` does; Help, About says the app's
 name and version and the `cascade-runtime` it runs on.
 Under the pods, the sidebar lists the sources of the reference tables the pods
 are matched with (`sourcesOf(held())`, from `tablesBeside`). `/tables/<id>/`
@@ -321,7 +322,7 @@ smallest input that shows it, and asserts what it means, never bytes or a whole 
   operation or route: the pods are listed, a pod's answers come back, an input the rules refuse is a 400 `{ refused }`.
 - `test/tools.test.ts` holds the tool list to its rules: every tool in `tools.ts` is `free` or `ask`, and none calls an
   operation of `NEVER`. A tool you add needs a row in `RUNS`, or the test fails.
-- `e2e/pod.test.ts` is the one browser test, on Playwright: it starts the app with `npm start`, opens Alex Rivera's pod
+- `e2e/pod.test.ts` is the one browser test, on Playwright: it starts the app with `npm start`, opens Priya Natarajan's sample pod (`npm run reset` loads it on a clone first)
   and waits for the page to say it is ready (`body[data-state="ready"]`, never `main`'s text), then looks for its
   tiles (`.tiles .tile`). A failure prints `body[data-trace]`, the page's last changes of state. Chromium is not
   downloaded by `npm install`; `npx playwright install chromium` once, then `npm run test:e2e`.
