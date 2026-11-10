@@ -41,15 +41,10 @@ export const SAMPLE = {
 
 /** The SHA-256 of the lines `<file's sha256>  <path>`, sorted by path: the evals' `digestOf`, `sha256sum` over the folder, hashed. */
 export async function digestOf(folder: string): Promise<string> {
-  const files = (
-    await readdir(folder, { recursive: true, withFileTypes: true })
-  )
+  const files = (await readdir(folder, { recursive: true, withFileTypes: true }))
     .filter((entry) => entry.isFile())
     .map((entry) =>
-      relative(folder, join(entry.parentPath, entry.name)).replaceAll(
-        "\\",
-        "/",
-      ),
+      relative(folder, join(entry.parentPath, entry.name)).replaceAll("\\", "/"),
     )
     .sort();
   let lines = "";
@@ -83,7 +78,7 @@ export async function loadSample(
         done.push({ download, refused: (error as Error).message });
         continue;
       }
-      const imported = await pod.import(path, { claimProfiles: true });
+      const imported = await pod.import(path, { claim: true });
       done.push({
         download,
         ...(imported.refused ? { refused: String(imported.refused) } : {}),
