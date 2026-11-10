@@ -78,7 +78,7 @@ export async function loadSample(
         done.push({ download, refused: (error as Error).message });
         continue;
       }
-      const imported = await pod.import(path, { claim: true });
+      const imported = await pod.import(path, { claimProfiles: true });
       done.push({
         download,
         ...(imported.refused ? { refused: String(imported.refused) } : {}),
