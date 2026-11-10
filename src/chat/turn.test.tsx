@@ -1,7 +1,7 @@
 import type { CheckedReply } from "cascade-runtime";
 import type { UIMessage } from "ai";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, test } from "vitest";
+import { describe, expect, it } from "vitest";
 import fixture from "./checked-reply.fixture.json" with { type: "json" };
 import { sideSaid, stepSaid, stepsOf, workingSaid, type Found } from "./steps.ts";
 import { LookedAt, Supporting, Working } from "./turn.tsx";
@@ -85,81 +85,88 @@ const user: UIMessage = {
   parts: [{ type: "text", text: "Find anything interesting in this pod" }],
 };
 
-describe("what a turn says while the model works", () => {
-  test("before any tool is called it says it is reading the question", () => {
-    expect(workingSaid([user])).toBe("Reading the question");
-    expect(workingSaid([user, turn()])).toBe("Reading the question");
+/**
+ * While the model works the chat shows one line naming its current step, written from the tool's name and input and never
+ * from the model's words. A person sees what is being read without seeing a raw tool call.
+ */
+describe("Saying what a model is doing while it works · workingSaid(), stepSaid(), stepsOf(), Working", () => {
+  describe("workingSaid(messages)", () => {
+    it("returns `Reading the question` before any tool is called", () => {
+      expect(workingSaid([user]), "no turn yet").toBe("Reading the question");
+      expect(workingSaid([user, turn()]), "a turn with no tool call").toBe("Reading the question");
+    });
+
+    it("names the tool still running in the app's words: `Reading active medications` for `ask` of `pod/My active medications`", () => {
+      expect(
+        workingSaid([
+          user,
+          turn(call("timeline", { pod: "p" }, [{}]), call("ask", { question: "pod/My active medications" })),
+        ]),
+      ).toBe("Reading active medications");
+    });
+
+    it("names a medication by the name the tool was given", () => {
+      expect(workingSaid([user, turn(call("find_changes", { medication: "ondansetron" }))])).toBe(
+        "Looking at lab results after ondansetron",
+      );
+    });
+
+    it("returns `Putting the answer together` once every tool has answered", () => {
+      expect(workingSaid([user, turn(call("timeline", { pod: "p" }, []))])).toBe("Putting the answer together");
+    });
+
+    it("returns `Checking the answer against the records` when `checking` is set", () => {
+      const done = [user, turn(call("timeline", { pod: "p" }, []))];
+      expect(workingSaid(done, true)).toBe("Checking the answer against the records");
+    });
+
+    it("ignores a call to a tool named `reply`", () => {
+      const withReply = turn(call("reply", { items: [] }));
+      expect(workingSaid([user, withReply]), "only a reply call").toBe("Reading the question");
+      expect(
+        workingSaid([user, turn(call("timeline", { pod: "p" }, []), call("reply", { items: [] }))]),
+        "a reply call after a tool that answered",
+      ).toBe("Putting the answer together");
+    });
   });
 
-  test("a tool still running is named in the app's words, a medication by the name it was given", () => {
-    expect(
-      workingSaid([
-        user,
-        turn(call("timeline", { pod: "p" }, [{}]), call("ask", { question: "pod/My active medications" })),
-      ]),
-    ).toBe("Reading active medications");
-    expect(
-      workingSaid([user, turn(call("find_changes", { medication: "ondansetron" }))]),
-    ).toBe("Looking at lab results after ondansetron");
+  describe("stepSaid(step)", () => {
+    it("says `medications` in place of a medication's code, which says nothing read alone", () => {
+      const [step] = stepsOf(turn(call("find_changes", { medication: "617310", test: "2160-0" })));
+      expect(stepSaid(step!)).toBe("Looking at lab results after medications");
+    });
   });
 
-  test("a code says nothing read alone, so the step does not repeat it", () => {
-    const [step] = stepsOf(turn(call("find_changes", { medication: "617310", test: "2160-0" })));
-    expect(stepSaid(step!)).toBe("Looking at lab results after medications");
+  describe("stepsOf(message)", () => {
+    it("lists no step for a call to a tool named `reply`", () => {
+      expect(stepsOf(turn(call("reply", { items: [] })))).toEqual([]);
+    });
   });
 
-  test("the reply tool is not a step: it never runs on the page, so it is not working and it is not listed", () => {
-    const withReply = turn(call("reply", { items: [] }));
-    expect(stepsOf(withReply)).toEqual([]);
-    expect(workingSaid([user, withReply])).toBe("Reading the question");
-    expect(
-      workingSaid([user, turn(call("timeline", { pod: "p" }, []), call("reply", { items: [] }))]),
-    ).toBe("Putting the answer together");
-    expect(renderToStaticMarkup(<LookedAt message={withReply} open={() => {}} />)).toBe("");
-  });
-
-  test("once every tool has answered it says the answer is being put together", () => {
-    expect(
-      workingSaid([user, turn(call("timeline", { pod: "p" }, []))]),
-    ).toBe("Putting the answer together");
-  });
-
-  test("while the server asks for the answer again it says the answer is being checked, in the line the person sees", () => {
-    const done = [user, turn(call("timeline", { pod: "p" }, []))];
-    expect(workingSaid(done, true)).toBe(
-      "Checking the answer against the records",
-    );
-    expect(
-      renderToStaticMarkup(
-        <Working messages={done} stoppable={false} checking />,
-      ),
-    ).toContain("Checking the answer against the records…");
-    expect(
-      renderToStaticMarkup(<Working messages={done} stoppable={false} />),
-    ).toContain("Putting the answer together…");
+  describe("`Working`", () => {
+    it("draws the line with an ellipsis after it", () => {
+      const done = [user, turn(call("timeline", { pod: "p" }, []))];
+      expect(renderToStaticMarkup(<Working messages={done} stoppable={false} checking />), "when checking").toContain(
+        "Checking the answer against the records…",
+      );
+      expect(renderToStaticMarkup(<Working messages={done} stoppable={false} />), "when not").toContain(
+        "Putting the answer together…",
+      );
+    });
   });
 });
 
-describe("the one folded line under the answer", () => {
-  const steps = [
-    call("timeline", { pod: "p" }, []),
-    call("find_changes", { pod: "p" }, [creatinine]),
-  ];
-  const draw = (
-    checked: CheckedReply | undefined,
-    parts: UIMessage["parts"] = steps,
-  ) =>
-    renderToStaticMarkup(
-      <Supporting
-        message={turn(...parts)}
-        checked={checked}
-        pod="p"
-        open={() => {}}
-      />,
-    );
+/**
+ * Under an answer the chat draws one line saying what the check found, in the checker's counts and never the model's
+ * words, folded over the cards and the steps. A person sees whether the answer was confirmed against their records
+ * without opening anything.
+ */
+describe("Summing up a reply's check in one line · Supporting", () => {
+  const steps = [call("timeline", { pod: "p" }, []), call("find_changes", { pod: "p" }, [creatinine])];
+  const draw = (checked: CheckedReply | undefined, parts: UIMessage["parts"] = steps) =>
+    renderToStaticMarkup(<Supporting message={turn(...parts)} checked={checked} pod="p" open={() => {}} />);
   /** The line the person reads folded, without its markup. */
-  const line = (html: string) =>
-    /<summary[^>]*>(.*?)<\/summary>/s.exec(html)![1].replace(/<[^>]*>/g, "");
+  const line = (html: string) => /<summary[^>]*>(.*?)<\/summary>/s.exec(html)![1].replace(/<[^>]*>/g, "");
   const passing = (): CheckedReply => {
     const clone = structuredClone(reply) as unknown as {
       items: {
@@ -173,209 +180,239 @@ describe("the one folded line under the answer", () => {
     }
     return clone as unknown as CheckedReply;
   };
-
-  test("a checked reply is one closed line with the check's verdict, the counts and the steps", () => {
-    const drawn = draw(passing());
-    expect(drawn).toContain("<details");
-    expect(drawn).not.toContain('open=""');
-    expect(line(drawn)).toBe(
-      "Checked against your records · 9 confirmed · 2 general, not from your records · 2 steps",
-    );
-  });
-
-  test("the cards and then the steps are inside, the cards first", () => {
-    const drawn = draw(passing());
-    const cards = drawn.indexOf('class="cards');
-    expect(cards).toBeGreaterThan(drawn.indexOf("</summary>"));
-    expect(drawn.indexOf("looked-at")).toBeGreaterThan(cards);
-    expect(drawn).toContain("Looked at lab results after lisinopril");
-  });
-
-  test("a fact or a search the check could not confirm is counted on the line, which says so in the warm colours", () => {
-    const drawn = draw(reply);
-    expect(line(drawn)).toBe(
-      "3 of 9 could not be confirmed against your records · 6 confirmed · 2 general, not from your records · 2 steps",
-    );
-    expect(drawn).toMatch(/<summary[^>]*class="[^"]*unconfirmed/);
-    expect(drawn).not.toMatch(/<summary[^>]*class="[^"]*not-checked/);
-  });
-
-  test("one fact and one step are said in the singular, and a turn with no tool call says no steps", () => {
+  /** `passing()` cut to its third item, with one confirmed fact and no absence. */
+  const single = () => {
     const one = passing() as unknown as {
       items: { facts: unknown[]; absences: unknown[] }[];
     };
     one.items = [{ ...one.items[2], absences: [] }];
-    expect(line(draw(one as unknown as CheckedReply, [steps[0]!]))).toBe(
-      "Checked against your records · 1 confirmed · 1 general, not from your records · 1 step",
-    );
-    expect(line(draw(one as unknown as CheckedReply, []))).toBe(
-      "Checked against your records · 1 confirmed · 1 general, not from your records",
-    );
+    return one as unknown as CheckedReply;
+  };
+
+  describe("given a reply whose facts and absences were all confirmed", () => {
+    it("draws one closed fold", () => {
+      const drawn = draw(passing());
+      expect(drawn).toContain("<details");
+      expect(drawn).not.toContain('open=""');
+    });
+
+    it("says `Checked against your records · 9 confirmed · 2 general, not from your records · 2 steps`", () => {
+      expect(line(draw(passing()))).toBe(
+        "Checked against your records · 9 confirmed · 2 general, not from your records · 2 steps",
+      );
+    });
+
+    it("draws the cards and then the steps inside the fold", () => {
+      const drawn = draw(passing());
+      const cards = drawn.indexOf('class="cards');
+      expect(cards).toBeGreaterThan(drawn.indexOf("</summary>"));
+      expect(drawn.indexOf("looked-at")).toBeGreaterThan(cards);
+      expect(drawn).toContain("Looked at lab results after lisinopril");
+    });
+
+    it("says `1 confirmed` and `1 step` in the singular", () => {
+      expect(line(draw(single(), [steps[0]!]))).toBe(
+        "Checked against your records · 1 confirmed · 1 general, not from your records · 1 step",
+      );
+    });
+
+    it("leaves the steps off the line for a turn with no tool call", () => {
+      expect(line(draw(single(), []))).toBe("Checked against your records · 1 confirmed · 1 general, not from your records");
+    });
+
+    it("counts only an item that has both the model's words and the check", () => {
+      const wordless = passing() as unknown as { reply: { items: { n: number }[] } };
+      wordless.reply.items = wordless.reply.items.filter(({ n }) => n !== 2);
+      const drawn = draw(wordless as unknown as CheckedReply, []);
+      expect(line(drawn)).toBe("Checked against your records · 7 confirmed · 2 general, not from your records");
+      expect(drawn.match(/class="point/g)).toHaveLength(2);
+    });
   });
 
-  test("a failed fact leads the line, a reply with nothing to check says so, and an item with a verdict and no words is in neither the line nor the cards", () => {
-    const failing = passing() as unknown as {
-      items: { facts: { verdict: object }[] }[];
-    };
-    failing.items[0]!.facts[0]!.verdict = {
-      ok: false,
-      reason: "no such record",
-      missing: [],
-    };
-    expect(line(draw(failing as unknown as CheckedReply, []))).toMatch(
-      /^1 of 9 could not be confirmed against your records · 8 confirmed/,
-    );
-    const none = passing() as unknown as {
-      items: unknown[];
-      reply: { items: { knowledge?: unknown }[] };
-    };
-    none.items = [];
-    none.reply.items = none.reply.items.map(({ knowledge: _, ...rest }) => rest);
-    expect(
-      line(draw(none as unknown as CheckedReply, [steps[0]!])),
-    ).toBe("Nothing in this reply was checked against your records · 1 step");
-    const wordless = passing() as unknown as {
-      reply: { items: { n: number }[] };
-    };
-    wordless.reply.items = wordless.reply.items.filter(({ n }) => n !== 2);
-    const drawn = draw(wordless as unknown as CheckedReply, []);
-    expect(line(drawn)).toBe(
-      "Checked against your records · 7 confirmed · 2 general, not from your records",
-    );
-    expect(drawn.match(/class="point/g)).toHaveLength(2);
+  describe("given a fact or an absence the check could not confirm", () => {
+    it("leads the line with how many could not be confirmed", () => {
+      expect(line(draw(reply)), "a fact and two absences").toBe(
+        "3 of 9 could not be confirmed against your records · 6 confirmed · 2 general, not from your records · 2 steps",
+      );
+      const failing = passing() as unknown as { items: { facts: { verdict: object }[] }[] };
+      failing.items[0]!.facts[0]!.verdict = { ok: false, reason: "no such record", missing: [] };
+      expect(line(draw(failing as unknown as CheckedReply, [])), "one fact failed").toMatch(
+        /^1 of 9 could not be confirmed against your records · 8 confirmed/,
+      );
+    });
+
+    it("marks the line `unconfirmed`, never `not-checked`", () => {
+      const drawn = draw(reply);
+      expect(drawn).toMatch(/<summary[^>]*class="[^"]*unconfirmed/);
+      expect(drawn).not.toMatch(/<summary[^>]*class="[^"]*not-checked/);
+    });
   });
 
-  test("a reply that was not checked says so on the folded line, with the checker's reason", () => {
-    const drawn = draw({ errors: ["items: at most 10"], items: [] });
-    expect(line(drawn)).toBe("Not checked: items: at most 10 · 2 steps");
-    expect(drawn).toMatch(/<summary[^>]*class="[^"]*not-checked/);
-    expect(drawn).not.toContain('class="cards');
-    expect(line(draw({ errors: ["a", "b", "c"], items: [] }))).toBe(
-      "Not checked: a (and 2 more) · 2 steps",
-    );
+  describe("given a reply with nothing to check", () => {
+    it("says `Nothing in this reply was checked against your records`", () => {
+      const none = passing() as unknown as {
+        items: unknown[];
+        reply: { items: { knowledge?: unknown }[] };
+      };
+      none.items = [];
+      none.reply.items = none.reply.items.map(({ knowledge: _, ...rest }) => rest);
+      expect(line(draw(none as unknown as CheckedReply, [steps[0]!]))).toBe(
+        "Nothing in this reply was checked against your records · 1 step",
+      );
+    });
+
+    it("draws the line alone, with no fold, for a turn with no step either", () => {
+      const drawn = draw({ ...reply, items: [] }, []);
+      expect(drawn).not.toContain("<details");
+      expect(drawn).toContain("Nothing in this reply was checked against your records");
+    });
   });
 
-  test("a part that is not a checked reply at all is not checked, never confirmed", () => {
-    expect(line(draw({} as CheckedReply))).toMatch(/^Not checked: /);
-    expect(
-      line(draw({ errors: [], items: "none" } as unknown as CheckedReply)),
-    ).toMatch(/^Not checked: /);
+  describe("given a reply that was not checked", () => {
+    it("says `Not checked:` with the checker's first reason, then the steps", () => {
+      expect(line(draw({ errors: ["items: at most 10"], items: [] }))).toBe("Not checked: items: at most 10 · 2 steps");
+    });
+
+    it("says `(and 2 more)` after the first of three reasons", () => {
+      expect(line(draw({ errors: ["a", "b", "c"], items: [] }))).toBe("Not checked: a (and 2 more) · 2 steps");
+    });
+
+    it("marks the line `not-checked`, with no cards under it", () => {
+      const drawn = draw({ errors: ["items: at most 10"], items: [] });
+      expect(drawn).toMatch(/<summary[^>]*class="[^"]*not-checked/);
+      expect(drawn).not.toContain('class="cards');
+    });
+
+    it("says `Not checked:` for a `data-reply` part that is no checked reply", () => {
+      expect(line(draw({} as CheckedReply)), "an empty part").toMatch(/^Not checked: /);
+      expect(line(draw({ errors: [], items: "none" } as unknown as CheckedReply)), "items that are no list").toMatch(
+        /^Not checked: /,
+      );
+    });
+
+    it("draws the line with no fold for a turn with no step", () => {
+      const drawn = draw({ errors: ["the reply is not JSON"], items: [] }, []);
+      expect(drawn).not.toContain("<details");
+      expect(drawn).toContain("Not checked: the reply is not JSON");
+      expect(drawn).toContain("not-checked");
+    });
   });
 
-  test("with nothing under it, a not-checked line is still drawn, as a line and not a fold", () => {
-    const drawn = draw({ errors: ["the reply is not JSON"], items: [] }, []);
-    expect(drawn).not.toContain("<details");
-    expect(drawn).toContain("Not checked: the reply is not JSON");
-    expect(drawn).toContain("not-checked");
-  });
+  describe("given a turn with no reply", () => {
+    it("folds the steps behind `What it looked at`, with their count, closed", () => {
+      const drawn = draw(undefined);
+      expect(drawn).toContain("<details");
+      expect(drawn).not.toContain('open=""');
+      expect(line(drawn), "two steps").toBe("What it looked at (2 steps)");
+      expect(line(draw(undefined, [steps[0]!])), "one step").toBe("What it looked at (1 step)");
+    });
 
-  test("a checked reply with no points and no steps is only its verdict", () => {
-    const drawn = draw({ ...reply, items: [] }, []);
-    expect(drawn).not.toContain("<details");
-    expect(drawn).toContain(
-      "Nothing in this reply was checked against your records",
-    );
-  });
-
-  test("a turn with steps and no reply keeps its steps behind a closed line of their own", () => {
-    const drawn = draw(undefined);
-    expect(drawn).toContain("<details");
-    expect(drawn).not.toContain('open=""');
-    expect(line(drawn)).toBe("What it looked at (2 steps)");
-    expect(line(draw(undefined, [steps[0]!]))).toBe("What it looked at (1 step)");
-    expect(draw(undefined, [])).toBe("");
-  });
-});
-
-describe("what it looked at", () => {
-  const html = (...parts: UIMessage["parts"]) =>
-    renderToStaticMarkup(<LookedAt message={turn(...parts)} open={() => {}} />);
-
-  test("a turn with no tool call lists nothing", () => {
-    expect(html()).toBe("");
-  });
-
-  test("each step is named in words", () => {
-    const drawn = html(
-      call("timeline", { pod: "p" }, []),
-      call("find_changes", { pod: "p" }, [creatinine]),
-    );
-    expect(drawn).not.toContain("<details");
-    expect(drawn).toContain("Read the medications and the day each started");
-    expect(drawn).toContain("Looked at lab results after lisinopril 10 MG Oral Tablet");
-  });
-
-  test("a finding with a direction is one compact line: the app's sentence, its numbers and Open the trend, no card", () => {
-    const drawn = html(call("find_changes", { pod: "p" }, [creatinine]));
-    expect(drawn).toContain("Creatinine went up after lisinopril.");
-    expect(drawn).toContain("Before: mean 0.88 mg/dL over 1 result (0.88 to 0.88)");
-    expect(drawn).not.toContain("card");
-    expect(drawn.match(/Open the trend/g)).toHaveLength(1);
-    expect(drawn).not.toContain("<a ");
-  });
-
-  test("a change with not enough results has no trend to open", () => {
-    expect(html(call("find_changes", { pod: "p" }, [thin("Sodium", "2951-2")]))).not.toContain(
-      "Open the trend",
-    );
-  });
-
-  test("a test with neither a name nor a notation is said as a test, never by its code", () => {
-    const bare: Found = { ...thin("x", "2345-7"), test: { code: "2345-7" } };
-    const drawn = html(call("find_changes", { pod: "p" }, [bare]));
-    expect(drawn).toContain("Not enough results to compare: a test around");
-    expect(drawn).not.toContain("2345-7");
-  });
-
-  test("a change with not enough results is one quiet line listing the tests, never a card each", () => {
-    const drawn = html(
-      call("find_changes", { pod: "p" }, [
-        thin("Creatinine", "2160-0"),
-        thin("Sodium", "2951-2"),
-        thin("Potassium", "2823-3"),
-      ]),
-    );
-    expect(drawn.match(/not enough results/gi)).toHaveLength(1);
-    expect(drawn).toContain(
-      "Not enough results to compare: Creatinine, Sodium, Potassium around ondansetron 4 MG Disintegrating Oral Tablet",
-    );
-    expect(drawn).not.toContain("mean");
-  });
-
-  test("a step that gave nothing is said so, and its findings are not read", () => {
-    const [step] = stepsOf(turn(call("find_changes", { pod: "p" }, undefined, "output-error")));
-    expect(stepSaid(step!)).toBe("Looked at lab results after medications, which gave nothing");
+    it("draws nothing for a turn with no step", () => {
+      expect(draw(undefined, [])).toBe("");
+    });
   });
 });
 
-describe("a side's numbers keep the results' precision", () => {
-  test("results 0.88 and 1.02 show the mean 0.95 and the range 0.88 to 1.02", () => {
-    expect(
-      sideSaid("Before", together.before, "mg/dL", ["0.88", "1.02"]),
-    ).toBe("Before: mean 0.95 mg/dL over 2 results (0.88 to 1.02)");
+/**
+ * Under the cards the fold lists each step of the turn in the app's words, and each lab change `find_changes` found as one
+ * line with its numbers. The numbers are written as the results were, so a mean never looks more or less exact than the
+ * lab's own figures.
+ */
+describe("Listing what a model looked at · LookedAt, sideSaid()", () => {
+  const html = (...parts: UIMessage["parts"]) => renderToStaticMarkup(<LookedAt message={turn(...parts)} open={() => {}} />);
+
+  describe("`LookedAt`", () => {
+    it("draws nothing for a turn with no tool call", () => {
+      expect(html(), "no part at all").toBe("");
+      expect(html(call("reply", { items: [] })), "only a call to `reply`").toBe("");
+    });
+
+    it("names each step in words, in the order made, with no fold of its own", () => {
+      const drawn = html(call("timeline", { pod: "p" }, []), call("find_changes", { pod: "p" }, [creatinine]));
+      expect(drawn).not.toContain("<details");
+      const first = drawn.indexOf("Read the medications and the day each started");
+      expect(first).toBeGreaterThanOrEqual(0);
+      expect(drawn.indexOf("Looked at lab results after", first)).toBeGreaterThan(first);
+    });
+
+    it("names the medication that every lab change of a step is about", () => {
+      // The input names no medication; the name is the one all the step's lab changes share.
+      const drawn = html(call("find_changes", { pod: "p" }, [creatinine]));
+      expect(drawn).toContain("Looked at lab results after lisinopril 10 MG Oral Tablet");
+    });
+
+    it("says a failed step `gave nothing`", () => {
+      const drawn = html(call("find_changes", { pod: "p" }, undefined, "output-error"));
+      expect(drawn).toContain("Looked at lab results after medications, which gave nothing");
+    });
   });
 
-  test("whole-number results keep the mean to one decimal and the extremes as they are", () => {
-    expect(
-      sideSaid("After", { count: 3, mean: 142.3333, min: 140, max: 145 }, "mmol/L", ["140", "142", "145"]),
-    ).toBe("After: mean 142.3 mmol/L over 3 results (140 to 145)");
+  describe("given a lab change with a direction", () => {
+    it("draws one line: the app's sentence and each side's numbers", () => {
+      const drawn = html(call("find_changes", { pod: "p" }, [creatinine]));
+      expect(drawn).toContain("Creatinine went up after lisinopril.");
+      expect(drawn).toContain("Before: mean 0.88 mg/dL over 1 result (0.88 to 0.88)");
+    });
+
+    it("draws one `Open the trend` button, and no link or card", () => {
+      const drawn = html(call("find_changes", { pod: "p" }, [creatinine]));
+      expect(drawn.match(/Open the trend/g)).toHaveLength(1);
+      expect(drawn).not.toContain("<a ");
+      expect(drawn).not.toContain("card");
+    });
+
+    it("draws both sides from the lab change's own results", () => {
+      const drawn = html(call("find_changes", { pod: "p" }, [together]));
+      expect(drawn).toContain("Before: mean 0.95 mg/dL over 2 results (0.88 to 1.02)");
+      expect(drawn).toContain("After: mean 1.5 mg/dL over 1 result (1.5 to 1.5)");
+    });
   });
 
-  test("results 1.10 and 1.30 keep their written decimals: the mean 1.20 and the range 1.10 to 1.30", () => {
-    expect(
-      sideSaid("Before", { count: 2, mean: 1.2, min: 1.1, max: 1.3 }, "mg/dL", ["1.10", "1.30"]),
-    ).toBe("Before: mean 1.20 mg/dL over 2 results (1.10 to 1.30)");
+  describe("given lab changes with not enough results", () => {
+    it("draws no `Open the trend`", () => {
+      expect(html(call("find_changes", { pod: "p" }, [thin("Sodium", "2951-2")]))).not.toContain("Open the trend");
+    });
+
+    it("lists the tests in one line, with the medication they share", () => {
+      const drawn = html(
+        call("find_changes", { pod: "p" }, [thin("Creatinine", "2160-0"), thin("Sodium", "2951-2"), thin("Potassium", "2823-3")]),
+      );
+      expect(drawn.match(/not enough results/gi)).toHaveLength(1);
+      expect(drawn).toContain(
+        "Not enough results to compare: Creatinine, Sodium, Potassium around ondansetron 4 MG Disintegrating Oral Tablet",
+      );
+      expect(drawn).not.toContain("mean");
+    });
+
+    it("says `a test` for a test with no name, never its code", () => {
+      const bare: Found = { ...thin("x", "2345-7"), test: { code: "2345-7" } };
+      const drawn = html(call("find_changes", { pod: "p" }, [bare]));
+      expect(drawn).toContain("Not enough results to compare: a test around");
+      expect(drawn).not.toContain("2345-7");
+    });
   });
 
-  test("a side with no results says so", () => {
-    expect(sideSaid("Before", thin("x", "1").before, "mg/dL", [])).toBe("Before: no results");
-  });
+  describe("sideSaid(name, side, unit, values)", () => {
+    it("keeps the two decimals results are written with: mean 0.95, range 0.88 to 1.02", () => {
+      expect(sideSaid("Before", together.before, "mg/dL", ["0.88", "1.02"])).toBe(
+        "Before: mean 0.95 mg/dL over 2 results (0.88 to 1.02)",
+      );
+    });
 
-  test("a compact finding draws both sides from its own rows", () => {
-    const drawn = renderToStaticMarkup(
-      <LookedAt message={turn(call("find_changes", { pod: "p" }, [together]))} open={() => {}} />,
-    );
-    expect(drawn).toContain("Before: mean 0.95 mg/dL over 2 results (0.88 to 1.02)");
-    expect(drawn).toContain("After: mean 1.5 mg/dL over 1 result (1.5 to 1.5)");
+    it("keeps one decimal in the mean of whole-number results, and the extremes as written", () => {
+      expect(
+        sideSaid("After", { count: 3, mean: 142.3333, min: 140, max: 145 }, "mmol/L", ["140", "142", "145"]),
+      ).toBe("After: mean 142.3 mmol/L over 3 results (140 to 145)");
+    });
+
+    it("keeps a written trailing zero: 1.10 and 1.30 give the mean 1.20", () => {
+      expect(sideSaid("Before", { count: 2, mean: 1.2, min: 1.1, max: 1.3 }, "mg/dL", ["1.10", "1.30"])).toBe(
+        "Before: mean 1.20 mg/dL over 2 results (1.10 to 1.30)",
+      );
+    });
+
+    it("returns `Before: no results` for a side with none", () => {
+      expect(sideSaid("Before", thin("x", "1").before, "mg/dL", [])).toBe("Before: no results");
+    });
   });
 });
