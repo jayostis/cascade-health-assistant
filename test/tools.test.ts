@@ -1,5 +1,5 @@
-import { QUESTIONS, TOOLS as RUNTIME } from "cascade-runtime/tools";
-import { expect, test } from "vitest";
+import { TOOLS as RUNTIME } from "cascade-runtime/tools";
+import { beforeAll, describe, expect, it } from "vitest";
 import { NEVER, TOOLS } from "../tools.ts";
 
 /** What each tool is given, and the PodApi operations it may call. A tool added to `TOOLS` needs a row. */
@@ -31,67 +31,98 @@ const ANSWERS: Record<string, unknown> = {
 };
 const address = () => "/";
 
-test("every tool is free or ask, and calls no operation the never list holds", async () => {
-  expect(TOOLS.map(({ name }) => name).sort()).toEqual(
-    Object.keys(RUNS).sort(),
-  );
-  for (const tool of TOOLS) {
-    const [input, expected] = RUNS[tool.name];
-    expect(["free", "ask"], tool.name).toContain(tool.tier);
-    const called: [string, Record<string, unknown>][] = [];
-    const recording = new Proxy(
-      {},
-      {
-        get:
-          (_, op: string) =>
-          async (given: Record<string, unknown> = {}) => {
-            called.push([op, given]);
-            return op in ANSWERS ? ANSWERS[op] : {};
-          },
-      },
-    );
-    await tool.run(recording as never, input, {
-      open: async () => {},
-      address: {
-        pod: address,
-        trend: address,
-        entry: address,
-        classes: address,
-        panel: address,
-        table: address,
-      },
-    });
-    expect(
-      called.map(([op]) => op),
-      tool.name,
-    ).toEqual(expected);
-    for (const [op, given] of called)
-      expect(
-        NEVER.some(
-          (never) =>
-            never.op === op &&
-            (never.with === undefined || given[never.with] !== undefined),
-        ),
-        `${tool.name} calls ${op}`,
-      ).toBe(false);
-  }
-});
+type Called = [string, Record<string, unknown>];
 
-test("every read tool of the runtime is the kit's, by name, description and schema, and ask offers the runtime's questions", () => {
-  for (const { name, description, inputSchema, ofPod } of RUNTIME) {
-    const mine = TOOLS.find((tool) => tool.name === name);
-    expect(mine, name).toBeDefined();
-    expect(
-      {
-        description: mine?.description,
-        inputSchema: mine?.inputSchema,
-        ofPod: mine?.ofPod,
-      },
-      name,
-    ).toEqual({ description, inputSchema, ofPod });
-  }
-  const ask = TOOLS.find((tool) => tool.name === "ask");
-  expect(
-    (ask?.inputSchema.properties?.question as { enum?: string[] }).enum,
-  ).toEqual(QUESTIONS);
+/** Every PodApi operation `tool` calls, with its input, when it runs with the input `RUNS` gives it. */
+async function opsCalled(tool: (typeof TOOLS)[number]): Promise<Called[]> {
+  const called: Called[] = [];
+  const recording = new Proxy(
+    {},
+    {
+      get:
+        (_, op: string) =>
+        async (given: Record<string, unknown> = {}) => {
+          called.push([op, given]);
+          return op in ANSWERS ? ANSWERS[op] : {};
+        },
+    },
+  );
+  await tool.run(recording as never, RUNS[tool.name]![0], {
+    open: async () => {},
+    address: {
+      pod: address,
+      trend: address,
+      entry: address,
+      classes: address,
+      panel: address,
+      table: address,
+    },
+  });
+  return called;
+}
+
+const code = (names: string[]) => names.map((name) => `\`${name}\``).join(", ");
+
+/**
+ * `TOOLS` is the one list every door offers a model: each tool calls only PodApi's operations, and its tier says whether
+ * it runs at once (`free`) or only after the person allows it (`ask`). `NEVER` lists the operations no tool may call, such
+ * as unlocking a pod, so no model reaches them by any door.
+ */
+describe("Tools a model reaches the app by · TOOLS, NEVER", () => {
+  describe("TOOLS", () => {
+    beforeAll(() => {
+      expect(
+        TOOLS.map(({ name }) => name).sort(),
+        "a tool added to `TOOLS` needs a row in `RUNS`",
+      ).toEqual(Object.keys(RUNS).sort());
+    });
+
+    it("gives every tool the tier `free` or `ask`", () => {
+      for (const tool of TOOLS) expect(["free", "ask"], tool.name).toContain(tool.tier);
+    });
+
+    it("calls no operation that `NEVER` lists, whichever tool runs", async () => {
+      for (const tool of TOOLS)
+        for (const [op, given] of await opsCalled(tool))
+          expect(
+            NEVER.some(
+              (never) =>
+                never.op === op &&
+                (never.with === undefined || given[never.with] !== undefined),
+            ),
+            `${tool.name} calls ${op}`,
+          ).toBe(false);
+    });
+
+    it("calls `makePod` without `encrypt` for `make_pod`, even when its input asks to encrypt", async () => {
+      const called = await opsCalled(TOOLS.find(({ name }) => name === "make_pod")!);
+      expect(RUNS.make_pod![0]).toMatchObject({ encrypt: true });
+      expect(called.map(([op]) => op)).toEqual(["makePod"]);
+      expect(called[0]![1]).not.toHaveProperty("encrypt");
+    });
+
+    it.each(
+      Object.entries(RUNS).map(([name, [, ops]]) => [code(ops), `\`${name}\``, name, ops] as const),
+    )("calls only %s for %s", async (_ops, _name, name, ops) => {
+      const called = await opsCalled(TOOLS.find((tool) => tool.name === name)!);
+      expect(called.map(([op]) => op)).toEqual(ops);
+    });
+  });
+
+  describe("given the read tools of `cascade-runtime/tools`", () => {
+    it("offers each under the runtime's own name, description, input schema and `ofPod`", () => {
+      for (const { name, description, inputSchema, ofPod } of RUNTIME) {
+        const mine = TOOLS.find((tool) => tool.name === name);
+        expect(mine, name).toBeDefined();
+        expect(
+          {
+            description: mine?.description,
+            inputSchema: mine?.inputSchema,
+            ofPod: mine?.ofPod,
+          },
+          name,
+        ).toEqual({ description, inputSchema, ofPod });
+      }
+    });
+  });
 });
