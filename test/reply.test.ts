@@ -15,7 +15,7 @@ import { podApi } from "../pod-api.ts";
 import { loadSample, SAMPLE } from "../sample.ts";
 import { appServer } from "../server/app.ts";
 import { chatRoutes } from "../server/chat.ts";
-import { asker, recommending, repliedTo } from "../server/reply.ts";
+import { asker, recommendsInOwnVoice, repliedTo } from "../server/reply.ts";
 
 const ORIGIN = "http://app.test";
 const POD = SAMPLE.pod;
@@ -514,7 +514,7 @@ test.each([
   ["the word in an item's link", { itemLink: "this recommends that" }, true],
   ["the word in a link between items", { link: "this recommends that" }, true],
 ])("the word recommend is held to quotes that passed: %s", (_, set, flagged) => {
-  expect(recommending(checkedWith(set))).toBe(flagged);
+  expect(recommendsInOwnVoice(checkedWith(set))).toBe(flagged);
 });
 
 test("an absence over an earlier request's read is not checked, even when that turn ended in a page tool", async () => {

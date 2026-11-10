@@ -96,7 +96,7 @@ export async function repliedTo(
   if (ask === undefined) return unchecked(said, NO_POD);
   try {
     const checked = await checkReply(value, { ask, ran });
-    if (checked.reply !== undefined && recommending(checked))
+    if (checked.reply !== undefined && recommendsInOwnVoice(checked))
       return unchecked(said, RECOMMENDS);
     return { answer: checked.reply?.answer ?? said, checked };
   } catch (error) {
@@ -110,7 +110,7 @@ export async function repliedTo(
  * round a passed fact's quote. Source text is quoted exactly, the word included; the same words said unquoted, or a
  * quote that failed its check, do not excuse it. Case and spacing do not matter to the match.
  */
-export function recommending({ reply, items }: CheckedReply): boolean {
+export function recommendsInOwnVoice({ reply, items }: CheckedReply): boolean {
   const quotes = items.flatMap(({ facts }) =>
     facts.flatMap(({ fact, verdict }) =>
       verdict.ok && "quote" in fact && fact.quote?.trim()
