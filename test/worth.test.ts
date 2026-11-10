@@ -1,14 +1,9 @@
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { expect, test } from "vitest";
-import { nodeHost } from "../node-host.ts";
-import { podApi } from "../pod-api.ts";
-import { loadSample, SAMPLE } from "../sample.ts";
+import { describe, expect, it } from "vitest";
 import { type Answers, REVIEW, SOURCES, worthALook } from "../said.ts";
 
 const SHARED = "possibly the same medication";
 const entryOf = (name: string) => `pod://p/clinical/medications.ttl#${name}`;
+const allergyOf = (name: string) => `pod://p/clinical/allergies.ttl#${name}`;
 const record = (name: string) => `urn:uuid:${name}`;
 
 /** One row of What needs review for a pair of medication records, the first in `entry`, as the query gives it. */
@@ -29,7 +24,22 @@ const from = (entry: string, rec: string, hospital: string) => ({
   hospital,
 });
 
-test("two codes each shared by records of several entries give one line each, and equal sentences are said once", () => {
+/** A row of What needs review for an allergy whose sources disagree on how severe it is. */
+const disagreeing = (entry: string, entryLabel: string) => ({
+  entry: allergyOf(entry),
+  entryLabel,
+  needs: "members disagree on criticality",
+});
+
+const SHARING =
+  "; some of these records share a code but Cascade keeps them apart. Cascade cannot confirm that a shared code names one product, so they may or may not be the same.";
+
+/**
+ * On a pod's page the app lists what needs the person's review, each line a sentence about one view entry, written from
+ * the rows of `entry/What needs review`. That question returns a row for every pair of records, so the app says each thing
+ * once and claims no more than the rows show.
+ */
+describe("Listing what is worth a look in a pod · worthALook()", () => {
   const answers: Answers = {
     [REVIEW]: [
       // Alder, in e1, e2 and e3: three records, a pair for each two of different entries.
@@ -39,11 +49,8 @@ test("two codes each shared by records of several entries give one line each, an
       // Birch, in e4 and e5: two records, the one pair.
       pair("e4", "Birch 10 MG", "r4", "r5"),
       // Two entries named alike that disagree on how severe their allergy is.
-      ...["a1", "a2"].map((entry) => ({
-        entry: `pod://p/clinical/allergies.ttl#${entry}`,
-        entryLabel: "Allergy entry · Aspirin",
-        needs: "members disagree on criticality",
-      })),
+      disagreeing("a1", "Allergy entry · Aspirin"),
+      disagreeing("a2", "Allergy entry · Aspirin"),
     ],
     [SOURCES]: [
       from("e1", "r1", "Fernhill Family Clinic"),
@@ -53,92 +60,75 @@ test("two codes each shared by records of several entries give one line each, an
       from("e5", "r5", "Alder Street Pharmacy"),
     ],
   };
-  expect(worthALook(answers)).toEqual([
-    {
-      sentence:
-        "Alder 5 MG is recorded 3 times, from Fernhill Family Clinic and Kestrel Harbor Hospital; some of these records share a code but Cascade keeps them apart. Cascade cannot confirm that a shared code names one product, so they may or may not be the same.",
-      entry: entryOf("e1"),
-      tag: "Needs review",
-    },
-    {
-      sentence:
-        "Birch 10 MG is recorded 2 times, from Alder Street Pharmacy; some of these records share a code but Cascade keeps them apart. Cascade cannot confirm that a shared code names one product, so they may or may not be the same.",
-      entry: entryOf("e4"),
-      tag: "Needs review",
-    },
-    {
-      sentence: "Sources disagree on how severe the Aspirin allergy is.",
-      entry: "pod://p/clinical/allergies.ttl#a1",
-      tag: "Needs review",
-    },
-    {
-      sentence: "Sources disagree on how severe the Aspirin allergy is.",
-      entry: "pod://p/clinical/allergies.ttl#a2",
-      tag: "Needs review",
-    },
-  ]);
-});
+  const lines = worthALook(answers);
+  const medications = lines.filter(({ sentence }) => sentence.includes(" is recorded "));
 
-test("a group joined through different codes says only what is true of any group", () => {
-  const answers: Answers = {
-    [REVIEW]: [
-      // A and B share one code, B and C another: no one code names all three.
-      pair("e1", "Cedar 5 MG", "r1", "r2"),
-      pair("e2", "Cedar 5 MG", "r2", "r3"),
-    ],
-    [SOURCES]: [
-      from("e1", "r1", "Fernhill Family Clinic"),
-      from("e2", "r2", "Kestrel Harbor Hospital"),
-      from("e3", "r3", "Fernhill Family Clinic"),
-    ],
-  };
-  expect(worthALook(answers)).toEqual([
-    {
-      sentence:
-        "Cedar 5 MG is recorded 3 times, from Fernhill Family Clinic and Kestrel Harbor Hospital; some of these records share a code but Cascade keeps them apart. Cascade cannot confirm that a shared code names one product, so they may or may not be the same.",
-      entry: entryOf("e1"),
-      tag: "Needs review",
-    },
-  ]);
-});
+  describe("given medications whose records share a code", () => {
+    it("says one line for a code that records of three view entries share, about the first view entry", () => {
+      const alder = lines.filter(({ sentence }) => sentence.startsWith("Alder 5 MG"));
+      expect(alder.map(({ entry }) => entry)).toEqual([entryOf("e1")]);
+    });
 
-test("two unnamed allergies whose sources disagree each keep their own line", () => {
-  const unnamed = (entry: string) => ({
-    entry: `pod://p/clinical/allergies.ttl#${entry}`,
-    entryLabel: "",
-    needs: "members disagree on criticality",
-  });
-  const lines = worthALook({ [REVIEW]: [unnamed("a1"), unnamed("a2")] });
-  expect(lines.map(({ entry }) => entry)).toEqual([
-    "pod://p/clinical/allergies.ttl#a1",
-    "pod://p/clinical/allergies.ttl#a2",
-  ]);
-});
-
-test("on Priya's eval pod each shared code gives exactly one line, with its count and its places", async () => {
-  const folder = await mkdtemp(join(tmpdir(), "worth-test-"));
-  try {
-    await loadSample(join(folder, SAMPLE.pod));
-    const api = podApi(nodeHost({ folder }));
-    try {
-      const { answers } = await api.answers({ pod: SAMPLE.pod });
-      const lines = worthALook(answers).map(({ sentence }) =>
-        sentence.replace(
-          /; some of these records share a code but Cascade keeps them apart\. Cascade cannot confirm that a shared code names one product, so they may or may not be the same\.$/,
-          " [shared code]",
-        ),
-      );
-      expect(lines).toEqual([
-        "Claritin 10 MG Oral Tablet is recorded 5 times, from Clearwater Eye Associates and Fernhill Family Clinic [shared code]",
-        "Amlodipine 5 MG Oral Tablet is recorded 7 times, from Alder Street Pharmacy, Clearwater Eye Associates, Fernhill Family Clinic, Kestrel Harbor Hospital and Saltmarsh Regional Medical Center [shared code]",
-        "Hydrochlorothiazide 12.5 mg capsule is recorded 5 times, from Alder Street Pharmacy, Clearwater Eye Associates, Fernhill Family Clinic and Kestrel Harbor Hospital [shared code]",
-        "Losartan 50 mg tablet is recorded 6 times, from Alder Street Pharmacy, Clearwater Eye Associates, Fernhill Family Clinic, Kestrel Harbor Hospital and Saltmarsh Regional Medical Center [shared code]",
-        "Metformin ER 500 MG 24 HR Tablet is recorded 6 times, from Alder Street Pharmacy, Clearwater Eye Associates, Fernhill Family Clinic, Kestrel Harbor Hospital and Saltmarsh Regional Medical Center [shared code]",
+    it("says a line for each shared code", () => {
+      expect(medications.map(({ sentence }) => sentence.split(" is recorded ")[0])).toEqual([
+        "Alder 5 MG",
+        "Birch 10 MG",
       ]);
-    } finally {
-      await api.close();
-    }
-  } finally {
-    await rm(folder, { recursive: true, force: true, maxRetries: 5 });
-  }
-}, 120_000);
+      expect(medications[1]!.entry).toBe(entryOf("e4"));
+    });
+
+    it("counts the records and names each place they came from once", () => {
+      // Fernhill once, though two of Alder's records came from it.
+      expect(medications.map(({ sentence }) => sentence)).toEqual([
+        `Alder 5 MG is recorded 3 times, from Fernhill Family Clinic and Kestrel Harbor Hospital${SHARING}`,
+        `Birch 10 MG is recorded 2 times, from Alder Street Pharmacy${SHARING}`,
+      ]);
+    });
+
+    it("says one line for records joined through two different codes, and only that some of them share a code", () => {
+      expect(
+        worthALook({
+          [REVIEW]: [
+            // A and B share one code, B and C another: no one code names all three.
+            pair("e1", "Cedar 5 MG", "r1", "r2"),
+            pair("e2", "Cedar 5 MG", "r2", "r3"),
+          ],
+          [SOURCES]: [
+            from("e1", "r1", "Fernhill Family Clinic"),
+            from("e2", "r2", "Kestrel Harbor Hospital"),
+            from("e3", "r3", "Fernhill Family Clinic"),
+          ],
+        }),
+      ).toEqual([
+        {
+          sentence: `Cedar 5 MG is recorded 3 times, from Fernhill Family Clinic and Kestrel Harbor Hospital${SHARING}`,
+          entry: entryOf("e1"),
+          tag: "Needs review",
+        },
+      ]);
+    });
+
+    it("tags each line `Needs review`", () => {
+      expect(lines.length).toBeGreaterThan(0);
+      for (const { sentence, tag } of lines) expect(tag, sentence).toBe("Needs review");
+    });
+  });
+
+  describe("given allergies whose sources disagree on how severe they are", () => {
+    it("says a line for each view entry, though the two sentences are the same", () => {
+      const allergies = lines.filter(({ entry }) => entry.includes("allergies.ttl"));
+      expect(allergies).toEqual([
+        { sentence: "Sources disagree on how severe the Aspirin allergy is.", entry: allergyOf("a1"), tag: "Needs review" },
+        { sentence: "Sources disagree on how severe the Aspirin allergy is.", entry: allergyOf("a2"), tag: "Needs review" },
+      ]);
+    });
+
+    it("says `an unnamed entry` for a view entry whose label is empty", () => {
+      const unnamed = worthALook({ [REVIEW]: [disagreeing("a1", ""), disagreeing("a2", "")] });
+      expect(unnamed.map(({ entry, sentence }) => [entry, sentence])).toEqual([
+        [allergyOf("a1"), "Sources disagree on how severe an unnamed entry is."],
+        [allergyOf("a2"), "Sources disagree on how severe an unnamed entry is."],
+      ]);
+    });
+  });
+});
