@@ -314,21 +314,44 @@ keeping the package and the pods, under `pods/<name>/`. It is made with four,
 
 ## The app's tests
 
-Run `npm test` after a change; it takes a few seconds. The tests are examples to copy: each shows one behaviour, on the
-smallest input that shows it, and asserts what it means, never bytes or a whole file.
+Run `npm test` after a change; the files that load the sample pod take seconds each. The tests are examples to copy: each
+shows one behaviour, on the smallest input that shows it, and asserts what it means, never bytes or a whole file.
 
 - `test/api.test.ts` puts PodApi behind the server in the process: `appServer(...)` from `server/app.ts` over a pod
   replayed from a kit into a temporary folder, called with `app.request()`, so no port is opened. Copy it to test a new
   operation or route: the pods are listed, a pod's answers come back, an input the rules refuse is a 400 `{ refused }`.
 - `test/tools.test.ts` holds the tool list to its rules: every tool in `tools.ts` is `free` or `ask`, and none calls an
   operation of `NEVER`. A tool you add needs a row in `RUNS`, or the test fails.
+- `test/chat.test.ts` and `test/reply.test.ts` test the chat through `POST /chat`, with the AI SDK's mock model in place
+  of a provider: copy `chat.test.ts` to test what the server sends the model, `reply.test.ts` to test what it does with
+  the reply (on Priya's pod). What they share is `test/chat-app.ts`: `mockModel()` makes a model whose steps `says(...)`
+  and `calls(...)` give it, `chatApp(api, model)` puts the server round it, and `chat(app, messages, pod)` returns the
+  stream's `chunks`, the `checked` reply of its `data-reply` part and its `text`. Make a model for each request, never
+  one that tests share.
+- `src/chat/turn.test.tsx` and `src/chat/reply.test.tsx` draw the chat's components with `renderToStaticMarkup`, no
+  browser, and read the markup.
 - `e2e/pod.test.ts` is the one browser test, on Playwright: it starts the app with `npm start`, opens Priya Natarajan's sample pod (`npm run reset` loads it on a clone first)
   and waits for the page to say it is ready (`body[data-state="ready"]`, never `main`'s text), then looks for its
   tiles (`.tiles .tile`). A failure prints `body[data-trace]`, the page's last changes of state. Chromium is not
   downloaded by `npm install`; `npx playwright install chromium` once, then `npm run test:e2e`.
 
-To add a test, write a `*.test.ts` in `test/` (`import { expect, test } from "vitest"`); Vitest runs everything there
-(`vitest.config.ts`). Import the app's files by their `.ts` names.
+The tests are a specification, and CI checks that they read as one. A test is an `it` in at most three levels of
+`describe`, imported from `vitest`: the first is a capability, the string of `test/spec.json`'s `capabilities` word for
+word, with a doc comment (`/** … */`) directly above it that says what the capability is for; the second names code
+(`loadSample(folder)`) or a situation that begins "when", "given" or "with"; the `it` begins with a verb in the singular
+(`returns …`, `draws …`). The tests of a new capability need it in `spec.json`, and a word of a title that a newcomer
+cannot place goes in its `glossary`. The `describe` and `it` names are what a reader of the report sees, so write them
+as sentences about behaviour. The browser tests in `e2e/` are on no report.
+
+Vitest writes `report/junit.xml` on every `npm test` (`test/spec-reporter.ts`, set in `vitest.config.ts`; it adds each
+case's line and each `describe`'s doc comment, which Vitest's own JUnit lacks). CI runs the shape check over it
+(`scripts/spec-shape.mjs` of cascade-runtime-js, taken from its `main`) and keeps `junit.xml` and `spec.json` as the
+`unit-tests` artifact of the `check` workflow. The shape check fails the run when a case is under no listed capability,
+is deeper than three levels, or breaks the naming above; its message names the case.
+
+To add a test, put an `it` under the capability it belongs to in a `*.test.ts` in `test/` (or a `*.test.tsx` next to the
+component), `import { describe, expect, it } from "vitest"`; Vitest runs everything there (`vitest.config.ts`). Import
+the app's files by their `.ts` names.
 
 ## WebMCP, the doors and the tiers
 
@@ -401,5 +424,5 @@ address), a model on this computer and any other address. Nothing else may hold 
 The chat is a door to the one list: it offers every tool, the page running the ones with no server `execute`. A move
 added to `PAGE_TOOLS` also needs an output in `CLIENT_OUTPUTS` in `server/chat.ts`. `test/chat.test.ts` puts the chat
 behind the server with the AI SDK's mock model in place of a provider, so it needs no key or network: copy it to test
-what the chat answers.
+what the server sends the model.
 `test/reply.test.ts` does the same on Priya's pod for the reply and its check: a stubbed model says a reply, and the test reads the `data-reply` part. `node probe-reply.ts <model> <tries> <folder>` asks the model of `.env`, renamed, the same question about Priya's pod over a copy of `pods/` in `<folder>`, and says how many replies were checked; it is run by hand, never in CI, and spends money on the key.
