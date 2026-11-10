@@ -38,7 +38,7 @@ export function docOf(lines: readonly string[], line: number): string | undefine
   while (end >= 0 && lines[end]?.trim() === "") end -= 1;
   if (!lines[end]?.trim().endsWith("*/")) return undefined;
   let start = end;
-  while (start >= 0 && !lines[start]!.includes("/*")) start -= 1;
+  while (start >= 0 && !lines[start]!.trim().startsWith("/*")) start -= 1;
   if (start < 0 || !lines[start]!.trim().startsWith("/**")) return undefined;
   const paragraphs: string[][] = [[]];
   for (const raw of lines.slice(start, end + 1)) {
@@ -147,6 +147,13 @@ export default class SpecReporter implements Reporter {
     const visit = (children: Iterable<TestCase | TestSuite>, levels: TestSuite[]): void => {
       for (const child of children) {
         if (child.type === "suite") {
+          for (const error of child.errors()) {
+            totals.tests += 1;
+            totals.failures += 1;
+            cases.push(
+              `<testcase${attributes({ classname: file, file, name: `${child.fullName} did not run` })}><failure${attributes({ message: error.message, type: error.name })}>${escape(error.stack ?? error.message)}</failure></testcase>`,
+            );
+          }
           visit(child.children, [...levels, child]);
           continue;
         }

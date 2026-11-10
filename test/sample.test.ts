@@ -92,7 +92,7 @@ describe("Listing what is worth a look in a pod · worthALook()", () => {
       expect(new Set(names).size, names.join(", ")).toBe(names.length);
     });
 
-    it("says that amlodipine `is recorded 7 times`, with the five places its records came from", () => {
+    it("says that amlodipine `is recorded 7 times`, with the five sources its records came from", () => {
       const amlodipine = lines.filter(({ sentence }) => sentence.startsWith("Amlodipine"));
       expect(amlodipine.map(({ sentence }) => sentence.split(";")[0])).toEqual([
         "Amlodipine 5 MG Oral Tablet is recorded 7 times, from Alder Street Pharmacy, Clearwater Eye Associates, Fernhill Family Clinic, Kestrel Harbor Hospital and Saltmarsh Regional Medical Center",

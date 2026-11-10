@@ -94,7 +94,7 @@ describe("Drawing a checked reply as cards · ReplyCards", () => {
         expect(html, said).not.toContain(said);
     });
 
-    it("marks an item's `knowledge` as general information, with the source it names", () => {
+    it("marks an item's `knowledge` as general information, with the guideline it names",() => {
       const [first, second, third] = points(html);
       expect(first).toContain("General information, not from your records");
       expect(first).toContain("standard thyroid testing practice");
@@ -166,7 +166,7 @@ describe("Drawing a checked reply as cards · ReplyCards", () => {
       return draw(clone as unknown as CheckedReply);
     };
 
-    it("draws the quote as the source's words once the check found it", () => {
+    it("draws the quote as the record's words once the check found it", () => {
       expect(chipWith(quoting(true), "Thyrotropin")).toContain('<q class="quote">STOP taking hydrochlorothiazide</q>');
     });
 

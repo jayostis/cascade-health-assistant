@@ -86,6 +86,10 @@
       ]
     },
     {
+      "term": "code",
+      "definition": "a standard identifier for a kind of thing a record is about, such as a medication or a lab test, that lets records from different sources be matched."
+    },
+    {
       "term": "compact read",
       "definition": "the whole pod as tab-separated text, which the `ask` tool returns a part at a time when called with `format: \"compact\"`; each line is one row of a view, its cells separated by tabs.",
       "aliases": [
@@ -168,7 +172,7 @@
     },
     {
       "term": "knowledge",
-      "definition": "of an item, what the model says from what it knows in general, which no record backs (`knowledge.says`), with the source it names for it (`knowledge.guideline`)."
+      "definition": "of an item, what the model says from what it knows in general, which no record backs (`knowledge.says`), with the guideline it names for it (`knowledge.guideline`)."
     },
     {
       "term": "lab change",
@@ -288,6 +292,13 @@
       "definition": "one hospital server, or one document, whose records an export holds.",
       "aliases": [
         "sources"
+      ]
+    },
+    {
+      "term": "source named",
+      "definition": "the words the chat shows under a piece of general knowledge: the guideline the model names for it, or `No source named` when it names none.",
+      "aliases": [
+        "sources named"
       ]
     },
     {

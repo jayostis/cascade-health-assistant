@@ -40,7 +40,7 @@ jobs:
           persist-credentials: false
       # `npm test` writes report/junit.xml (test/spec-reporter.ts). The shape check and the upload run even when a test fails.
       - run: npm test
-      - if: ${{ !cancelled() }}
+      - if: ${{ !cancelled() && hashFiles('report/junit.xml') != '' }}
         run: node .runtime-js/scripts/spec-shape.mjs report/junit.xml test/spec.json
       - if: ${{ !cancelled() }}
         run: cp test/spec.json report/spec.json

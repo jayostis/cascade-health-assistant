@@ -346,7 +346,8 @@ as sentences about behaviour. The browser tests in `e2e/` are on no report.
 Vitest writes `report/junit.xml` on every `npm test` (`test/spec-reporter.ts`, set in `vitest.config.ts`; it adds each
 case's line and each `describe`'s doc comment, which Vitest's own JUnit lacks). CI runs the shape check over it
 (`scripts/spec-shape.mjs` of cascade-runtime-js, taken from its `main`) and keeps `junit.xml` and `spec.json` as the
-`unit-tests` artifact of the `check` workflow. The shape check fails the run when a case is under no listed capability,
+`unit-tests` artifact of the `check` workflow. A run of some files or of one test (`vitest run <file>`, `-t`) overwrites
+`report/junit.xml` with a partial report, so run the whole suite before you read it. The shape check fails the run when a case is under no listed capability,
 is deeper than three levels, or breaks the naming above; its message names the case.
 
 To add a test, put an `it` under the capability it belongs to in a `*.test.ts` in `test/` (or a `*.test.tsx` next to the
