@@ -37,6 +37,10 @@
       "definition": "Vercel's `ai` package, through which the server calls a model of any provider and streams the model's turn to the page."
     },
     {
+      "term": "Anthropic",
+      "definition": "a provider whose models are the Claude family, called through the AI SDK's `@ai-sdk/anthropic`."
+    },
+    {
       "term": "backed",
       "definition": "of an absence, borne out by what was looked through; an absence that is not comes back with `backed: false` and a `reason`.",
       "aliases": [
@@ -174,6 +178,10 @@
       ]
     },
     {
+      "term": "label",
+      "definition": "the name a pod gives a record or a view entry to be read by, such as `Allergy entry · Aspirin`, or `Hemoglobin A1c/Hemoglobin.total in Blood` for a lab result."
+    },
+    {
       "term": "model",
       "definition": "a language model that an app lets answer a person's questions about their records.",
       "aliases": [
@@ -215,6 +223,13 @@
     {
       "term": "PodApi",
       "definition": "the app's one way to its pods: operations that take JSON and return JSON, which the pages, the tools and the commands all call (`podApi(host)` in `pod-api.ts`)."
+    },
+    {
+      "term": "Priya Natarajan",
+      "definition": "the made-up person of the evals' case, whose records the sample pod holds.",
+      "aliases": [
+        "Priya"
+      ]
     },
     {
       "term": "provider",

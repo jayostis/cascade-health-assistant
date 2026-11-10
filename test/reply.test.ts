@@ -43,6 +43,11 @@ beforeAll(async () => {
   folder = await mkdtemp(join(tmpdir(), "reply-test-"));
   await loadSample(join(folder, POD));
   api = podApi(nodeHost({ folder }));
+  // The first check of the pod loads the checker and reads the pod's view, seconds on a slow machine: whichever leaf
+  // ran first, whatever the order, would spend its own timeout on it.
+  const warm = mockModel();
+  warm.says(says(CITED));
+  await chat(chatApp(api, warm.model), [user("How is my A1c?")], POD);
 }, 120_000);
 
 afterAll(async () => {
@@ -255,7 +260,7 @@ describe("Asking a model once more for a reply that was not checked · POST /cha
       expect(requests.map(({ maxOutputTokens }) => maxOutputTokens)).toEqual([undefined, undefined, 16000]);
     });
 
-    it("runs no tool that the model calls in place of the second reply", async () => {
+    it("runs no tool that the model asks for in place of the second reply", async () => {
       const ask = vi.spyOn(api, "ask");
       const { checked, text } = await asked([calls("ask", PROCEDURES), says(NOT_JSON), calls("ask", PROCEDURES)]);
       expect(ask).toHaveBeenCalledTimes(1);

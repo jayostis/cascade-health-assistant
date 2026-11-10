@@ -85,7 +85,7 @@ describe("Listing what is worth a look in a pod · worthALook()", () => {
       ]);
     });
 
-    it("says one line for records joined through two different codes, and only that some of them share a code", () => {
+    it("says one line for records connected through two different codes, and only that some of them share a code", () => {
       expect(
         worthALook({
           [REVIEW]: [

@@ -94,7 +94,7 @@ describe("Drawing a checked reply as cards · ReplyCards", () => {
         expect(html, said).not.toContain(said);
     });
 
-    it("labels an item's `knowledge` as general information, with the source it names", () => {
+    it("marks an item's `knowledge` as general information, with the source it names", () => {
       const [first, second, third] = points(html);
       expect(first).toContain("General information, not from your records");
       expect(first).toContain("standard thyroid testing practice");

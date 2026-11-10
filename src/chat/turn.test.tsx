@@ -144,7 +144,7 @@ describe("Saying what a model is doing while it works · workingSaid(), stepSaid
   });
 
   describe("`Working`", () => {
-    it("draws the line with an ellipsis after it", () => {
+    it("draws the line with `…` after it", () => {
       const done = [user, turn(call("timeline", { pod: "p" }, []))];
       expect(renderToStaticMarkup(<Working messages={done} stoppable={false} checking />), "when checking").toContain(
         "Checking the answer against the records…",
@@ -159,7 +159,7 @@ describe("Saying what a model is doing while it works · workingSaid(), stepSaid
 /**
  * Under an answer the chat draws one line saying what the check found, in the checker's counts and never the model's
  * words, folded over the cards and the steps. A person sees whether the answer was confirmed against their records
- * without opening anything.
+ * without looking inside the fold.
  */
 describe("Summing up a reply's check in one line · Supporting", () => {
   const steps = [call("timeline", { pod: "p" }, []), call("find_changes", { pod: "p" }, [creatinine])];
