@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { describe, expect, it } from "vitest";
 import type { ConnectionNow } from "./api.tsx";
+import { patientName } from "../said.ts";
 import { ConnectionBox } from "./hospitals.tsx";
 
 /** A pulled connection to a hospital, with what `changes` says of it. */
@@ -77,6 +78,22 @@ describe("Bringing a hospital's record into a pod · ConnectionBox", () => {
       expect(said).toContain("This pod has nothing from here yet.");
       expect(said).not.toContain("Rowan");
       expect(button).toBe("Bring it into Odalys Brandt's pod");
+    });
+  });
+
+  describe("given a Patient whose official name has only text", () => {
+    const bundle = {
+      entry: [{ resource: { resourceType: "Patient", name: [{ use: "official", text: "Ines Calloway" }] } }],
+    } as unknown as Parameters<typeof patientName>[0];
+
+    it("names no person, for an empty name is no name", () => {
+      expect(patientName(bundle)).toBeUndefined();
+      expect(patientName({ entry: [{ resource: { resourceType: "Patient", name: [{ given: [" "] }] } }] } as never)).toBeUndefined();
+    });
+
+    it("says no `This record is` line for the record", () => {
+      const { said } = boxOver("rowan-ellery-marsh", pulled({ patient: patientName(bundle) }));
+      expect(said).not.toContain("This record is");
     });
   });
 
