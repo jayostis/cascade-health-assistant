@@ -147,6 +147,27 @@ describe("Asking a model about a pod · GET /chat, POST /chat", () => {
       expect(JSON.stringify((await firstRequest()).prompt[0])).not.toContain("the command printed");
     });
 
+    it("leaves the call number out of the contract's example too", async () => {
+      expect(JSON.stringify((await firstRequest()).prompt[0])).not.toContain('\\"call\\": 3');
+    });
+
+    it("answers 400 with `{ error }` for a body of more than 1 MiB, calling no model", async () => {
+      const mock = mockModel();
+      mock.says(says(VALID));
+      const response = await post(chatApp(api, mock.model), POD, [user("x".repeat(1024 * 1024))]);
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ error: "the body must be at most 1048576 bytes" });
+      expect(mock.requests()).toEqual([]);
+    });
+
+    it("answers 400 with `{ error }` for messages of more than 100,000 characters in all, calling no model", async () => {
+      const mock = mockModel();
+      mock.says(says(VALID));
+      const response = await post(chatApp(api, mock.model), POD, [user("x".repeat(100_001))]);
+      expect(response.status).toBe(400);
+      expect(mock.requests()).toEqual([]);
+    });
+
     it("offers the model the `ask` tool", async () => {
       expect((await firstRequest()).tools?.map(({ name }) => name)).toContain("ask");
     });

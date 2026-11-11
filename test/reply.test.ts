@@ -219,6 +219,40 @@ describe("Checking a model's reply before a person sees it · POST /chat, data-r
     });
   });
 
+  describe("given a model that declines to answer", () => {
+    it("sends a `data-refused` part with its words, and no `data-reply` part", async () => {
+      const { chunks } = await asked([says("", "content-filter")]);
+      expect(chunks.find(({ type }) => type === "data-refused")?.data).toEqual({
+        text: "The model declined to answer.",
+      });
+      expect(chunks.some(({ type }) => type === "data-reply")).toBe(false);
+    });
+  });
+
+  describe("given a model that asks for tools in every round", () => {
+    it("runs six rounds, then sends an `error` part and no `data-reply` part", async () => {
+      const mock = mockModel(async (call) => calls("ask", PROCEDURES, `call-${call}`));
+      const { chunks } = await chat(chatApp(api, mock.model), [user("Has she had a mammogram?")], POD);
+      expect(mock.requests()).toHaveLength(7);
+      expect(chunks.find(({ type }) => type === "error")?.errorText).toBe(
+        "the model was still asking for tools after 6 rounds",
+      );
+      expect(chunks.some(({ type }) => type === "data-reply")).toBe(false);
+    });
+
+    it("sends the error with no call to the model when the page's last message holds more than six rounds", async () => {
+      const mock = mockModel(async () => says(CITED));
+      const parts = Array.from({ length: 7 }, () => ({ type: "step-start" }));
+      const [question, turn] = afterTurn(ASKED_PROCEDURES("call-1")) as [object, { parts: object[] }];
+      const response = await post(chatApp(api, mock.model), POD, [
+        question,
+        { ...turn, parts: [...parts, ...turn.parts] },
+      ]);
+      expect(await response.text()).toContain("still asking for tools after 6 rounds");
+      expect(mock.requests()).toEqual([]);
+    });
+  });
+
   describe("given a complete reply in a code fence", () => {
     it("checks it as the reply, with no errors, and shows its `answer`", async () => {
       for (const fence of ["```json\n", "```\n"]) {

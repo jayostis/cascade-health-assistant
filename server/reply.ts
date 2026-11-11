@@ -76,13 +76,13 @@ export async function repliedTo(
   { ask, ran }: { ask: PodAsker["ask"] | undefined; ran: readonly Ran[] },
 ): Promise<Replied> {
   let value: unknown;
+  const unfenced = text
+    .trim()
+    .replace(/^```[a-z]*\s*/i, "")
+    .replace(/\s*```$/, "");
   try {
-    value = JSON.parse(text);
+    value = JSON.parse(unfenced);
   } catch {
-    const unfenced = text
-      .trim()
-      .replace(/^```[a-z]*\s*/i, "")
-      .replace(/\s*```$/, "");
     if (!unfenced.startsWith("{")) return unchecked(text, NOT_JSON);
     const { value: partial } = await parsePartialJson(unfenced);
     const begun = (partial as { answer?: unknown } | undefined)?.answer;
@@ -92,7 +92,7 @@ export async function repliedTo(
     );
   }
   const answer = (value as { answer?: unknown } | null)?.answer;
-  const said = typeof answer === "string" ? answer : text;
+  const said = typeof answer === "string" ? answer : NO_REPLY;
   if (ask === undefined) return unchecked(said, NO_POD);
   try {
     const checked = await checkReply(value, { ask, ran });

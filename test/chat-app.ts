@@ -15,7 +15,9 @@ import { chatRoutes } from "../server/chat.ts";
 
 export const ORIGIN = "http://app.test";
 
-export const finish = (unified: "stop" | "tool-calls" | "length" | "other") =>
+export const finish = (
+  unified: "stop" | "tool-calls" | "length" | "other" | "content-filter",
+) =>
   ({
     type: "finish",
     finishReason: { unified, raw: undefined },
@@ -50,7 +52,7 @@ export type Step = ReturnType<typeof streamOf>;
 /** A step of the model that says `text`: what the reply is, as JSON text, and stops as `unified`. */
 export const says = (
   text: string,
-  unified: "stop" | "length" | "other" = "stop",
+  unified: "stop" | "length" | "other" | "content-filter" = "stop",
 ) =>
   streamOf([
     { type: "text-start", id: "t" },
