@@ -13,9 +13,8 @@ import {
   capitalised,
   changeNames,
   compare,
-  day,
-  dayAt,
-  dayInWords,
+  dayAtInWords,
+  dayOrAsWritten,
   entryId,
   type Finding,
   HISTORY,
@@ -24,10 +23,9 @@ import {
   howOf,
   LAB_SECTION,
   LABS,
-  localDay,
   named,
   namingCredits,
-  opening,
+  openingOrder,
   type Person,
   personName,
   placeOf,
@@ -46,6 +44,7 @@ import {
   slug,
   SMALL,
   SOURCES,
+  stepWhenSaid,
   timeOf,
   trendOfFinding,
   valuesSaid,
@@ -93,7 +92,7 @@ export interface PodShown {
 }
 
 /**
- * A section's filter box and table of `rows`, given in `opening` order, a heading button per column, each cell holding
+ * A section's filter box and table of `rows`, given in `openingOrder` order, a heading button per column, each cell holding
  * what it sorts by in `data-key`: a heading sorts by its column, one way then the other, and the filter hides the rows
  * without its text.
  */
@@ -212,7 +211,7 @@ function tile(
   by?: { href: string; label: string; title: string },
 ) {
   const id = `see-${slug(section.title)}`;
-  const opened = opening(section, rows);
+  const opened = openingOrder(section, rows);
   const current =
     section.current === undefined ? opened : opened.filter(section.current);
   const stopped = opened.length - current.length;
@@ -358,7 +357,7 @@ function Change({
         marks={marks}
         unit={unit}
         title={names.test}
-        desc={`${resultsSaid(points.length)} from ${dayAt(Math.min(...times))} to ${dayAt(Math.max(...times))}. ${names.medication} ${medicationDay(finding).said} ${day(finding.medication.date)}.`}
+        desc={`${resultsSaid(points.length)} from ${dayAtInWords(Math.min(...times))} to ${dayAtInWords(Math.max(...times))}. ${names.medication} ${medicationDay(finding).said} ${dayOrAsWritten(finding.medication.date)}.`}
       />
       <p className={row}>
         <a href={`#${id}`}>Show the {resultsSaid(shown)}</a>{" "}
@@ -387,11 +386,7 @@ function How({ how, about }: { how: HowSaid; about: Abouts }) {
           <p key={`${finding.key} ${at}`}>
             {capitalised(changeNames(finding, about).medication)} came in a new
             version: version {step.from} to version {step.to}, in import{" "}
-            {step.pull},{" "}
-            {step.asOf === undefined
-              ? `on ${localDay(step.arrived)}`
-              : `as of ${dayInWords(step.asOf)}`}
-            .
+            {step.pull}, {stepWhenSaid(step)}.
             {step.said.length > 0 &&
               ` ${capitalised(step.said.map(({ field, before, after }) => `${field} ${valuesSaid(before)} → ${valuesSaid(after)}`).join("; "))}.`}
           </p>
@@ -472,7 +467,7 @@ function Changed({
             )}
             <Table
               section={LAB_SECTION}
-              rows={opening(LAB_SECTION, all)}
+              rows={openingOrder(LAB_SECTION, all)}
               entryHref={entryHref}
             />
           </Box>
@@ -485,7 +480,7 @@ function Changed({
               const names = changeNames(finding, about);
               return (
                 <li key={finding.key}>
-                  {`${capitalised(names.test)}: ${names.medication} ${medicationDay(finding).said} ${day(finding.medication.date)}, with ${resultsSaid(finding.before.count)} before and ${finding.after.count} after.`}{" "}
+                  {`${capitalised(names.test)}: ${names.medication} ${medicationDay(finding).said} ${dayOrAsWritten(finding.medication.date)}, with ${resultsSaid(finding.before.count)} before and ${finding.after.count} after.`}{" "}
                   <a href={trendHref(finding)}>Open the trend</a>
                 </li>
               );

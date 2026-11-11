@@ -135,5 +135,15 @@ describe("Listing what is worth a look in a pod · worthALook()", () => {
       const unnamed = worthALook({ [REVIEW]: [disagreeing("a1", "Allergy entry")] });
       expect(unnamed.map(({ sentence }) => sentence)).toEqual(["Sources disagree on how severe an unnamed allergy is."]);
     });
+
+    it("says `an unnamed allergy` for a label that has a kind and a date and no name", () => {
+      const unnamed = worthALook({ [REVIEW]: [disagreeing("a1", "Allergy entry · 2020-01-01")] });
+      expect(unnamed.map(({ sentence }) => sentence)).toEqual(["Sources disagree on how severe an unnamed allergy is."]);
+    });
+
+    it("names the allergy by its name, not its date, for a label that has a kind, a name and a date", () => {
+      const named = worthALook({ [REVIEW]: [disagreeing("a1", "Allergy entry · Latex · 2020-01-01")] });
+      expect(named.map(({ sentence }) => sentence)).toEqual(["Sources disagree on how severe the Latex allergy is."]);
+    });
   });
 });

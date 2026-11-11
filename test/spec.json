@@ -4,6 +4,7 @@
     "Loading the sample pod the app opens on · loadSample(), SAMPLE",
     "Serving PodApi to the app's pages · appServer(), POST /api/<operation>",
     "Listing what is worth a look in a pod · worthALook()",
+    "Saying review reasons, dates and counts in words · reviewSaid(), stepWhenSaid(), dayOrAsWritten()",
     "Tools a model reaches the app by · TOOLS, NEVER",
     "Running the read tools over HTTP · GET /tools, POST /tools/<name>",
     "Making and unlocking pods · api.makePod(), api.unlock()",
