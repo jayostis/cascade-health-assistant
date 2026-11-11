@@ -1018,7 +1018,7 @@ export function seenAt(answers: Answers): Map<string, Seen> {
 
 /** An entry the sections do not show, named from its label: `Allergy entry · Latex` is a latex allergy. */
 export function fromLabel(label = ""): Item {
-  const [kind = "", name = label] = label.split(" · ");
+  const [kind = "", name = ""] = label.split(" · ");
   return {
     name: name || UNNAMED,
     one: kind.replace(/ entry$/, "").toLowerCase() || "entry",

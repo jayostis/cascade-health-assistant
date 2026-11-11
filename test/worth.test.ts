@@ -130,5 +130,10 @@ describe("Listing what is worth a look in a pod · worthALook()", () => {
         [allergyOf("a2"), "Sources disagree on how severe an unnamed entry is."],
       ]);
     });
+
+    it("says `an unnamed allergy` for a label of the vocabulary that has a kind and no name", () => {
+      const unnamed = worthALook({ [REVIEW]: [disagreeing("a1", "Allergy entry")] });
+      expect(unnamed.map(({ sentence }) => sentence)).toEqual(["Sources disagree on how severe an unnamed allergy is."]);
+    });
   });
 });
