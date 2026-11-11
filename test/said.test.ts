@@ -4,9 +4,11 @@ import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   dayOrAsWritten,
+  personName,
   reviewSaid,
   rowSaid,
   stepWhenSaid,
+  typedName,
   utcInstant,
 } from "../said.ts";
 
@@ -173,6 +175,85 @@ describe("Saying review reasons, dates and counts in words · reviewSaid(), step
       expect(rowSaid({ ...row, submitters: 3 })).toBe("ClinVar today gives no classification, three submitters.");
       expect(rowSaid({ ...row, submitters: 1 })).toBe("ClinVar today gives no classification, one submitter.");
       expect(rowSaid({ ...row, submitters: 12 })).toBe("ClinVar today gives no classification, 12 submitters.");
+    });
+  });
+});
+
+/**
+ * A pod's page, its entry in the sidebar and its tab name the pod as a person: the title the pod keeps, which may name
+ * another person than the pod's name does, as a pod made without a title is titled for the person of the record brought
+ * into it; else the pod's name capitalised.
+ */
+describe("Naming pods as a person says them · typedName(), personName()", () => {
+  describe("given a pod that keeps a title", () => {
+    it("returns the title as typed when it is the pod's name made into words", () => {
+      const titles = new Map([["o-brien-mcdonald", "O'Brien McDonald"]]);
+      expect(typedName("o-brien-mcdonald", titles)).toBe("O'Brien McDonald");
+      expect(personName("o-brien-mcdonald", titles)).toBe("O'Brien McDonald");
+    });
+
+    it("returns the title when it names another person than the pod's name does, as the sample's does", () => {
+      const sample = new Map([["priya-natarajan-eval-case", "Priya Natarajan"]]);
+      expect(personName("priya-natarajan-eval-case", sample)).toBe("Priya Natarajan");
+      const titled = new Map([["walker-test", "Ines Calloway"]]);
+      expect(personName("walker-test", titled)).toBe("Ines Calloway");
+    });
+
+    it("returns the title with its spaces tidied", () => {
+      expect(personName("walker-test", new Map([["walker-test", " Ines  Calloway "]]))).toBe("Ines Calloway");
+    });
+  });
+
+  describe("given a pod that keeps no title, or one the page cannot read", () => {
+    it("returns the pod's name with a capital on each word, for a pod's title is its own name then", () => {
+      const titles = new Map([["rowan-ellery-marsh", "rowan-ellery-marsh"]]);
+      expect(typedName("rowan-ellery-marsh", titles)).toBeUndefined();
+      expect(personName("rowan-ellery-marsh", titles)).toBe("Rowan Ellery Marsh");
+      expect(personName("rowan-ellery-marsh")).toBe("Rowan Ellery Marsh");
+    });
+  });
+
+  describe("given two pods that keep one title, as a kit loaded again at another point does", () => {
+    it("returns the title for the pod its slug names and the pod's name with capitals for the other, so the pods stay apart", () => {
+      const copies = new Map([
+        ["alex-rivera", "Alex Rivera"],
+        ["alex-rivera-j24", "Alex Rivera"],
+      ]);
+      expect(personName("alex-rivera", copies)).toBe("Alex Rivera");
+      expect(personName("alex-rivera-j24", copies)).toBe("Alex Rivera J24");
+    });
+
+    it("returns the title for a copy alone, for nothing else bears it", () => {
+      expect(personName("alex-rivera-j24", new Map([["alex-rivera-j24", "Alex Rivera"]]))).toBe("Alex Rivera");
+    });
+
+    it("returns each pod's name with capitals when the title is the same but for case and spacing, no pod being named for it", () => {
+      const copies = new Map([
+        ["alex-rivera-j24", "Alex Rivera"],
+        ["alex-rivera-j25", "ALEX  RIVERA"],
+      ]);
+      expect(personName("alex-rivera-j24", copies)).toBe("Alex Rivera J24");
+      expect(personName("alex-rivera-j25", copies)).toBe("Alex Rivera J25");
+    });
+
+    it("returns each pod's name with capitals when two pods are titled for a person and neither is named for the title", () => {
+      const copies = new Map([
+        ["pod-a", "Sam Lee"],
+        ["pod-b", "Sam Lee"],
+      ]);
+      expect(personName("pod-a", copies)).toBe("Pod A");
+      expect(personName("pod-b", copies)).toBe("Pod B");
+    });
+  });
+
+  describe("given a pod named for a title and a pod that keeps it, the first being held under its own name", () => {
+    it("returns the pod's name with capitals for the second, whether the first has no title or is sealed, for either is held under its name", () => {
+      const copies = new Map([
+        ["alex-rivera", "alex-rivera"],
+        ["alex-rivera-j24", "Alex Rivera"],
+      ]);
+      expect(personName("alex-rivera-j24", copies)).toBe("Alex Rivera J24");
+      expect(personName("alex-rivera", copies)).toBe("Alex Rivera");
     });
   });
 });
