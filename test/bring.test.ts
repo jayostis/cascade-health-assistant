@@ -205,7 +205,7 @@ async function importsAfterOneBringIn(pod: string) {
     await api.connection({ pod, connection, wait: true });
     await api.bring({ pod, connection });
     await api.connection({ pod, connection, wait: true });
-    const { rows } = await api.ask({ pod, question: "pod/What each import brought in" });
+    const { rows } = (await api.ask({ pod, question: "pod/What each import brought in" })) as { rows: unknown[] };
     return rows as { import: string; importLabel?: string }[];
   } finally {
     await api.close();
