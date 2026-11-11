@@ -6,10 +6,22 @@ import { podApi } from "../pod-api.ts";
 
 export type Api = ReturnType<typeof podApi>;
 
-/** A PodApi over `folder`, with `samples` the names a host copies a sample for. */
-export function apiOver(folder: string, samples: string[] = []): Api {
+/** A PodApi over `folder`, with `samples` the names a host copies a sample for; `opened.calls` counts the pods it is asked to open. */
+export function apiOver(
+  folder: string,
+  samples: string[] = [],
+  opened = { calls: 0 },
+): Api {
+  const host = nodeHost({ folder });
   return podApi({
-    ...nodeHost({ folder }),
+    ...host,
+    pods: {
+      ...host.pods,
+      open: (name, options) => {
+        opened.calls += 1;
+        return host.pods.open(name, options);
+      },
+    },
     samples,
     copySample: async (name: string) => openPod(join(folder, name)),
   });

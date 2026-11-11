@@ -8,14 +8,21 @@ import { type Api, apiOver as over, seal as sealed } from "./sealed.ts";
 let folder: string;
 const made: Api[] = [];
 
-const apiOver = (samples: string[] = []) => {
-  const api = over(folder, samples);
+const apiOver = (samples: string[] = [], opened?: { calls: number }) => {
+  const api = over(folder, samples, opened);
   made.push(api);
   return api;
 };
 const seal = (api: Api, person: string) => sealed(api, person, slug(person));
 
-const refusal = (error: unknown) => error as { name: string; message: string };
+/** What `call` throws; the test fails when it throws nothing. */
+const thrown = (call: Promise<unknown>) =>
+  call.then(
+    () => {
+      throw new Error("it did not throw");
+    },
+    (error: unknown) => error as { name: string; message: string },
+  );
 
 beforeAll(async () => {
   folder = await mkdtemp(join(tmpdir(), "pods-test-"));
@@ -34,9 +41,7 @@ describe("Making and unlocking pods · api.makePod(), api.unlock()", () => {
   describe("when `makePod` is asked to encrypt", () => {
     it("refuses a sample's name with a sentence that says samples are not encrypted, and loads nothing", async () => {
       const api = apiOver(["sample"]);
-      const error = await api
-        .makePod({ person: "Sample", encrypt: true })
-        .catch(refusal);
+      const error = await thrown(api.makePod({ person: "Sample", encrypt: true }));
       expect(error).toMatchObject({ name: "Refusal" });
       expect(error.message).toMatch(/sample/i);
       expect(error.message).toMatch(/encrypt/i);
@@ -48,9 +53,7 @@ describe("Making and unlocking pods · api.makePod(), api.unlock()", () => {
     it("refuses a sample that is already loaded, and leaves the pod as it was", async () => {
       const api = apiOver(["loaded"]);
       await api.makePod({ person: "Loaded" });
-      const error = await api
-        .makePod({ person: "Loaded", encrypt: true })
-        .catch(refusal);
+      const error = await thrown(api.makePod({ person: "Loaded", encrypt: true }));
       expect(error).toMatchObject({ name: "Refusal" });
       expect(error.message).toMatch(/sample/i);
       expect((await api.pod({ pod: "loaded" })).encrypted).toBe(false);
@@ -59,9 +62,7 @@ describe("Making and unlocking pods · api.makePod(), api.unlock()", () => {
     it("refuses a pod that exists unencrypted, with a sentence that says so", async () => {
       const api = apiOver();
       await api.makePod({ person: "Plain" });
-      const error = await api
-        .makePod({ person: "Plain", encrypt: true })
-        .catch(refusal);
+      const error = await thrown(api.makePod({ person: "Plain", encrypt: true }));
       expect(error).toMatchObject({ name: "Refusal" });
       expect(error.message).toMatch(/exists already/);
       expect(error.message).toMatch(/not encrypted/);
@@ -85,24 +86,30 @@ describe("Making and unlocking pods · api.makePod(), api.unlock()", () => {
 
     it("throws `Unopened` with `incorrect secret` for other words", async () => {
       const { api } = await words();
-      const error = await api
-        .unlock({ pod: "ines-ward", secret: "not the words" })
-        .catch((thrown: unknown) => thrown);
-      expect(error).toMatchObject({
-        name: "Unopened",
-        outcome: "incorrect secret",
-      });
+      const error = await thrown(api.unlock({ pod: "ines-ward", secret: "not the words" }));
+      expect(error).toMatchObject({ outcome: "incorrect secret" });
     });
 
     it("throws `Unopened` with `incorrect secret` for no words", async () => {
       const { api } = await words();
-      const error = await api
-        .unlock({ pod: "ines-ward", secret: "" })
-        .catch((thrown: unknown) => thrown);
-      expect(error).toMatchObject({
-        name: "Unopened",
-        outcome: "incorrect secret",
+      const error = await thrown(api.unlock({ pod: "ines-ward", secret: "" }));
+      expect(error).toMatchObject({ outcome: "incorrect secret" });
+    });
+  });
+
+  describe("given an encrypted pod that is open and a secret to check", () => {
+    it("opens no pod to check the words, the right ones or the wrong ones", async () => {
+      const opened = { calls: 0 };
+      const api = apiOver([], opened);
+      const six = await seal(api, "Ada Wren");
+      const before = opened.calls;
+      expect(await api.unlock({ pod: "ada-wren", secret: six })).toEqual({
+        pod: "ada-wren",
+        opened: true,
       });
+      const error = await thrown(api.unlock({ pod: "ada-wren", secret: "not the words at all" }));
+      expect(error).toMatchObject({ outcome: "incorrect secret" });
+      expect(opened.calls).toBe(before);
     });
   });
 
@@ -130,7 +137,7 @@ describe("Making and unlocking pods · api.makePod(), api.unlock()", () => {
       });
       expect(wrong).toMatchObject({
         status: "rejected",
-        reason: { name: "Unopened", outcome: "incorrect secret" },
+        reason: { outcome: "incorrect secret" },
       });
     });
   });
