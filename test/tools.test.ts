@@ -1,6 +1,11 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { TOOLS as RUNTIME } from "cascade-runtime/tools";
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { appServer } from "../server/app.ts";
 import { NEVER, TOOLS } from "../tools.ts";
+import { type Api, apiOver, seal } from "./sealed.ts";
 
 /** What each tool is given, and the PodApi operations it may call. A tool added to `TOOLS` needs a row. */
 const RUNS: Record<string, [Record<string, unknown>, string[]]> = {
@@ -123,6 +128,53 @@ describe("Tools a model reaches the app by · TOOLS, NEVER", () => {
           name,
         ).toEqual({ description, inputSchema, ofPod });
       }
+    });
+  });
+});
+
+/**
+ * A page that carries no runtime of its own offers a model the app's read tools by calling the server: `GET /tools` lists
+ * them, and `POST /tools/<name>` runs one on a JSON input.
+ */
+describe("Running the read tools over HTTP · GET /tools, POST /tools/<name>", () => {
+  let folder: string;
+  let api: Api;
+  let app: ReturnType<typeof appServer>;
+  const origin = "http://app.test";
+
+  beforeAll(async () => {
+    folder = await mkdtemp(join(tmpdir(), "tools-test-"));
+    const first = apiOver(folder);
+    await seal(first, "Ines Ward", "ines-ward");
+    await first.close();
+    api = apiOver(folder);
+    app = appServer({
+      api,
+      own: () => ({ hosts: new Set(["app.test"]), origins: new Set([origin]) }),
+      back: () => undefined,
+      pages: folder,
+    });
+  }, 60_000);
+
+  afterAll(async () => {
+    await api?.close();
+    await rm(folder, { recursive: true, force: true, maxRetries: 5 });
+  });
+
+  describe("when a read tool runs on a pod that is locked", () => {
+    it("responds 423 with `{ unopened, refused }`, as `/api/` does", async () => {
+      const response = await app.request(`${origin}/tools/ask`, {
+        method: "POST",
+        headers: { origin, "content-type": "application/json" },
+        body: JSON.stringify({ pod: "ines-ward", format: "compact" }),
+      });
+      expect(response.status).toBe(423);
+      const body = (await response.json()) as {
+        unopened: string;
+        refused: string;
+      };
+      expect(body.unopened).toBe("secret needed");
+      expect(typeof body.refused).toBe("string");
     });
   });
 });
