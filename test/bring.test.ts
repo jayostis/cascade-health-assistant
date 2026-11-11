@@ -119,7 +119,7 @@ async function titledOnConnection(pod: string, make: (api: Api, at: string) => P
     await make(api, at);
     const { connection } = await api.connect({ pod, fhirBase: north.hospital.fhirBase });
     const now = await api.connection({ pod, connection, wait: true });
-    return { step: now.step, titled: now.titled };
+    return { step: now.step, titled: "titled" in now ? now.titled : undefined };
   } finally {
     await api.close();
   }

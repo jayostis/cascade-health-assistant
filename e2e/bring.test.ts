@@ -8,13 +8,16 @@ import { expect, test } from "@playwright/test";
 const POD = "walker-test";
 const run = promisify(execFile);
 
-test.afterAll(async () => {
-  await rm(new URL(`../pods/${POD}`, import.meta.url), {
+/** The pod's folder removed, so a run starts without one a stopped run left, which a title would be taken from. */
+const clear = () =>
+  rm(new URL(`../pods/${POD}`, import.meta.url), {
     recursive: true,
     force: true,
     maxRetries: 5,
   });
-});
+
+test.beforeAll(clear);
+test.afterAll(clear);
 
 test("A pod made with no name is named for the person of the record brought into it", async ({
   page,
