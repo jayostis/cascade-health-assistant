@@ -9,6 +9,7 @@
     "Running the read tools over HTTP · GET /tools, POST /tools/<name>",
     "Making and unlocking pods · api.makePod(), api.unlock()",
     "Titling a pod after a hospital's record is brought in · api.bring()",
+    "Counting what a pod's imports brought in · api.bring(), api.ask()",
     "Naming pods as a person says them · typedName(), personName()",
     "Guarding the server · guard()",
     "Asking a model about a pod · GET /chat, POST /chat",

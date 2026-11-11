@@ -193,3 +193,35 @@ describe("Titling a pod after a hospital's record is brought in · api.bring()",
     }, 60_000);
   });
 });
+
+/** What the question "What each import brought in" returns for a pod after one hospital record is brought into it. */
+async function importsAfterOneBringIn(pod: string) {
+  const at = await mkdtemp(join(tmpdir(), "bring-test-"));
+  folders.push(at);
+  const api = podApi({ ...nodeHost({ folder: at }), hospitals: northHospitals() });
+  try {
+    await api.makePod({ person: "Ada" });
+    const { connection } = await api.connect({ pod, fhirBase: north.hospital.fhirBase });
+    await api.connection({ pod, connection, wait: true });
+    await api.bring({ pod, connection });
+    await api.connection({ pod, connection, wait: true });
+    const { rows } = (await api.ask({ pod, question: "pod/What each import brought in" })) as { rows: unknown[] };
+    return rows as { import: string; importLabel?: string }[];
+  } finally {
+    await api.close();
+  }
+}
+
+/**
+ * A pod holds, for each import, what it brought in. Signing in at a hospital leaves a record of the connect in the pod,
+ * which is not an import, so a pod brought one record holds one import.
+ */
+describe("Counting what a pod's imports brought in · api.bring(), api.ask()", () => {
+  describe("given a pod that signed in at one hospital and brought its record in", () => {
+    it("returns one import, labelled as the pull, and none for the record of the connect", async () => {
+      const rows = await importsAfterOneBringIn("ada");
+      const labels = new Map(rows.map(({ import: id, importLabel }) => [id, importLabel]));
+      expect([...labels.values()]).toEqual(["FHIR pull"]);
+    }, 60_000);
+  });
+});
