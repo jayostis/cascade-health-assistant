@@ -284,7 +284,7 @@ describe("Asking a model about a pod · GET /chat, POST /chat", () => {
   });
 
   describe("when a tool the server runs hits a pod that is locked", () => {
-    it("tells the model the pod is locked, not that the server failed, and logs no server failure", async () => {
+    it("tells the model the pod is locked when the runtime refuses with a plain Refusal, and logs no server failure", async () => {
       const locked = await mkdtemp(join(tmpdir(), "chat-locked-"));
       const first = apiOver(locked);
       await seal(first, "Ines Ward", "ines-ward");
@@ -306,6 +306,36 @@ describe("Asking a model about a pod · GET /chat, POST /chat", () => {
         logged.mockRestore();
         await sealedApi.close();
         await rm(locked, { recursive: true, force: true, maxRetries: 5 });
+      }
+    }, 60_000);
+  });
+
+  describe("when a tool the server runs throws an Unopened", () => {
+    it("tells the model its message, not that the server failed, and logs nothing", async () => {
+      const message = "The pod is sealed until its owner opens it.";
+      const unopened = Object.assign(new Error(message), { name: "Unopened", outcome: "sealed" });
+      let thrown = false;
+      const stubbed = new Proxy(api, {
+        get: (target, key) =>
+          key === "ask" && !thrown
+            ? async () => {
+                thrown = true;
+                throw unopened;
+              }
+            : Reflect.get(target, key),
+      });
+      const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+      try {
+        const mock = mockModel();
+        mock.says(calls("ask", { pod: POD, question: "pod/My lab results" }), says(VALID));
+        const response = await post(chatApp(stubbed, mock.model), POD, [user("What should I ask?")]);
+        await response.text();
+        const told = JSON.stringify(mock.requests()[1]!.prompt);
+        expect(told).not.toContain("the server failed");
+        expect(told).toContain(message);
+        expect(logged).not.toHaveBeenCalled();
+      } finally {
+        logged.mockRestore();
       }
     }, 60_000);
   });
