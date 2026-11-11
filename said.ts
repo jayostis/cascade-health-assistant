@@ -889,9 +889,13 @@ export function typedName(pod: string, titles?: Titles): string | undefined {
   if (typed === undefined) return undefined;
   if (slug(typed) === pod) return typed;
   const own = slug(typed);
+  const same = (title: string | undefined) =>
+    own === ""
+      ? tidy(title)?.toLowerCase() === typed.toLowerCase()
+      : slug(tidy(title) ?? "") === own;
   const shared = [...(titles ?? [])].some(
     ([other, title]) =>
-      other !== pod && (other === own || slug(tidy(title) ?? "") === own),
+      other !== pod && ((own !== "" && other === own) || same(title)),
   );
   return shared ? undefined : typed;
 }

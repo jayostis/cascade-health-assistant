@@ -170,6 +170,30 @@ describe("Bringing a hospital's record into a pod · ConnectionBox", () => {
     });
   });
 
+  describe("given a pod that keeps a title other pods share, so the page shows the pod's name", () => {
+    const sharing = (patient: string, family: string, patientNames = [{ name: patient, family }]) =>
+      boxOver(
+        "pod-b",
+        pulled({ patient, patientNames }),
+        new Map([
+          ["pod-a", "Sam Lee"],
+          ["pod-b", "Sam Lee"],
+        ]),
+      ).said;
+
+    it("names the title the pod keeps, not the name the page shows, in the warning for another person's record", () => {
+      expect(sharing("Odalys Brandt", "Brandt")).toContain(
+        "This record is Odalys Brandt's, not Sam Lee's. Bringing it in leaves this pod named Sam Lee.",
+      );
+    });
+
+    it("names the title the pod keeps when the record names no one to grade", () => {
+      expect(sharing("Odalys Brandt", "Brandt", [])).toContain(
+        "This record is Odalys Brandt's. Bringing it in leaves this pod named Sam Lee.",
+      );
+    });
+  });
+
   describe("given a pod that keeps a title the page cannot read, as an encrypted pod's is sealed", () => {
     const ines = {
       patient: "Ines Calloway",

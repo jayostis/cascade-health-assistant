@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   dayOrAsWritten,
+  keptTitle,
   personName,
   reviewSaid,
   rowSaid,
@@ -254,6 +255,39 @@ describe("Naming pods as a person says them · typedName(), personName()", () =>
       ]);
       expect(personName("alex-rivera-j24", copies)).toBe("Alex Rivera J24");
       expect(personName("alex-rivera", copies)).toBe("Alex Rivera");
+    });
+  });
+
+  describe("given pods whose titles are in a script the pod's name cannot be made from", () => {
+    it("returns each title for two pods that keep different ones, though both slug to nothing", () => {
+      const names = new Map([
+        ["pod-1", "李明"],
+        ["pod-2", "王芳"],
+      ]);
+      expect(personName("pod-1", names)).toBe("李明");
+      expect(personName("pod-2", names)).toBe("王芳");
+    });
+
+    it("returns each pod's name with capitals for two pods that keep one such title, so the pods stay apart", () => {
+      const names = new Map([
+        ["pod-1", "李明"],
+        ["pod-2", "李明"],
+      ]);
+      expect(personName("pod-1", names)).toBe("Pod 1");
+      expect(personName("pod-2", names)).toBe("Pod 2");
+    });
+  });
+
+  describe("keptTitle(pod, titles)", () => {
+    it("returns the title a pod keeps with its words spaced once, and nothing for a pod held under its own name", () => {
+      const sharing = new Map([
+        ["pod-a", "Sam Lee"],
+        ["pod-b", " Sam  Lee "],
+        ["ada", "ada"],
+      ]);
+      expect(keptTitle("pod-b", sharing)).toBe("Sam Lee");
+      expect(keptTitle("ada", sharing)).toBeUndefined();
+      expect(keptTitle("pod-c", sharing)).toBeUndefined();
     });
   });
 });
