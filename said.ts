@@ -2635,9 +2635,11 @@ function patientOf(bundle: Bundle) {
 /** The person a FHIR Bundle is about, as the hospital names them: `Rowan Ellery Marsh`; undefined when it names none. */
 export function patientName(bundle: Bundle): string | undefined {
   const name = officialName(bundle);
-  return name === undefined
-    ? undefined
-    : [...(name.given ?? []), name.family].filter(Boolean).join(" ");
+  const joined =
+    name === undefined
+      ? ""
+      : [...(name.given ?? []), name.family].filter(Boolean).join(" ").trim();
+  return joined === "" ? undefined : joined;
 }
 
 /** Every name the Patient of a FHIR Bundle holds (official, usual, maiden), as `{ name, family }`. */
