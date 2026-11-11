@@ -15,6 +15,7 @@
     "Saying what a model is doing while it works · workingSaid(), stepSaid(), stepsOf(), Working",
     "Summing up a reply's check in one line · Supporting",
     "Drawing a checked reply as cards · ReplyCards",
+    "Bringing a hospital's record into a pod · ConnectionBox",
     "Listing what a model looked at · LookedAt, sideSaid()"
   ],
   "build": [
