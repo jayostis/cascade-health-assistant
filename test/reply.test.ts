@@ -207,8 +207,26 @@ describe("Checking a model's reply before a person sees it · POST /chat, data-r
       }
     });
 
+    it("shows no raw JSON for JSON with no string `answer`, and returns why in `errors`", async () => {
+      const { text, checked } = await asked([says('{"short":"x","items":[]}')]);
+      expect(text).toBe("The model gave no reply.");
+      expect(checked!.errors.length).toBeGreaterThan(0);
+      expect(checked!.reply).toBeUndefined();
+    });
+
     it("shows `The model gave no reply.` for a model that says nothing", async () => {
       expect((await asked([says("  ")])).text).toBe("The model gave no reply.");
+    });
+  });
+
+  describe("given a complete reply in a code fence", () => {
+    it("checks it as the reply, with no errors, and shows its `answer`", async () => {
+      for (const fence of ["```json\n", "```\n"]) {
+        const { text, checked } = await asked([says(`${fence}${CITED}\n\`\`\``)]);
+        expect(text, fence).toBe("Her A1c was 6.6 % in June.");
+        expect(checked!.errors, fence).toEqual([]);
+        expect(checked!.reply, fence).toBeDefined();
+      }
     });
   });
 
