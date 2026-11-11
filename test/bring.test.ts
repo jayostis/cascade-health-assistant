@@ -110,6 +110,21 @@ async function titleAfterBringIn(
   return pods.find(({ name }) => name === pod)!.title;
 }
 
+/** What the connection of a pod made by `make` says of whether the pod keeps a name, once the record is pulled. */
+async function titledOnConnection(pod: string, make: (api: Api, at: string) => Promise<unknown>) {
+  const at = await mkdtemp(join(tmpdir(), "bring-test-"));
+  folders.push(at);
+  const api = podApi({ ...nodeHost({ folder: at }), hospitals: northHospitals() });
+  try {
+    await make(api, at);
+    const { connection } = await api.connect({ pod, fhirBase: north.hospital.fhirBase });
+    const now = await api.connection({ pod, connection, wait: true });
+    return { step: now.step, titled: "titled" in now ? now.titled : undefined };
+  } finally {
+    await api.close();
+  }
+}
+
 /** A pod opened and closed, so the folder holds one with no name on file. */
 const untitled = async (_: Api, at: string) => {
   const pod = await nodeHost({ folder: at }).pods.open(UNTITLED);
@@ -162,6 +177,19 @@ describe("Titling a pod after a hospital's record is brought in · api.bring()",
       } finally {
         logged.mockRestore();
       }
+    }, 60_000);
+  });
+
+  describe("when the connection of a pod is read once its record is pulled", () => {
+    it("says the pod is titled when it was made under a name, which bringing the record in leaves", async () => {
+      expect(await titledOnConnection("ada", (api) => api.makePod({ person: "Ada" }))).toEqual({
+        step: "pulled",
+        titled: true,
+      });
+    }, 60_000);
+
+    it("says the pod is not titled when it has no name on file, which bringing the record in gives", async () => {
+      expect(await titledOnConnection(UNTITLED, untitled)).toEqual({ step: "pulled", titled: false });
     }, 60_000);
   });
 });
