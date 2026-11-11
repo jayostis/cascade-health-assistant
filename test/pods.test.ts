@@ -1,6 +1,8 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { nodeHost } from "../node-host.ts";
+import { podApi } from "../pod-api.ts";
 import { slug } from "../said.ts";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type Api, apiOver as over, seal as sealed } from "./sealed.ts";
@@ -139,6 +141,46 @@ describe("Making and unlocking pods · api.makePod(), api.unlock()", () => {
         status: "rejected",
         reason: { outcome: "incorrect secret" },
       });
+    });
+
+    it("keeps one opening and closes the other of two calls at the same moment with the right words", async () => {
+      const six = await seal(apiOver(), "Tess Quill");
+      const host = nodeHost({ folder });
+      const seen = { opens: 0, closes: 0, begun: 0 };
+      let release!: () => void;
+      const gate = new Promise<void>((done) => (release = done));
+      const holding = podApi({
+        ...host,
+        pods: {
+          ...host.pods,
+          open: async (name, options) => {
+            if (options?.secret !== undefined) {
+              seen.begun += 1;
+              await gate;
+            }
+            const pod = await host.pods.open(name, options);
+            seen.opens += 1;
+            const close = pod.close.bind(pod);
+            pod.close = async () => {
+              seen.closes += 1;
+              return close();
+            };
+            return pod;
+          },
+        },
+      });
+      made.push(holding);
+      const calls = Promise.all([
+        holding.unlock({ pod: "tess-quill", secret: six }),
+        holding.unlock({ pod: "tess-quill", secret: six }),
+      ]);
+      while (seen.begun < 2) await new Promise((tick) => setTimeout(tick, 5));
+      release();
+      expect(await calls).toEqual([
+        { pod: "tess-quill", opened: true },
+        { pod: "tess-quill", opened: true },
+      ]);
+      expect(seen.opens - seen.closes, `${seen.opens} openings, ${seen.closes} closed`).toBe(1);
     });
   });
 });

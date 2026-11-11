@@ -674,7 +674,7 @@ export function PodPage({
           key={shown.connection.n}
           pod={pod}
           titles={titles}
-          now={shown.connection}
+          connection={shown.connection}
         />
       )}
     </>

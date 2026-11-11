@@ -7,7 +7,8 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { modelOf } from "../models.ts";
 import { nodeHost } from "../node-host.ts";
 import { podApi } from "../pod-api.ts";
-import { chat, chatApp, mockModel, ORIGIN, point, post, replyOf, says, user } from "./chat-app.ts";
+import { apiOver, seal } from "./sealed.ts";
+import { calls, chat, chatApp, mockModel, ORIGIN, point, post, replyOf, says, user } from "./chat-app.ts";
 
 const POD = "alex-rivera";
 /** A reply the contract takes, whose one fact names no record: the check fails it, and the server does not ask again. */
@@ -280,5 +281,32 @@ describe("Asking a model about a pod · GET /chat, POST /chat", () => {
       await chat(chatApp(api, mock.model), [user("How is my A1c?")], POD);
       expect(JSON.stringify(mock.requests()[0]!.prompt)).not.toContain("cacheControl");
     });
+  });
+
+  describe("when a tool the server runs hits a pod that is locked", () => {
+    it("tells the model the pod is locked, not that the server failed, and logs no server failure", async () => {
+      const locked = await mkdtemp(join(tmpdir(), "chat-locked-"));
+      const first = apiOver(locked);
+      await seal(first, "Ines Ward", "ines-ward");
+      await first.close();
+      const sealedApi = apiOver(locked);
+      const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+      try {
+        const mock = mockModel();
+        mock.says(calls("ask", { pod: "ines-ward", question: "pod/My lab results" }), says(VALID));
+        const response = await post(chatApp(sealedApi, mock.model), "ines-ward", [
+          user("What should I ask?"),
+        ]);
+        await response.text();
+        const told = JSON.stringify(mock.requests()[1]!.prompt);
+        expect(told).not.toContain("the server failed");
+        expect(told).toMatch(/lock|secret/i);
+        expect(logged.mock.calls.flat().filter((each) => each instanceof Error && each.cause !== undefined)).toEqual([]);
+      } finally {
+        logged.mockRestore();
+        await sealedApi.close();
+        await rm(locked, { recursive: true, force: true, maxRetries: 5 });
+      }
+    }, 60_000);
   });
 });

@@ -79,4 +79,15 @@ describe("Bringing a hospital's record into a pod · ConnectionBox", () => {
       expect(button).toBe("Bring it into Odalys Brandt's pod");
     });
   });
+
+  describe("given a pulled record with no patient and a pod that has no title", () => {
+    it("names the pod's slug name on the button", () => {
+      const { said, button } = boxOver(
+        "alex-rivera",
+        pulled({ sources: [{ records: {}, holdsSubjectsRecords: false }] }),
+      );
+      expect(button).toBe("Bring it into Alex Rivera's pod");
+      expect(said).toContain("This pod has nothing from here yet.");
+    });
+  });
 });

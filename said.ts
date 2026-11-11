@@ -1040,6 +1040,9 @@ export function seenAt(answers: Answers): Map<string, Seen> {
   return seen;
 }
 
+/** A date as a label shows it, whichever of `xsd:gYear`, `gYearMonth`, `date` or `dateTime` the entry's date is. */
+const DISPLAY_DATE = /^\d{4}(-\d\d(-\d\d)?)?(Z|[+-]\d\d:\d\d|T\S*)?$/;
+
 /**
  * An entry the sections do not show, named from its label: `Allergy entry · Latex` is a latex allergy. The vocabulary
  * labels an entry with its kind, then its name if it has one, then its date if it has one, so `Allergy entry · 2020-01-01`
@@ -1047,8 +1050,7 @@ export function seenAt(answers: Answers): Map<string, Seen> {
  */
 export function fromLabel(label = ""): Item {
   const [kind = "", second = "", ...rest] = label.split(" · ");
-  const name =
-    rest.length === 0 && /^\d{4}-\d\d-\d\d/.test(second) ? "" : second;
+  const name = rest.length === 0 && DISPLAY_DATE.test(second) ? "" : second;
   return {
     name: name || UNNAMED,
     one: kind.replace(/ entry$/, "").toLowerCase() || "entry",

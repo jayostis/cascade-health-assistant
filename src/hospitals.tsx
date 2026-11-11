@@ -273,15 +273,15 @@ export function ConnectionBox({
   );
 }
 
-/** The box of the pod's connection `now`, its buttons signing in again and bringing the record in; it closes to the pod. */
+/** The box of the pod's `connection`, its buttons signing in again and bringing the record in; it closes to the pod. */
 export function Connection({
   pod,
   titles,
-  now,
+  connection,
 }: {
   pod: string;
   titles: ReadonlyMap<string, string>;
-  now: ConnectionNow;
+  connection: ConnectionNow;
 }) {
   const host = useHost();
   const address = useAddress();
@@ -289,11 +289,11 @@ export function Connection({
     <ConnectionBox
       pod={pod}
       titles={titles}
-      connection={now}
+      connection={connection}
       back={address.pod(pod)}
       failures={host.failures}
       signInAgain={(label) => (
-        <SignIn fhirBase={now.row.fhirBase}>{label}</SignIn>
+        <SignIn fhirBase={connection.row.fhirBase}>{label}</SignIn>
       )}
     />
   );

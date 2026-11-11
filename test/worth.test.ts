@@ -141,6 +141,19 @@ describe("Listing what is worth a look in a pod · worthALook()", () => {
       expect(unnamed.map(({ sentence }) => sentence)).toEqual(["Sources disagree on how severe an unnamed allergy is."]);
     });
 
+    it.each(["2019", "2019-03", "2019Z", "2019-03+01:00", "2020-01-01Z", "2020-01-01T10:00:00Z"])(
+      "says `an unnamed allergy` for a label whose date is `%s`",
+      (date) => {
+        const unnamed = worthALook({ [REVIEW]: [disagreeing("a1", `Allergy entry · ${date}`)] });
+        expect(unnamed.map(({ sentence }) => sentence)).toEqual(["Sources disagree on how severe an unnamed allergy is."]);
+      },
+    );
+
+    it("keeps a name that only begins with a date", () => {
+      const named = worthALook({ [REVIEW]: [disagreeing("a1", "Allergy entry · 2020-01-01 allergy")] });
+      expect(named.map(({ sentence }) => sentence)[0]).toContain("2020-01-01 allergy");
+    });
+
     it("names the allergy by its name, not its date, for a label that has a kind, a name and a date", () => {
       const named = worthALook({ [REVIEW]: [disagreeing("a1", "Allergy entry · Latex · 2020-01-01")] });
       expect(named.map(({ sentence }) => sentence)).toEqual(["Sources disagree on how severe the Latex allergy is."]);
