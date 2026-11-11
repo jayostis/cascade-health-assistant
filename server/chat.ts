@@ -43,6 +43,7 @@ import { maps } from "../pod-api.ts";
 import { podPath, trendPath } from "../pods.ts";
 import { CHANGED, changeSaid, entryId } from "../said.ts";
 import { TOOLS } from "../tools.ts";
+import { refused } from "./api.ts";
 import type { ChatServed } from "./app.ts";
 import {
   askAgain,
@@ -215,12 +216,12 @@ async function recorded<T>(
   }
 }
 
-/** Runs a tool: a `Refusal` goes to the model as it is, any other error to the log and a fixed sentence. */
+/** Runs a tool: a `Refusal` or an `Unopened` goes to the model as it is, any other error to the log and a fixed sentence. */
 async function running<T>(run: () => Promise<T>): Promise<T> {
   try {
     return await run();
   } catch (error) {
-    if (isRefusal(error)) throw error;
+    if (refused(error)) throw error;
     console.error(error);
     throw new Error(TOOL_FAILED, { cause: error });
   }
@@ -482,7 +483,7 @@ function errorText(model: Model) {
   return (error: unknown) => {
     if (typeof error === "string") return error;
     if (
-      isRefusal(error) ||
+      refused(error) ||
       NoSuchToolError.isInstance(error) ||
       InvalidToolInputError.isInstance(error) ||
       (error instanceof Error && error.message === TOOL_FAILED)
@@ -729,7 +730,7 @@ export function chatRoutes({
             ),
           });
         } catch (error) {
-          if (isRefusal(error)) return c.json({ error: error.message }, 400);
+          if (refused(error)) return c.json({ error: error.message }, 400);
           console.error(error);
           return c.json({ error: FAILED }, 500);
         }

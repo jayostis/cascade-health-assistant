@@ -658,8 +658,8 @@ const IMPORTS = "pod/What each import brought in";
 const REVISIONS = "record/Its revisions, in the order they arrived";
 const VERSIONS = "record/What each version says";
 
-/** The questions only the mechanism under What changed reads: see `withMechanism`. */
-export const MECHANISM = [REVISIONS, VERSIONS];
+/** The questions only the mechanism under What changed reads: see `withImportHistory`. */
+export const IMPORT_HISTORY = [REVISIONS, VERSIONS];
 
 /** Every question `podPage` reads: ask each, and hand it the rows by question. */
 export const QUESTIONS = [
@@ -826,22 +826,6 @@ export function day(text: string | undefined): string {
 }
 
 /**
- * A time of the app's clock, as the day it fell on where the page is drawn: the person's own day. A date with no time
- * is said as written, as `day` says it.
- */
-export function localDay(text: string | undefined): string {
-  if (text === undefined || !/T\d\d:\d\d/.test(String(text))) return day(text);
-  const date = new Date(Date.parse(String(text)));
-  return Number.isNaN(date.getTime())
-    ? String(text)
-    : date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
-}
-
-/**
  * How two cells compare, by what they sort by: numbers and dates by value, and text as text. A cell with nothing to
  * sort by, or what is no number or date, comes after every other. The page's script runs this same function.
  */
@@ -970,7 +954,47 @@ const SAID: Readonly<Record<string, (item: Item, row: Row) => string>> = {
     `${name === UNNAMED ? `An unnamed ${one}` : name} was kept as one ${one} with another before; newer reference tables or rules no longer match them, so they are shown apart.`,
   [SHARED_CODE]: ({ name, one }, { otherRecordLabel }) =>
     `${name === UNNAMED ? `An unnamed ${one}` : name} shares a code with ${otherNamed(otherRecordLabel, one)}, which Cascade keeps apart. Cascade cannot confirm that the shared code names one product, so they may or may not be the same.`,
+  "no longer joined under a newer rule list version": ({ name, one }) =>
+    `${who(name, one)} was matched with another under older matching rules; a newer version of the rules no longer joins them, so they are shown apart until someone decides.`,
+  "joined on one day, with no time to tell two draws apart": ({ name, one }) =>
+    `${who(name, one)} was joined from results recorded on one day with no time, so they may be two separate draws.`,
+  "one test at one instant, two values": ({ name, one }) =>
+    `${who(name, one)} has two results of one test at one moment that give different values.`,
+  "one test at one instant, in units that differ": ({ name, one }) =>
+    `${who(name, one)} has two results of one test at one moment in units that differ, so they may be one draw measured two ways.`,
+  "a member changed since it was judged": ({ name, one }) =>
+    `${who(name, one)} was judged to be one ${one}, but a record in it has changed since.`,
+  "observed later": ({ name, one }) =>
+    `The source's change time did not decide which version of ${whom(name, one)} is current, so the one seen later is shown.`,
+  "no basis": ({ name, one }) =>
+    `Nothing decided which version of ${whom(name, one)} is current, so the one shown was picked by its identifier alone.`,
+  "Befores that form a cycle": ({ name, one }) =>
+    `The order recorded for the versions of ${whom(name, one)} contradicts itself.`,
 };
+
+/** The reasons whose words carry a number or a date, which the vocabulary builds with CONCAT, each as its words match. */
+const SAID_BUILT: readonly (readonly [
+  RegExp,
+  (item: Item, found: string[]) => string,
+])[] = [
+  [
+    /^this source reports (\d+) records? at states older than it reported on (\S+)$/,
+    ({ name, one }, [count, date]) =>
+      `The source reports ${whom(name, one)}${count === "1" ? "" : ` and ${Number(count) - 1} more`} at ${count === "1" ? "a state" : "states"} older than it reported on ${dayInWords(date)}.`,
+  ],
+  [
+    /^this writer's clock was at least (\d+) days? behind$/,
+    ({ name, one }, [count]) =>
+      `${who(name, one)} was written by a source whose clock was at least ${count} ${count === "1" ? "day" : "days"} behind, so its change time may be wrong.`,
+  ],
+];
+
+/** An entry as a sentence starts with it: its name, or `An unnamed allergy`. */
+const who = (name: string, one: string) =>
+  name === UNNAMED ? `An unnamed ${one}` : name;
+/** An entry as a sentence names it after its first words: its name, or `an unnamed allergy`. */
+const whom = (name: string, one: string) =>
+  name === UNNAMED ? `an unnamed ${one}` : name;
 
 /** The other record of a pair, named from its label `Medication · Name · …`, or `another medication` when it has no name. */
 function otherNamed(label: string | undefined, one: string): string {
@@ -1016,9 +1040,17 @@ export function seenAt(answers: Answers): Map<string, Seen> {
   return seen;
 }
 
-/** An entry the sections do not show, named from its label: `Allergy entry · Latex` is a latex allergy. */
+/** A date as a label shows it, whichever of `xsd:gYear`, `gYearMonth`, `date` or `dateTime` the entry's date is. */
+const DISPLAY_DATE = /^\d{4}(-\d\d(-\d\d)?)?(Z|[+-]\d\d:\d\d|T\S*)?$/;
+
+/**
+ * An entry the sections do not show, named from its label: `Allergy entry · Latex` is a latex allergy. The vocabulary
+ * labels an entry with its kind, then its name if it has one, then its date if it has one, so `Allergy entry · 2020-01-01`
+ * is an allergy with no name.
+ */
 export function fromLabel(label = ""): Item {
-  const [kind = "", name = ""] = label.split(" · ");
+  const [kind = "", second = "", ...rest] = label.split(" · ");
+  const name = rest.length === 0 && DISPLAY_DATE.test(second) ? "" : second;
   return {
     name: name || UNNAMED,
     one: kind.replace(/ entry$/, "").toLowerCase() || "entry",
@@ -1145,7 +1177,12 @@ function sharedCodeSaid(
 
 /** The sentence a row of "What needs review" is told in, of `item`, the entry's `name` and what `one` of its kind is called. */
 export function reviewSaid(row: Row, item: Item): string {
-  return (SAID[row.needs] ?? (() => `${item.name}: ${row.needs}.`))(item, row);
+  if (Object.hasOwn(SAID, row.needs)) return SAID[row.needs]!(item, row);
+  for (const [pattern, said] of SAID_BUILT) {
+    const found = pattern.exec(row.needs);
+    if (found !== null) return said(item, found.slice(1));
+  }
+  return `${item.name}: ${row.needs}.`;
 }
 
 /** A pair of medications that share an ingredient, as `sharedIngredients` gives it. */
@@ -1279,7 +1316,7 @@ function counting({
   if (submitters === undefined) return undefined;
   return submitters === 1
     ? "one submitter"
-    : `${submitters === 0 ? "no" : submitters} submitters`;
+    : `${submitters === 0 ? "no" : number(submitters)} submitters`;
 }
 
 /** What a variant classifications row says, as the sentence ClinVar's page and a code's page give it. */
@@ -1342,7 +1379,7 @@ function whenOf(
   if (date === undefined) return undefined;
   const year = String(date).slice(0, 4);
   return dates.filter((each) => String(each).slice(0, 4) === year).length > 1
-    ? day(date)
+    ? dayOrAsWritten(date)
     : year;
 }
 
@@ -1536,7 +1573,7 @@ function variantRows(answers: Answers, said?: VariantsSaid): SectionRow[] {
 }
 
 /** The section's rows in the order its table opens in, a row with nothing to sort by last either way. */
-export function opening(
+export function openingOrder(
   section: Section,
   rows: readonly SectionRow[],
 ): SectionRow[] {
@@ -1940,10 +1977,11 @@ const fieldSaid = (field: string) =>
     .replace(/([a-z\d])([A-Z])/g, "$1 $2")
     .toLowerCase();
 
-/** A statement's value as a person reads it: a day as its date, a thing by its label, an address by its last part. */
+/** A statement's value as a person reads it in a sentence: a day in words, a thing by its label, an address by its last part. */
 function valueSaid({ value, valueLabel }: Row): string {
   if (valueLabel !== undefined) return valueLabel;
-  if (/^\d{4}-\d\d-\d\d/.test(value)) return day(value);
+  const said = dayOrAsWritten(value);
+  if (said !== value) return said;
   return isCode(value) ? value.split(/[#/:]/).at(-1)! : value;
 }
 
@@ -1968,11 +2006,11 @@ function differences(
 const STATUSES: ReadonlySet<string> = new Set(Object.values(terms.statusOf));
 
 /**
- * `answers` with the rows of `MECHANISM` added when `podPage` would draw them: the pod holds two imports or more and
+ * `answers` with the rows of `IMPORT_HISTORY` added when `podPage` would draw them: the pod holds two imports or more and
  * `changes` (as `changesIn` gives them) has a shown change of a medication. Otherwise `answers` as it is, and the two
  * questions are never asked; `ask` gives a question's rows.
  */
-export async function withMechanism(
+export async function withImportHistory(
   answers: Answers,
   changes: readonly Finding[],
   ask: (question: string) => Promise<readonly Row[]>,
@@ -1984,7 +2022,7 @@ export async function withMechanism(
   );
   if (imports.size < 2 || !shown) return answers;
   const rows = await Promise.all(
-    MECHANISM.map(async (question) => [question, await ask(question)]),
+    IMPORT_HISTORY.map(async (question) => [question, await ask(question)]),
   );
   return { ...answers, ...Object.fromEntries(rows) };
 }
@@ -2743,7 +2781,8 @@ export function freshness(
     checked === undefined
       ? "This app has not read the feed yet."
       : `This app last read the feed ${ago(checked, now)}.`,
-    modified !== undefined && `The feed last changed on ${day(modified)}.`,
+    modified !== undefined &&
+      `The feed last changed on ${dayOrAsWritten(modified)}.`,
   ]
     .filter(Boolean)
     .join(" ");
@@ -2976,18 +3015,50 @@ export function worldInstant(text: unknown): string | undefined {
 
 /** An instant in UTC, as a pull.json states it: `2024-02-01T07:00:00Z` for `2024-02-01T09:00:00+02:00`; undefined stays undefined. */
 export function utcInstant(asOf: string | undefined): string | undefined {
-  return asOf === undefined
+  if (asOf === undefined) return undefined;
+  const time = Date.parse(asOf);
+  return Number.isNaN(time)
     ? undefined
-    : new Date(Date.parse(asOf)).toISOString().replace(".000Z", "Z");
+    : new Date(time).toISOString().replace(".000Z", "Z");
 }
 
 /** A time of the app's clock as the person's own day, in the words `dayInWords` uses: `29 January 2024`. */
 function localDayInWords(text: string): string {
+  if (/^\d{4}-\d\d-\d\d$/.test(String(text))) return dayInWords(String(text));
   const date = new Date(Date.parse(String(text)));
   return Number.isNaN(date.getTime())
     ? String(text)
     : `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 }
+
+/** When a new version arrived, in the words `pullSaid` gives its import's day: `on 17 October 2026`, or `as of 1 February 2025`. */
+export function stepWhenSaid({
+  arrived,
+  asOf,
+}: Pick<Step, "arrived" | "asOf">): string {
+  return asOf === undefined ? onDaySaid(arrived) : `as of ${dayInWords(asOf)}`;
+}
+
+/** A time of the app's clock as the person's own day, said as `stepWhenSaid` says a version's arrival: `on 17 October 2026`. */
+export function onDaySaid(time: string): string {
+  return `on ${localDayInWords(time)}`;
+}
+
+/**
+ * A date or a time said as a sentence says a day, in words: `1 February 2024`; the text as written when it does not
+ * begin with a real day, as `2024-13-45` does not.
+ */
+export function dayOrAsWritten(text: string | undefined): string {
+  if (text === undefined) return "";
+  const given = String(text);
+  return /^\d{4}-\d\d-\d\d/.test(given) && isDay(given.slice(0, 10))
+    ? dayInWords(given.slice(0, 10))
+    : given;
+}
+
+/** A time of the app's clock, as `dayOrAsWritten` says its UTC day, for a sentence. */
+export const dayAtInWords = (time: number) =>
+  dayOrAsWritten(new Date(time).toISOString());
 
 /** The UTC day of an instant, in words: `1 February 2024`. */
 export function dayInWords(asOf: string): string {

@@ -70,7 +70,7 @@ import {
   utcInstant,
   type VariantsSaid,
   variantsSaid,
-  withMechanism,
+  withImportHistory,
   worldInstant,
   worthALook,
 } from "./said.ts";
@@ -249,6 +249,8 @@ export interface PodHost {
       name: string,
       options?: { title?: string; secret?: string },
     ): Promise<Pod>;
+    /** Whether `secret` is the secret of the encrypted pod `name`, read from its header alone; opens no pod. */
+    checkSecret(name: string, secret: string): Promise<boolean>;
     /** Removes the pods and their answers, with `all` every answer kept; never the reference tables. */
     remove(
       names: readonly string[],
@@ -431,7 +433,7 @@ export function podApi(host: PodHost) {
       limit: 20,
     });
     return {
-      answers: await withMechanism(answers, changes, (question) =>
+      answers: await withImportHistory(answers, changes, (question) =>
         pod.ask(question),
       ),
       changes,
@@ -770,9 +772,19 @@ export function podApi(host: PodHost) {
       throw new Refusal(
         "That name is one Windows keeps for itself: add another word.",
       );
-    if ((await host.pods.names()).includes(name))
+    const sample = host.samples?.includes(name) === true;
+    if (sample && encrypt)
+      throw new Refusal(
+        `${name} is a sample, and a sample is not encrypted: make it without encryption, or give another name for an encrypted pod.`,
+      );
+    if ((await host.pods.names()).includes(name)) {
+      if (encrypt && (await isPlaintext(name)))
+        throw new Refusal(
+          `A pod named ${name} exists already, and it is not encrypted: give another name for an encrypted pod.`,
+        );
       return { pod: name, made: false };
-    if (host.samples?.includes(name)) {
+    }
+    if (sample) {
       await sampleFor(name);
       return { pod: name, loaded: true };
     }
@@ -813,16 +825,53 @@ export function podApi(host: PodHost) {
     return { pod, made: true };
   }
 
+  /** Reads the pod's header for `secret`, opening no pod; `Unopened` when it is not the pod's. */
+  async function checkSecret(name: string, secret: string) {
+    if (secret.trim() === "")
+      throw new Unopened("incorrect secret", "no secret was given");
+    if (!(await host.pods.checkSecret(name, secret)))
+      throw new Unopened("incorrect secret", "the secret is not this pod's");
+  }
+
+  /** Whether the pod `name` opens with no secret and is not encrypted; a locked pod is encrypted. */
+  async function isPlaintext(name: string) {
+    try {
+      return !(await openOnce(name)).encrypted;
+    } catch (error) {
+      if (error instanceof Unopened) return false;
+      throw error;
+    }
+  }
+
+  /**
+   * Opens a locked pod with `secret` of this call alone, never joining an opening another call made with its own secret.
+   * The pod is kept when this instance holds none for the name, and closed when it does.
+   */
+  async function openLocked(name: string, secret: string) {
+    const own = await host.pods.open(name, { secret });
+    const other = opened.get(name);
+    const held =
+      other !== undefined &&
+      (await other.then(
+        () => true,
+        () => false,
+      ));
+    if (held || opened.has(name)) await own.close();
+    else opened.set(name, Promise.resolve(own));
+  }
+
   async function unlock({ pod: given, secret = "" }: Input<"unlock">) {
     const name = await known(given);
+    let pod: Pod | undefined;
     try {
-      await openOnce(name);
+      pod = await openOnce(name);
     } catch (error) {
       if (!(error instanceof Unopened)) throw error;
       if (secret.trim() === "")
         throw new Unopened("incorrect secret", "no secret was given");
-      await openOnce(name, { secret });
+      await openLocked(name, secret);
     }
+    if (pod?.encrypted) await checkSecret(name, secret);
     return { pod: name, opened: true };
   }
 

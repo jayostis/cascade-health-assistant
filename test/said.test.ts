@@ -1,0 +1,178 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+import { describe, expect, it } from "vitest";
+import {
+  dayOrAsWritten,
+  reviewSaid,
+  rowSaid,
+  stepWhenSaid,
+  utcInstant,
+} from "../said.ts";
+
+const item = { name: "Latex", one: "allergy" };
+
+/**
+ * What a What needs review query binds to `?needs`: each plain value, and one example of each value built by CONCAT.
+ * An example is made of the CONCAT's own pieces, a quoted piece as written, an `IF` as its last quoted piece, a
+ * `SUBSTR` as a date and any other as the number 3, so a change to a piece of the query changes the example.
+ */
+function needsIn(text: string) {
+  const literals: string[] = [];
+  const concatenated: string[] = [];
+  for (const bound of text.matchAll(/BIND\s*\(((?:(?!BIND)[\s\S])*?)\s+AS\s+\?needs\)/g)) {
+    const expression = bound[1]!;
+    const built = /^\s*CONCAT\s*\(([\s\S]*)\)\s*$/.exec(expression);
+    if (built !== null) concatenated.push(example(built[1]!));
+    else literals.push(...[...expression.matchAll(/"([^"]*)"/g)].map((quoted) => quoted[1]!));
+  }
+  for (const pair of text.matchAll(/\(cascade:\w+\s+"([^"]+)"\)/g)) literals.push(pair[1]!);
+  return { literals, concatenated };
+}
+
+/** One value of a CONCAT, from its arguments `"words ", STR(?n), IF(?n = 1, " one", " ones")`. */
+function example(args: string): string {
+  const pieces: string[] = [];
+  let depth = 0;
+  let start = 0;
+  let quoted = false;
+  for (let at = 0; at <= args.length; at++) {
+    const char = args[at];
+    if (char === '"') quoted = !quoted;
+    else if (quoted) continue;
+    else if (char === "(") depth++;
+    else if (char === ")") depth--;
+    else if ((char === "," && depth === 0) || char === undefined) {
+      pieces.push(args.slice(start, at).trim());
+      start = at + 1;
+    }
+  }
+  return pieces
+    .map((piece) =>
+      piece.startsWith('"')
+        ? piece.slice(1, -1)
+        : piece.startsWith("IF")
+          ? [...piece.matchAll(/"([^"]*)"/g)].at(-1)![1]!
+          : piece.startsWith("SUBSTR")
+            ? "2024-05-01"
+            : "3",
+    )
+    .join("");
+}
+
+/**
+ * What the three What needs review questions of the vocabulary the installed runtime carries bind to `?needs`;
+ * `change` edits each query's text first.
+ */
+function reviewNeeds(change: (text: string) => string = (text) => text) {
+  const components = join(
+    dirname(createRequire(import.meta.url).resolve("cascade-runtime/package.json")),
+    "components",
+    "cascade-vocabulary",
+  );
+  const version = readdirSync(components, { withFileTypes: true }).find((entry) => entry.isDirectory())!.name;
+  const all = { literals: [] as string[], concatenated: [] as string[] };
+  for (const kind of ["entry", "judgment", "record"]) {
+    const found = needsIn(
+      change(readFileSync(join(components, version, "queries", "questions", kind, "What needs review.rq"), "utf8")),
+    );
+    all.literals.push(...found.literals);
+    all.concatenated.push(...found.concatenated);
+  }
+  return all;
+}
+
+/**
+ * The app says what the pod holds in sentences a person reads: why an entry needs review, the day a version arrived, a
+ * date inside a sentence in words, a count of submitters in words. A table row or a label keeps its short form.
+ */
+describe("Saying review reasons, dates and counts in words · reviewSaid(), stepWhenSaid(), dayOrAsWritten()", () => {
+  describe("reviewSaid(row, item)", () => {
+    it("says a sentence, not `name: needs.`, for every value the vocabulary's three What needs review questions bind", () => {
+      const { literals, concatenated } = reviewNeeds();
+      expect(literals.length, `read ${literals.length} values`).toBeGreaterThanOrEqual(14);
+      for (const value of literals) {
+        const sentence = reviewSaid({ needs: value }, item);
+        expect(sentence, value).not.toBe(`Latex: ${value}.`);
+        expect(sentence, `${value}: ${sentence}`).toContain("Latex");
+      }
+      expect(concatenated.length, concatenated.join(" | ")).toBe(2);
+    });
+
+    it("says a sentence for each value the vocabulary builds by CONCAT, built from the query's own pieces", () => {
+      for (const value of reviewNeeds().concatenated)
+        expect(reviewSaid({ needs: value }, item), value).not.toBe(`Latex: ${value}.`);
+    });
+
+    it("says the day of a value built by CONCAT in words", () => {
+      expect(reviewSaid({ needs: "this source reports 3 records at states older than it reported on 2024-05-01" }, item)).toBe(
+        "The source reports Latex and 2 more at states older than it reported on 1 May 2024.",
+      );
+    });
+
+    it("keeps `name: needs.` for a value built by CONCAT once the query changes a tail of it", () => {
+      const { concatenated } = reviewNeeds((text) => text.replace('" behind"', '" late"'));
+      expect(
+        concatenated.some((value) => reviewSaid({ needs: value }, item) === `Latex: ${value}.`),
+        concatenated.join(" | "),
+      ).toBe(true);
+    });
+
+    it("keeps `name: needs.` for a value no one has written a sentence for", () => {
+      expect(reviewSaid({ needs: "something new" }, item)).toBe("Latex: something new.");
+    });
+
+    it("finds the plain values of a query, and an example of each built by CONCAT from its own pieces", () => {
+      expect(
+        needsIn(
+          'BIND ("9999-12-31" AS ?to) BIND ("a" AS ?needs) BIND (IF(?x, "b", "c") AS ?needs) ' +
+            '{ VALUES (?kind ?needs) { (cascade:K "d") } }' +
+            'BIND (CONCAT("this is new ", STR(?n), IF(?n = 1, " one", " ones"), " on ", SUBSTR(STR(?d), 1, 10)) AS ?needs)',
+        ),
+      ).toEqual({ literals: ["a", "b", "c", "d"], concatenated: ["this is new 3 ones on 2024-05-01"] });
+    });
+  });
+
+  describe("utcInstant(asOf)", () => {
+    it("returns undefined, and does not throw, for text that is not an instant", () => {
+      for (const text of ["x", "", "yesterday", "2024-13-45T00:00:00Z"])
+        expect(utcInstant(text), JSON.stringify(text)).toBeUndefined();
+    });
+
+    it("returns an instant in UTC for one with a timezone", () => {
+      expect(utcInstant("2024-02-01T09:00:00+02:00")).toBe("2024-02-01T07:00:00Z");
+    });
+  });
+
+  describe("stepWhenSaid(step)", () => {
+    it("says the day a new version arrived in words: `on 17 October 2026`", () => {
+      expect(stepWhenSaid({ arrived: "2026-10-17T12:00:00" })).toBe("on 17 October 2026");
+    });
+
+    it("says the world's date a version's import answered as of, in the same words", () => {
+      expect(stepWhenSaid({ arrived: "2026-10-17T12:00:00", asOf: "2025-02-01T23:59:59Z" })).toBe("as of 1 February 2025");
+    });
+  });
+
+  describe("dayOrAsWritten(text)", () => {
+    it("says a date and a time as the day in words", () => {
+      expect(dayOrAsWritten("2024-02-01")).toBe("1 February 2024");
+      expect(dayOrAsWritten("2024-02-01T07:00:00Z")).toBe("1 February 2024");
+    });
+
+    it("says text that is not a real day as it was written, and nothing for no text", () => {
+      expect(dayOrAsWritten("2024-13-45")).toBe("2024-13-45");
+      expect(dayOrAsWritten("soon")).toBe("soon");
+      expect(dayOrAsWritten(undefined)).toBe("");
+    });
+  });
+
+  describe("rowSaid(row)", () => {
+    it("says a count of submitters under ten in words, with or without contributing ones", () => {
+      const row = { variation: "v", classification: [] };
+      expect(rowSaid({ ...row, submitters: 3 })).toBe("ClinVar today gives no classification, three submitters.");
+      expect(rowSaid({ ...row, submitters: 1 })).toBe("ClinVar today gives no classification, one submitter.");
+      expect(rowSaid({ ...row, submitters: 12 })).toBe("ClinVar today gives no classification, 12 submitters.");
+    });
+  });
+});

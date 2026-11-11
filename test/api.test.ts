@@ -79,3 +79,30 @@ describe("Serving PodApi to the app's pages · appServer(), POST /api/<operation
     });
   });
 });
+
+/** What the server refuses before it answers: a request that names another host, and a method it does not serve. */
+describe("Guarding the server · guard()", () => {
+  it("responds 403 to a request whose `Host` is not the server's own address, on `/api/` in JSON and elsewhere as a page", async () => {
+    const api = await app.request("http://rebound.example/api/pods", {
+      method: "POST",
+      headers: { origin: ORIGIN, "content-type": "application/json" },
+      body: "{}",
+    });
+    expect(api.status).toBe(403);
+    expect(await api.json()).toEqual({ refused: "not this server's address" });
+    const page = await app.request("http://rebound.example/tools");
+    expect(page.status).toBe(403);
+    expect(await page.text()).toMatch(/<h1>Refused: not this server's address/);
+  });
+
+  it("responds 405 to a method that is neither GET nor POST", async () => {
+    for (const method of ["PUT", "DELETE", "PATCH"]) {
+      const refused = await app.request(`${ORIGIN}/api/pods`, { method });
+      expect(refused.status, method).toBe(405);
+    }
+  });
+
+  it("answers a GET on the server's own address", async () => {
+    expect((await app.request(`${ORIGIN}/tools`)).status).toBe(200);
+  });
+});

@@ -4,7 +4,11 @@
     "Loading the sample pod the app opens on · loadSample(), SAMPLE",
     "Serving PodApi to the app's pages · appServer(), POST /api/<operation>",
     "Listing what is worth a look in a pod · worthALook()",
+    "Saying review reasons, dates and counts in words · reviewSaid(), stepWhenSaid(), dayOrAsWritten()",
     "Tools a model reaches the app by · TOOLS, NEVER",
+    "Running the read tools over HTTP · GET /tools, POST /tools/<name>",
+    "Making and unlocking pods · api.makePod(), api.unlock()",
+    "Guarding the server · guard()",
     "Asking a model about a pod · GET /chat, POST /chat",
     "Checking a model's reply before a person sees it · POST /chat, data-reply",
     "Asking a model once more for a reply that was not checked · POST /chat, data-checking",
@@ -12,6 +16,7 @@
     "Saying what a model is doing while it works · workingSaid(), stepSaid(), stepsOf(), Working",
     "Summing up a reply's check in one line · Supporting",
     "Drawing a checked reply as cards · ReplyCards",
+    "Bringing a hospital's record into a pod · ConnectionBox",
     "Listing what a model looked at · LookedAt, sideSaid()"
   ],
   "build": [
