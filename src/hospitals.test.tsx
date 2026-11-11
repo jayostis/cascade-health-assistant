@@ -40,7 +40,8 @@ function boxOver(pod: string, connection: ConnectionNow, titles?: ReadonlyMap<st
       .replace(/&#x27;/g, "'")
       .replace(/\s+/g, " ")
       .trim();
-  return { said: text(html), button: text(/<button[^>]*>([^<]*)<\/button>/.exec(html)?.[1] ?? "") };
+  const buttons = [...html.matchAll(/<button[^>]*>([^<]*)<\/button>/g)];
+  return { said: text(html), button: text(buttons.at(-1)?.[1] ?? "") };
 }
 
 /**
