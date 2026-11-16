@@ -171,7 +171,7 @@ describe("Saying review reasons, dates and counts in words · reviewSaid(), step
     });
   });
 
-  describe("the codes a condition or procedure answer carries", () => {
+  describe("codesOf(answers)", () => {
     it("returns the one code a condition or a procedure row carries", () => {
       const answers = {
         "pod/My active conditions": [
