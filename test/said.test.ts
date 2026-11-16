@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  codesOf,
   dayOrAsWritten,
   keptTitle,
   personName,
@@ -167,6 +168,20 @@ describe("Saying review reasons, dates and counts in words · reviewSaid(), step
       expect(dayOrAsWritten("2024-13-45")).toBe("2024-13-45");
       expect(dayOrAsWritten("soon")).toBe("soon");
       expect(dayOrAsWritten(undefined)).toBe("");
+    });
+  });
+
+  describe("codesOf(answers)", () => {
+    it("returns the one code a condition or a procedure row carries", () => {
+      const answers = {
+        "pod/My active conditions": [
+          { entry: "c1", condition: "Asthma", conditionCode: "urn:test:icd/J45.909" },
+        ],
+        "pod/My procedures": [
+          { entry: "p1", procedure: "Draw", procedureCode: "urn:test:sct/82078001" },
+        ],
+      };
+      expect(codesOf(answers).sort()).toEqual(["urn:test:icd/J45.909", "urn:test:sct/82078001"]);
     });
   });
 
