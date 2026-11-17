@@ -41,7 +41,7 @@ import { addresses } from "../addresses.ts";
 import { type Model, modelFrom } from "../models.ts";
 import { maps } from "../pod-api.ts";
 import { podPath, trendPath } from "../pods.ts";
-import { CHANGED, changeSaid, entryId } from "../said.ts";
+import { type AnsweredRow, CHANGED, changeSaid, entryId } from "../said.ts";
 import { TOOLS } from "../tools.ts";
 import { refused } from "./api.ts";
 import type { ChatServed } from "./app.ts";
@@ -595,7 +595,7 @@ function ending(
   );
 }
 
-type Rows = readonly Readonly<Record<string, string>>[];
+type Rows = readonly AnsweredRow[];
 
 /** A question's rows in a pod, read through `api.ask`, as the checker asks for them. */
 const rowsOfPod =

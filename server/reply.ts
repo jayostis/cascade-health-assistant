@@ -10,6 +10,7 @@ import {
   type Ran,
   type Reply,
   replyContract,
+  type Row,
 } from "cascade-runtime";
 
 /**
@@ -146,7 +147,10 @@ function textsOf(reply: Reply): string[] {
       item.knowledge?.says ?? "",
       item.knowledge?.guideline ?? "",
       ...(item.facts ?? []).map(({ says }) => says),
-      ...(item.absences ?? []).flatMap(({ what, coverage }) => [what, coverage]),
+      ...(item.absences ?? []).flatMap(({ what, coverage }) => [
+        what,
+        coverage,
+      ]),
       ...(item.links ?? []).map(({ says }) => says),
     ]),
   ];
@@ -176,9 +180,7 @@ export function podOf(open: string, ran: readonly Ran[]): string | undefined {
  * would leave a second promise's rejection unhandled, which ends the process).
  */
 export function asker(
-  rows: (
-    question: string,
-  ) => Promise<readonly Readonly<Record<string, string>>[]>,
+  rows: (question: string) => Promise<readonly Row[]>,
 ): PodAsker["ask"] {
   const read = new Map<string, ReturnType<typeof rows>>();
   return (question) => {
