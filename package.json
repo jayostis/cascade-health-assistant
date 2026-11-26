@@ -9,7 +9,7 @@
   },
   "type": "module",
   "engines": {
-    "node": "^22.18.0 || >=23.6.0"
+    "node": ">=24"
   },
   "scripts": {
     "help": "node help.ts",
