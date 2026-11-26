@@ -181,6 +181,74 @@ describe("Drawing a checked reply as cards · ReplyCards", () => {
     });
   });
 
+  describe("given a fact that names the field it rests on", () => {
+    const CLINIC = "S3 Fernhill Family Clinic";
+    const NORTH = "S12 North Clinic";
+    /** What the runtime returns for `property: structuredDosage` of one source: the dosage's own line, then its dose. */
+    const DOSE = "structuredDosage 1/dosageDoseQuantity: unitText tablet, writtenValue";
+    const SCHEDULE =
+      "structuredDosage 1: dosageRepeatFrequency 3, dosageRepeatPeriod 1, dosageRepeatPeriodUnit d, dosageRouteCode Oral route (snomed:26643006)";
+
+    /** The fixture's first fact, now a drug that rests on `property` and holds `held`, from `sources`. */
+    const resting = (property: string, held: string[], sources: string[]) => {
+      const clone = structuredClone(checked) as unknown as {
+        items: { facts: { fact: { property?: string }; filled: Record<string, unknown> }[] }[];
+      };
+      const [fact] = clone.items[0]!.facts;
+      fact!.fact.property = property;
+      Object.assign(fact!.filled, { label: "lisinopril 10 MG Oral Tablet", held, sources });
+      delete fact!.filled.value;
+      delete fact!.filled.date;
+      return chipWith(draw(clone as unknown as CheckedReply), "lisinopril")!;
+    };
+
+    it("draws a dosage as a person reads it: the dose, how often, the route and the place", () => {
+      const chip = resting("structuredDosage", [SCHEDULE, `${DOSE} 2`], [CLINIC]);
+      expect(chip).toContain("Dose: 2 tablet · 3 per 1 day · Oral route");
+      expect(chip).toContain("from Fernhill Family Clinic");
+      for (const raw of ["structuredDosage", "writtenValue", "dosageRepeat", "snomed:", "S3"])
+        expect(chip, raw).not.toContain(raw);
+    });
+
+    it("draws a dose alone, from the part's own line", () => {
+      expect(resting("dosageDoseQuantity", [`${DOSE} 2`], [CLINIC])).toContain("Dose: 2 tablet");
+    });
+
+    it("draws each source's dose on a line of its own, with that source's place, when two sources disagree", () => {
+      const chip = resting("dosageDoseQuantity", [`S3: ${DOSE} 2`, `S12: ${DOSE} 1`], [CLINIC, NORTH]);
+      expect(chip).toMatch(/Dose: 2 tablet[^]*from Fernhill Family Clinic[^]*Dose: 1 tablet[^]*from North Clinic/);
+      expect(chip).not.toMatch(/S\d+/);
+    });
+
+    it("draws two sources that hold the same dose as one line naming both places", () => {
+      const chip = resting("dosageDoseQuantity", [`S3, S12: ${DOSE} 1`], [CLINIC, NORTH]);
+      expect(chip.match(/Dose: 1 tablet/g)).toHaveLength(1);
+      expect(chip).toContain("from Fernhill Family Clinic, North Clinic");
+    });
+
+    it("draws a coded value by its label, without the code", () => {
+      const chip = resting("dosageRouteCode", ["Oral route (snomed:26643006)"], [CLINIC]);
+      expect(chip).toContain("dosage route code: Oral route");
+      expect(chip).not.toContain("snomed");
+    });
+
+    it("draws any other field as its name in words and its value", () => {
+      expect(resting("medicationRequestIntent", ["order"], [CLINIC])).toContain("medication request intent: order");
+      expect(resting("dispenseDaysSupply", ["dispenseDaysSupply: unitText d, writtenValue 30"], [CLINIC])).toContain(
+        "dispense days supply: 30 d",
+      );
+    });
+
+    it("draws a line it cannot read as the pod gave it", () => {
+      expect(resting("note", ["a Note: take with food: or not"], [CLINIC])).toContain("take with food");
+    });
+
+    it("draws nothing of `held` for a fact that names no field, which the label, value and date already say", () => {
+      const chip = chipWith(draw(checked), "Thyrotropin")!;
+      expect(chip.match(/7\.9/g)).toHaveLength(1);
+    });
+  });
+
   describe("given a view entry whose IRI needs encoding", () => {
     it("encodes the last part of the IRI in the link", () => {
       const clone = structuredClone(checked) as unknown as {
