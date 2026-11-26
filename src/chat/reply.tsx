@@ -38,10 +38,15 @@ const sourcesOf = (sources: readonly string[]) => [
 const heldOf = ({ fact, filled }: Fact) => {
   const property = "property" in fact ? fact.property : undefined;
   if (filled === undefined || property === undefined) return [];
-  const place = new Map(filled.sources.map((source) => source.split(/ (.*)/s)));
+  const place = new Map(
+    filled.sources.map((source) => {
+      const [short = "", ...place] = source.split(" ");
+      return [short, place.join(" ")] as const;
+    }),
+  );
   return heldLines(filled.held, property).map(({ text, by }) => ({
     text,
-    places: [...new Set(by.map((short) => place.get(short) ?? short))],
+    places: [...new Set(by.map((short) => place.get(short) || short))],
   }));
 };
 
