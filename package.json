@@ -42,7 +42,7 @@
     "@openrouter/ai-sdk-provider": "3.1.0",
     "@the-cascade-protocol/sandbox": "file:demo-hospital",
     "ai": "7.0.129",
-    "cascade-runtime": "https://github.com/jayostis/cascade-runtime-js/releases/download/build-95e98c82525e50cc3bc081d9d7dafe324f3c3dff/cascade-runtime-0.0.0-commit-95e98c82525e50cc3bc081d9d7dafe324f3c3dff.tgz",
+    "cascade-runtime": "https://github.com/the-cascade-protocol/cascade-runtime-js/releases/download/build-5f0a7232a8f644ad9b2569a3551531153087455e/cascade-runtime-0.0.0-commit-5f0a7232a8f644ad9b2569a3551531153087455e.tgz",
     "hono": "4.13.13",
     "react": "19.3.0",
     "react-dom": "19.3.0",
