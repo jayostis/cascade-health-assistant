@@ -6,6 +6,7 @@ import { useState } from "react";
 import { day } from "../../said.ts";
 import { useAddress } from "../address.tsx";
 import { muted, quiet } from "../look.ts";
+import { heldLines } from "./held.ts";
 
 /** How many points show before "Show items": a person reads the first few, and the rest are one click away. */
 export const SHOWN = 4;
@@ -29,6 +30,20 @@ const placeOf = (source: string) => source.replace(/^S\d+ /, "");
 const sourcesOf = (sources: readonly string[]) => [
   ...new Set(sources.map(placeOf)),
 ];
+
+/**
+ * What the pod holds of the field a fact names, a line for each source that holds it, with the place each is from. A
+ * fact that names no field has none to draw: what `held` has of it is the label, value and date the chip already shows.
+ */
+const heldOf = ({ fact, filled }: Fact) => {
+  const property = "property" in fact ? fact.property : undefined;
+  if (filled === undefined || property === undefined) return [];
+  const place = new Map(filled.sources.map((source) => source.split(/ (.*)/s)));
+  return heldLines(filled.held, property).map(({ text, by }) => ({
+    text,
+    places: [...new Set(by.map((short) => place.get(short) ?? short))],
+  }));
+};
 
 /**
  * Why a fact could not be confirmed, in the checker's words: `no such field: end`. What it missed of a record that is
@@ -77,12 +92,14 @@ function FactChip({ checked, pod }: { checked: Fact; pod: string }) {
     filled?.date === undefined
       ? undefined
       : `${DATE_WORDS[filled.dateKind ?? "when"]}${day(filled.date)}`;
+  const held = heldOf(checked);
   const places = filled === undefined ? [] : sourcesOf(filled.sources);
+  const named = held.some((line) => line.places.length > 0);
   const what = [
     filled?.label,
     filled?.value,
     when,
-    places.length === 0 ? undefined : `from ${places.join(", ")}`,
+    places.length === 0 || named ? undefined : `from ${places.join(", ")}`,
   ].filter((part) => part !== undefined && part !== "");
   /** Words of the entry's text, shown only once the check found them there whole. */
   const quoted = verdict.ok ? checked.fact.quote : undefined;
@@ -96,7 +113,14 @@ function FactChip({ checked, pod }: { checked: Fact; pod: string }) {
       ) : (
         <strong className="font-semibold">couldn't confirm</strong>
       )}
-      <span>{what.length > 0 ? what.join(" · ") : "an entry"}</span>
+      <span>
+        {what.length > 0 ? what.join(" · ") : "an entry"}
+        {held.map(({ text, places }) => (
+          <span className="held block" key={text}>
+            {places.length === 0 ? text : `${text} · from ${places.join(", ")}`}
+          </span>
+        ))}
+      </span>
       {quoted !== undefined && <q className="quote">{quoted}</q>}
       {!verdict.ok && (
         <span className="text-[0.8rem]">({whyNot(checked)})</span>
