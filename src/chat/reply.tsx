@@ -1,9 +1,9 @@
 // A checked reply as the chat draws it: each point of the model's a card, in the order the model ranked them; each fact
 // a chip, confirmed or not, showing what the pod holds (never the model's words for it) and opening the entry, whose
 // page says where it came from; each absence with what was searched; the model's own knowledge labelled as such.
-import type { CheckedReply } from "cascade-runtime";
+import { type CheckedReply, heldInWords } from "cascade-runtime";
 import { useState } from "react";
-import { day } from "../../said.ts";
+import { day, placeName } from "../../said.ts";
 import { useAddress } from "../address.tsx";
 import { muted, quiet } from "../look.ts";
 
@@ -24,11 +24,38 @@ const DATE_WORDS = {
 } as const;
 
 /** A source as the person knows it: `S8 Kestrel Harbor Hospital` is the hospital, S8 being the model's own legend. */
-const placeOf = (source: string) => source.replace(/^S\d+ /, "");
+const placeOf = (source: string) => source.replace(/^S\d+ ?/, "") || placeName();
 
 const sourcesOf = (sources: readonly string[]) => [
   ...new Set(sources.map(placeOf)),
 ];
+
+/**
+ * What the pod holds of the field a fact names, in the runtime's words, a block for each record that holds it with the
+ * places that state it (every place the fact is from, for a value of the entry as a whole, each of which is a block of
+ * its own: it is not one record's). The dosages of one record are the lines of one block. Two blocks of one place are
+ * told apart by what they hold, not by a number the record does not carry. A fact that names no field has none to
+ * draw: what `held` has of it is the label, value and date the chip already shows.
+ */
+const heldOf = ({ fact, filled }: Fact) => {
+  if (filled === undefined || !("property" in fact) || fact.property === undefined) return [];
+  const place = new Map(
+    filled.sources.map((source) => {
+      const [short = "", ...place] = source.split(" ");
+      return [short, place.join(" ")] as const;
+    }),
+  );
+  const records = new Map<string, { places: Set<string>; lines: string[] }>();
+  filled.held.forEach((item, at) => {
+    const key = item.records.length === 0 ? `entry ${at}` : item.records.join("\n");
+    const block = records.get(key) ?? { places: new Set<string>(), lines: [] };
+    records.set(key, block);
+    const where = item.sources.length === 0 ? sourcesOf(filled.sources) : item.sources.map((short) => place.get(short) || placeName());
+    for (const each of where) block.places.add(each);
+    block.lines.push(...heldInWords(item));
+  });
+  return [...records.values()].map(({ places, lines }) => ({ places: [...places], lines }));
+};
 
 /**
  * Why a fact could not be confirmed, in the checker's words: `no such field: end`. What it missed of a record that is
@@ -77,12 +104,13 @@ function FactChip({ checked, pod }: { checked: Fact; pod: string }) {
     filled?.date === undefined
       ? undefined
       : `${DATE_WORDS[filled.dateKind ?? "when"]}${day(filled.date)}`;
+  const held = heldOf(checked);
   const places = filled === undefined ? [] : sourcesOf(filled.sources);
   const what = [
     filled?.label,
     filled?.value,
     when,
-    places.length === 0 ? undefined : `from ${places.join(", ")}`,
+    places.length === 0 || held.length > 0 ? undefined : `from ${places.join(", ")}`,
   ].filter((part) => part !== undefined && part !== "");
   /** Words of the entry's text, shown only once the check found them there whole. */
   const quoted = verdict.ok ? checked.fact.quote : undefined;
@@ -96,7 +124,19 @@ function FactChip({ checked, pod }: { checked: Fact; pod: string }) {
       ) : (
         <strong className="font-semibold">couldn't confirm</strong>
       )}
-      <span>{what.length > 0 ? what.join(" · ") : "an entry"}</span>
+      <span>
+        {what.length > 0 ? what.join(" · ") : "an entry"}
+        {held.map(({ places, lines }, at) => (
+          <span className={held.length > 1 ? "held mt-1 block border-l-2 border-accent pl-2" : "held block"} key={at}>
+            {held.length > 1 && <span className="block font-semibold">{places.join(", ")}</span>}
+            {lines.map((line, n) => (
+              <span className="block" key={n}>
+                {held.length > 1 || places.length === 0 ? line : `${line} · from ${places.join(", ")}`}
+              </span>
+            ))}
+          </span>
+        ))}
+      </span>
       {quoted !== undefined && <q className="quote">{quoted}</q>}
       {!verdict.ok && (
         <span className="text-[0.8rem]">({whyNot(checked)})</span>
