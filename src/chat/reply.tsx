@@ -32,7 +32,8 @@ const sourcesOf = (sources: readonly string[]) => [
 ];
 
 /**
- * What the pod holds of the field a fact names, a line for each source that holds it, with the place each is from. A
+ * What the pod holds of the field a fact names, a line for each source that holds it, with the place each is from (the
+ * one place when only one source holds it, and the lines do not say). A
  * fact that names no field has none to draw: what `held` has of it is the label, value and date the chip already shows.
  */
 const heldOf = ({ fact, filled }: Fact) => {
@@ -46,7 +47,10 @@ const heldOf = ({ fact, filled }: Fact) => {
   );
   return heldLines(filled.held, property).map(({ text, by }) => ({
     text,
-    places: [...new Set(by.map((short) => place.get(short) || short))],
+    places:
+      by.length === 0
+        ? sourcesOf(filled.sources)
+        : [...new Set(by.map((short) => place.get(short) || short))],
   }));
 };
 
@@ -99,12 +103,11 @@ function FactChip({ checked, pod }: { checked: Fact; pod: string }) {
       : `${DATE_WORDS[filled.dateKind ?? "when"]}${day(filled.date)}`;
   const held = heldOf(checked);
   const places = filled === undefined ? [] : sourcesOf(filled.sources);
-  const named = held.some((line) => line.places.length > 0);
   const what = [
     filled?.label,
     filled?.value,
     when,
-    places.length === 0 || named ? undefined : `from ${places.join(", ")}`,
+    places.length === 0 || held.length > 0 ? undefined : `from ${places.join(", ")}`,
   ].filter((part) => part !== undefined && part !== "");
   /** Words of the entry's text, shown only once the check found them there whole. */
   const quoted = verdict.ok ? checked.fact.quote : undefined;
@@ -120,8 +123,8 @@ function FactChip({ checked, pod }: { checked: Fact; pod: string }) {
       )}
       <span>
         {what.length > 0 ? what.join(" · ") : "an entry"}
-        {held.map(({ text, places }) => (
-          <span className="held block" key={text}>
+        {held.map(({ text, places }, at) => (
+          <span className="held block" key={at}>
             {places.length === 0 ? text : `${text} · from ${places.join(", ")}`}
           </span>
         ))}
