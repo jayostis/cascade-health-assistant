@@ -49,7 +49,7 @@ itself.
 
 It is written in TypeScript, on [React](https://react.dev) with
 [React Router](https://reactrouter.com), built by [Vite](https://vite.dev);
-its server is [Hono](https://hono.dev). Node 22.18 or later runs its `.ts`
+its server is [Hono](https://hono.dev). Node 24 or later runs its `.ts`
 files as they are. The chat with a model is the starter's `chat` add-on, with
 its section at the end of this file.
 
