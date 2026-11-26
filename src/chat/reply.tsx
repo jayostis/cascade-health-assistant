@@ -1,12 +1,11 @@
 // A checked reply as the chat draws it: each point of the model's a card, in the order the model ranked them; each fact
 // a chip, confirmed or not, showing what the pod holds (never the model's words for it) and opening the entry, whose
 // page says where it came from; each absence with what was searched; the model's own knowledge labelled as such.
-import type { CheckedReply } from "cascade-runtime";
+import { type CheckedReply, heldInWords } from "cascade-runtime";
 import { useState } from "react";
 import { day } from "../../said.ts";
 import { useAddress } from "../address.tsx";
 import { muted, quiet } from "../look.ts";
-import { heldLines } from "./held.ts";
 
 /** How many points show before "Show items": a person reads the first few, and the rest are one click away. */
 export const SHOWN = 4;
@@ -32,26 +31,33 @@ const sourcesOf = (sources: readonly string[]) => [
 ];
 
 /**
- * What the pod holds of the field a fact names, a line for each source that holds it, with the place each is from (the
- * one place when only one source holds it, and the lines do not say). A
- * fact that names no field has none to draw: what `held` has of it is the label, value and date the chip already shows.
+ * What the pod holds of the field a fact names, in the runtime's words, a block for each record that holds it with the
+ * places that state it (every place the fact is from, for a value of the entry as a whole). When the blocks are more
+ * than one, two of the same place are numbered. A fact that names no field has none to draw: what `held` has of it is
+ * the label, value and date the chip already shows.
  */
 const heldOf = ({ fact, filled }: Fact) => {
-  const property = "property" in fact ? fact.property : undefined;
-  if (filled === undefined || property === undefined) return [];
+  if (filled === undefined || !("property" in fact) || fact.property === undefined) return [];
   const place = new Map(
     filled.sources.map((source) => {
       const [short = "", ...place] = source.split(" ");
       return [short, place.join(" ")] as const;
     }),
   );
-  return heldLines(filled.held, property).map(({ text, by }) => ({
-    text,
-    places:
-      by.length === 0
-        ? sourcesOf(filled.sources)
-        : [...new Set(by.map((short) => place.get(short) || short))],
-  }));
+  const records = new Map<string, { places: Set<string>; lines: string[] }>();
+  for (const item of filled.held) {
+    const key = item.records.join("\n");
+    const block = records.get(key) ?? { places: new Set<string>(), lines: [] };
+    records.set(key, block);
+    const where = item.sources.length === 0 ? sourcesOf(filled.sources) : item.sources.map((short) => place.get(short) || short);
+    for (const each of where) block.places.add(each);
+    block.lines.push(...heldInWords(item));
+  }
+  const blocks = [...records.values()].map(({ places, lines }) => ({ places: [...places], lines }));
+  return blocks.map((block) => {
+    const same = blocks.filter((other) => other.places.join() === block.places.join());
+    return { ...block, record: same.length > 1 ? same.indexOf(block) + 1 : undefined };
+  });
 };
 
 /**
@@ -123,9 +129,18 @@ function FactChip({ checked, pod }: { checked: Fact; pod: string }) {
       )}
       <span>
         {what.length > 0 ? what.join(" · ") : "an entry"}
-        {held.map(({ text, places }, at) => (
-          <span className="held block" key={at}>
-            {places.length === 0 ? text : `${text} · from ${places.join(", ")}`}
+        {held.map(({ places, record, lines }, at) => (
+          <span className={held.length > 1 ? "held mt-1 block border-l-2 border-accent pl-2" : "held block"} key={at}>
+            {held.length > 1 && (
+              <span className="block font-semibold">
+                {[...places, ...(record === undefined ? [] : [`record ${record}`])].join(", ")}
+              </span>
+            )}
+            {lines.map((line, n) => (
+              <span className="block" key={n}>
+                {held.length > 1 || places.length === 0 ? line : `${line} · from ${places.join(", ")}`}
+              </span>
+            ))}
           </span>
         ))}
       </span>
