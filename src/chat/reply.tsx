@@ -3,7 +3,7 @@
 // page says where it came from; each absence with what was searched; the model's own knowledge labelled as such.
 import { type CheckedReply, heldInWords } from "cascade-runtime";
 import { useState } from "react";
-import { day } from "../../said.ts";
+import { day, placeName } from "../../said.ts";
 import { useAddress } from "../address.tsx";
 import { muted, quiet } from "../look.ts";
 
@@ -24,7 +24,7 @@ const DATE_WORDS = {
 } as const;
 
 /** A source as the person knows it: `S8 Kestrel Harbor Hospital` is the hospital, S8 being the model's own legend. */
-const placeOf = (source: string) => source.replace(/^S\d+ /, "");
+const placeOf = (source: string) => source.replace(/^S\d+ ?/, "") || placeName();
 
 const sourcesOf = (sources: readonly string[]) => [
   ...new Set(sources.map(placeOf)),
@@ -32,9 +32,10 @@ const sourcesOf = (sources: readonly string[]) => [
 
 /**
  * What the pod holds of the field a fact names, in the runtime's words, a block for each record that holds it with the
- * places that state it (every place the fact is from, for a value of the entry as a whole). When the blocks are more
- * than one, two of the same place are numbered. A fact that names no field has none to draw: what `held` has of it is
- * the label, value and date the chip already shows.
+ * places that state it (every place the fact is from, for a value of the entry as a whole, each of which is a block of
+ * its own: it is not one record's). The dosages of one record are the lines of one block. Two blocks of one place are
+ * told apart by what they hold, not by a number the record does not carry. A fact that names no field has none to
+ * draw: what `held` has of it is the label, value and date the chip already shows.
  */
 const heldOf = ({ fact, filled }: Fact) => {
   if (filled === undefined || !("property" in fact) || fact.property === undefined) return [];
@@ -45,19 +46,15 @@ const heldOf = ({ fact, filled }: Fact) => {
     }),
   );
   const records = new Map<string, { places: Set<string>; lines: string[] }>();
-  for (const item of filled.held) {
-    const key = item.records.join("\n");
+  filled.held.forEach((item, at) => {
+    const key = item.records.length === 0 ? `entry ${at}` : item.records.join("\n");
     const block = records.get(key) ?? { places: new Set<string>(), lines: [] };
     records.set(key, block);
-    const where = item.sources.length === 0 ? sourcesOf(filled.sources) : item.sources.map((short) => place.get(short) || short);
+    const where = item.sources.length === 0 ? sourcesOf(filled.sources) : item.sources.map((short) => place.get(short) || placeName());
     for (const each of where) block.places.add(each);
     block.lines.push(...heldInWords(item));
-  }
-  const blocks = [...records.values()].map(({ places, lines }) => ({ places: [...places], lines }));
-  return blocks.map((block) => {
-    const same = blocks.filter((other) => other.places.join() === block.places.join());
-    return { ...block, record: same.length > 1 ? same.indexOf(block) + 1 : undefined };
   });
+  return [...records.values()].map(({ places, lines }) => ({ places: [...places], lines }));
 };
 
 /**
@@ -129,13 +126,9 @@ function FactChip({ checked, pod }: { checked: Fact; pod: string }) {
       )}
       <span>
         {what.length > 0 ? what.join(" · ") : "an entry"}
-        {held.map(({ places, record, lines }, at) => (
+        {held.map(({ places, lines }, at) => (
           <span className={held.length > 1 ? "held mt-1 block border-l-2 border-accent pl-2" : "held block"} key={at}>
-            {held.length > 1 && (
-              <span className="block font-semibold">
-                {[...places, ...(record === undefined ? [] : [`record ${record}`])].join(", ")}
-              </span>
-            )}
+            {held.length > 1 && <span className="block font-semibold">{places.join(", ")}</span>}
             {lines.map((line, n) => (
               <span className="block" key={n}>
                 {held.length > 1 || places.length === 0 ? line : `${line} · from ${places.join(", ")}`}

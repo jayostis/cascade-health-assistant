@@ -250,7 +250,7 @@ describe("Drawing a checked reply as cards · ReplyCards", () => {
       for (const raw of rawWords) expect(chip, raw).not.toContain(raw);
     });
 
-    it("tells two records of one source apart, each dosage in its own numbered block, never taken together", () => {
+    it("tells two records of one source apart: a block each, both led by the place alone, no number", () => {
       const chip = resting(
         "structuredDosage",
         [
@@ -259,9 +259,102 @@ describe("Drawing a checked reply as cards · ReplyCards", () => {
         ],
         [FERNHILL],
       );
-      expect(chip).toMatch(/Fernhill Family Clinic, record 1[^]*Dosage: 2 tablet[^]*Fernhill Family Clinic, record 2[^]*Dosage: at most 1 tablet/);
-      expect(chip).not.toMatch(/Dosage: 2 tablet[^]*Dosage: 2 tablet/);
+      expect(chip).toMatch(/Fernhill Family Clinic<\/span>[^]*Dosage: 2 tablet[^]*Fernhill Family Clinic<\/span>[^]*Dosage: at most 1 tablet/);
+      expect(chip.match(/class="held /g)).toHaveLength(2);
+      expect(chip).not.toMatch(/record \d/);
       for (const raw of rawWords) expect(chip, raw).not.toContain(raw);
+    });
+
+    // The runtime's own items for "keeps two records of one source apart" (test/held.test.ts at the pinned build), from
+    // the vocabulary's fixture `a-medicine-with-two-dosages-shows-each-dose-on-its-own-dosage`: one record holds two
+    // dosages, another record of the same source holds a third.
+    const ROUTE = { name: "dosageRouteCode", value: "http://snomed.info/id/26643006" };
+    const EVERY_DAY = [
+      { name: "dosageRepeatPeriod", value: "1" },
+      { name: "dosageRepeatPeriodUnit", value: "d" },
+    ];
+    const A_10: HeldItem = {
+      sources: ["S3"],
+      records: [RECORD_3],
+      part: "structuredDosage 1",
+      fields: [
+        { name: "dosageRepeatFrequency", value: "1" },
+        ...EVERY_DAY,
+        ROUTE,
+        { name: "dosageRouteCodeInOtherSystem", value: "C38288" },
+      ],
+      parts: [
+        {
+          part: "structuredDosage 1/dosageDoseQuantity",
+          fields: [
+            { name: "decimalValue", value: "10" },
+            { name: "ucumUnit", value: "mg" },
+            { name: "unitText", value: "milligram" },
+            { name: "writtenValue", value: "10.0" },
+          ],
+        },
+      ],
+    };
+    const A_2: HeldItem = {
+      sources: ["S3"],
+      records: [RECORD_3],
+      part: "structuredDosage 2",
+      fields: [
+        { name: "dosageBoundsPeriodEnd", value: "2026-03-01T10:00:00Z" },
+        { name: "dosageBoundsPeriodStart", value: "2026-02-01" },
+        { name: "dosageRepeatFrequency", value: "2" },
+        ...EVERY_DAY,
+      ],
+      parts: [
+        {
+          part: "structuredDosage 2/paddedDateTime dosageBoundsPeriodEnd",
+          fields: [{ name: "timeAsWritten", value: "2026-03-01T10:00Z" }],
+        },
+      ],
+    };
+    const B_AT_MOST_2: HeldItem = {
+      sources: ["S3"],
+      records: [RECORD_3_ELSEWHERE],
+      part: "structuredDosage 1",
+      fields: [{ name: "dosageRepeatFrequency", value: "1" }, ...EVERY_DAY, ROUTE],
+      parts: [
+        {
+          part: "structuredDosage 1/dosageDoseQuantity",
+          fields: [
+            { name: "decimalValue", value: "2" },
+            { name: "quantityComparator", value: "<=" },
+            { name: "unitText", value: "tablet" },
+            { name: "writtenValue", value: "2" },
+          ],
+        },
+      ],
+    };
+
+    it("draws the two dosages of one record as two lines of one block, in the runtime's order, and the other record's as a second", () => {
+      const chip = resting("structuredDosage", [A_10, A_2, B_AT_MOST_2], [FERNHILL]);
+      const [first, second, ...rest] = chip.split(/(?=<span class="held )/).slice(1);
+      expect(rest).toHaveLength(0);
+      expect(first!.match(/Dosage: /g)).toHaveLength(2);
+      expect(first).toMatch(
+        /Dosage: 10\.0 milligram · 1 per 1 day · route snomed:26643006[^]*Dosage: 2 per 1 day · from 2026-02-01 · until 2026-03-01T10:00Z/,
+      );
+      expect(first).not.toContain("at most");
+      expect(second).toContain("Dosage: at most 2 tablet · 1 per 1 day · route snomed:26643006");
+      expect(second!.match(/Dosage: /g)).toHaveLength(1);
+      expect(chip.match(/Fernhill Family Clinic<\/span>/g)).toHaveLength(2);
+    });
+
+    it("draws a source with no place name as `Somewhere unnamed`, never its short name", () => {
+      const chip = resting("dosageDoseQuantity", [dosage(["S3"], [RECORD_3], { written: "2" })], ["S3"]);
+      expect(chip).toContain("Dosage: 2 tablet · 3 per 1 day · Oral route (snomed:26643006) · from Somewhere unnamed");
+      for (const raw of rawWords) expect(chip, raw).not.toContain(raw);
+      const two = resting(
+        "dosageDoseQuantity",
+        [dosage(["S3"], [RECORD_3], { written: "2" }), dosage(["S12"], [RECORD_12], { written: "1" })],
+        ["S3", NORTH],
+      );
+      expect(two).toMatch(/Somewhere unnamed<\/span>[^]*Dosage: 2 tablet[^]*North Clinic<\/span>[^]*Dosage: 1 tablet/);
+      for (const raw of rawWords) expect(two, raw).not.toContain(raw);
     });
 
     it("draws a comparator in front of its number: `at most 2 tablet`", () => {
@@ -305,9 +398,28 @@ describe("Drawing a checked reply as cards · ReplyCards", () => {
       expect(chip).toContain("Medication request intent: order · from Fernhill Family Clinic, North Clinic");
     });
 
-    it("draws nothing of `held` for a fact that names no field, which the label, value and date already say", () => {
+    it("draws two values of the entry as a whole that differ as two blocks, never one under every place", () => {
+      const chip = resting(
+        "medicationRequestIntent",
+        [
+          { sources: [], records: [], fields: [{ name: "medicationRequestIntent", value: "order" }] },
+          { sources: [], records: [], fields: [{ name: "medicationRequestIntent", value: "plan" }] },
+        ],
+        [FERNHILL, NORTH],
+      );
+      expect(chip.match(/class="held /g)).toHaveLength(2);
+      const [order, plan] = chip.split(/(?=<span class="held )/).slice(1);
+      expect(order).toContain("Medication request intent: order");
+      expect(order).not.toContain("intent: plan");
+      expect(plan).toContain("Medication request intent: plan");
+      expect(plan).not.toContain("intent: order");
+    });
+
+    it("draws nothing of `held` for a fact that names no field, which the label, value, date and place already say", () => {
       const chip = chipWith(draw(checked), "Thyrotropin")!;
       expect(chip.match(/7\.9/g)).toHaveLength(1);
+      expect(chip).toContain("from Kestrel Harbor Hospital");
+      expect(chip).not.toContain('class="held');
     });
   });
 
