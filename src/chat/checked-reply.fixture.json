@@ -184,7 +184,20 @@
             "date": "2026-03-03",
             "dateKind": "when",
             "held": [
-              "7.9"
+              {
+                "records": [
+                  "urn:uuid:59d7ce8e-44ab-8cbb-86f7-6ee04c648a4c"
+                ],
+                "sources": [
+                  "S8"
+                ],
+                "fields": [
+                  {
+                    "name": "value",
+                    "value": "7.9"
+                  }
+                ]
+              }
             ],
             "sources": [
               "S8 Kestrel Harbor Hospital"
@@ -243,7 +256,20 @@
             "date": "2026-03-03",
             "dateKind": "when",
             "held": [
-              "1.0"
+              {
+                "records": [
+                  "urn:uuid:6e32098b-2539-85f3-a2d6-78d20f9c62d9"
+                ],
+                "sources": [
+                  "S8"
+                ],
+                "fields": [
+                  {
+                    "name": "value",
+                    "value": "1.0"
+                  }
+                ]
+              }
             ],
             "sources": [
               "S8 Kestrel Harbor Hospital"
@@ -431,7 +457,20 @@
             "date": "2026-03-05",
             "dateKind": "end",
             "held": [
-              "2026-03-05"
+              {
+                "records": [
+                  "urn:uuid:f14fed65-ccbe-836a-9026-b0351ec40f00"
+                ],
+                "sources": [
+                  "S8"
+                ],
+                "fields": [
+                  {
+                    "name": "end",
+                    "value": "2026-03-05"
+                  }
+                ]
+              }
             ],
             "sources": [
               "S8 Kestrel Harbor Hospital"
@@ -497,7 +536,22 @@
             "date": "2026-06-15",
             "dateKind": "when",
             "held": [
-              "134"
+              {
+                "records": [
+                  "urn:uuid:2a47ad88-4b42-8946-ae73-7f2c2a1f45e6",
+                  "urn:uuid:dbd8d4c9-847a-82fd-8ff9-b50bc1b7c7c9"
+                ],
+                "sources": [
+                  "S4",
+                  "S12"
+                ],
+                "fields": [
+                  {
+                    "name": "value",
+                    "value": "134"
+                  }
+                ]
+              }
             ],
             "sources": [
               "S4 Fernhill Family Clinic",
@@ -556,7 +610,20 @@
             "date": "2025-11-08",
             "dateKind": "when",
             "held": [
-              "2025-11-08"
+              {
+                "records": [
+                  "urn:uuid:e0cb585c-a51f-8ed2-97fe-1863b0157025"
+                ],
+                "sources": [
+                  "S1"
+                ],
+                "fields": [
+                  {
+                    "name": "date",
+                    "value": "2025-11-08"
+                  }
+                ]
+              }
             ],
             "sources": [
               "S1 Alder Street Pharmacy"

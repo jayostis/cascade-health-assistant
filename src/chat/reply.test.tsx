@@ -1,4 +1,4 @@
-import type { CheckedReply } from "cascade-runtime";
+import type { CheckedReply, HeldItem } from "cascade-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import fixture from "./checked-reply.fixture.json" with { type: "json" };
@@ -182,15 +182,43 @@ describe("Drawing a checked reply as cards · ReplyCards", () => {
   });
 
   describe("given a fact that names the field it rests on", () => {
-    const CLINIC = "S3 Fernhill Family Clinic";
+    const FERNHILL = "S3 Fernhill Family Clinic";
     const NORTH = "S12 North Clinic";
-    /** What the runtime returns for `property: structuredDosage` of one source: the dosage's own line, then its dose. */
-    const DOSE = "structuredDosage 1/dosageDoseQuantity: unitText tablet, writtenValue";
-    const SCHEDULE =
-      "structuredDosage 1: dosageRepeatFrequency 3, dosageRepeatPeriod 1, dosageRepeatPeriodUnit d, dosageRouteCode Oral route (snomed:26643006)";
+    // the records of the runtime's own test pod: S3 states two of them, S12 one
+    const RECORD_3 = "urn:uuid:2a2516eb-46b0-8352-9042-93639f23ae9c";
+    const RECORD_12 = "urn:uuid:ca582a17-052b-890b-a5ad-0f2567e25670";
+    const RECORD_3_ELSEWHERE = "urn:uuid:80afad1b-91cb-8766-b527-1beabf2a4158";
+
+    /** A dosage part as `checkReply` returns it for `property: structuredDosage`: its fields, and its dose beneath it. */
+    const dosage = (
+      sources: string[],
+      records: string[],
+      dose: { written: string; comparator?: string },
+    ): HeldItem => ({
+      sources,
+      records,
+      part: "structuredDosage 1",
+      fields: [
+        { name: "dosageRepeatFrequency", value: "3" },
+        { name: "dosageRepeatPeriod", value: "1" },
+        { name: "dosageRepeatPeriodUnit", value: "d" },
+        { name: "dosageRouteCode", value: "http://snomed.info/id/26643006", label: "Oral route" },
+      ],
+      parts: [
+        {
+          part: "structuredDosage 1/dosageDoseQuantity",
+          fields: [
+            { name: "decimalValue", value: dose.written },
+            ...(dose.comparator === undefined ? [] : [{ name: "quantityComparator", value: dose.comparator }]),
+            { name: "unitText", value: "tablet" },
+            { name: "writtenValue", value: dose.written },
+          ],
+        },
+      ],
+    });
 
     /** The fixture's first fact, now a drug that rests on `property` and holds `held`, from `sources`. */
-    const resting = (property: string, held: string[], sources: string[]) => {
+    const resting = (property: string, held: HeldItem[], sources: string[]) => {
       const clone = structuredClone(checked) as unknown as {
         items: { facts: { fact: { property?: string }; filled: Record<string, unknown> }[] }[];
       };
@@ -202,45 +230,79 @@ describe("Drawing a checked reply as cards · ReplyCards", () => {
       return chipWith(draw(clone as unknown as CheckedReply), "lisinopril")!;
     };
 
-    it("draws a dosage as a person reads it: the dose, how often, the route and the place", () => {
-      const chip = resting("structuredDosage", [SCHEDULE, `${DOSE} 2`], [CLINIC]);
-      expect(chip).toContain("Dose: 2 tablet · 3 per 1 day · Oral route");
-      expect(chip).toContain("from Fernhill Family Clinic");
-      for (const raw of ["structuredDosage", "writtenValue", "dosageRepeat", "snomed:", "S3"])
-        expect(chip, raw).not.toContain(raw);
+    /** What a person must never read: the pod's own names, a source's short name, a record's address. */
+    const rawWords = ["structuredDosage", "writtenValue", "dosageRepeat", "urn:", "S3", "S12"];
+
+    it("draws one source's dosage as a line of words with the place it is from", () => {
+      const chip = resting("structuredDosage", [dosage(["S3"], [RECORD_3], { written: "2" })], [FERNHILL]);
+      expect(chip).toContain("Dosage: 2 tablet · 3 per 1 day · Oral route (snomed:26643006) · from Fernhill Family Clinic");
+      for (const raw of rawWords) expect(chip, raw).not.toContain(raw);
     });
 
-    it("draws a dose alone, from the part's own line", () => {
-      expect(resting("dosageDoseQuantity", [`${DOSE} 2`], [CLINIC])).toContain("Dose: 2 tablet");
+    it("draws each source's dosage in a block of its own, led by its place, when two sources disagree", () => {
+      const chip = resting(
+        "dosageDoseQuantity",
+        [dosage(["S3"], [RECORD_3], { written: "2" }), dosage(["S12"], [RECORD_12], { written: "1" })],
+        [FERNHILL, NORTH],
+      );
+      expect(chip).toMatch(/Fernhill Family Clinic[^]*Dosage: 2 tablet[^]*North Clinic[^]*Dosage: 1 tablet/);
+      expect(chip.match(/class="held /g)).toHaveLength(2);
+      for (const raw of rawWords) expect(chip, raw).not.toContain(raw);
     });
 
-    it("draws each source's dose on a line of its own, with that source's place, when two sources disagree", () => {
-      const chip = resting("dosageDoseQuantity", [`S3: ${DOSE} 2`, `S12: ${DOSE} 1`], [CLINIC, NORTH]);
-      expect(chip).toMatch(/Dose: 2 tablet[^]*from Fernhill Family Clinic[^]*Dose: 1 tablet[^]*from North Clinic/);
-      expect(chip).not.toMatch(/S\d+/);
+    it("tells two records of one source apart, each dosage in its own numbered block, never taken together", () => {
+      const chip = resting(
+        "structuredDosage",
+        [
+          dosage(["S3"], [RECORD_3], { written: "2" }),
+          dosage(["S3"], [RECORD_3_ELSEWHERE], { written: "1", comparator: "<=" }),
+        ],
+        [FERNHILL],
+      );
+      expect(chip).toMatch(/Fernhill Family Clinic, record 1[^]*Dosage: 2 tablet[^]*Fernhill Family Clinic, record 2[^]*Dosage: at most 1 tablet/);
+      expect(chip).not.toMatch(/Dosage: 2 tablet[^]*Dosage: 2 tablet/);
+      for (const raw of rawWords) expect(chip, raw).not.toContain(raw);
     });
 
-    it("draws two sources that hold the same dose as one line naming both places", () => {
-      const chip = resting("dosageDoseQuantity", [`S3, S12: ${DOSE} 1`], [CLINIC, NORTH]);
-      expect(chip.match(/Dose: 1 tablet/g)).toHaveLength(1);
+    it("draws a comparator in front of its number: `at most 2 tablet`", () => {
+      const chip = resting("dosageDoseQuantity", [dosage(["S12"], [RECORD_12], { written: "2", comparator: "<=" })], [NORTH]);
+      expect(chip).toContain("Dosage: at most 2 tablet · 3 per 1 day");
+      expect(chip).not.toContain("&lt;=");
+    });
+
+    it("draws the whole dosage for a fact that names only its route, never the route alone", () => {
+      const chip = resting("dosageRouteCode", [dosage(["S3"], [RECORD_3], { written: "2" })], [FERNHILL]);
+      expect(chip).toContain("Dosage: 2 tablet · 3 per 1 day · Oral route");
+      expect(chip).not.toContain("dosage route code");
+    });
+
+    it("draws two sources that hold exactly the same as one line naming both places", () => {
+      const chip = resting(
+        "dosageDoseQuantity",
+        [dosage(["S3", "S12"], [RECORD_3, RECORD_12], { written: "1" })],
+        [FERNHILL, NORTH],
+      );
+      expect(chip.match(/Dosage: 1 tablet/g)).toHaveLength(1);
       expect(chip).toContain("from Fernhill Family Clinic, North Clinic");
     });
 
-    it("draws a coded value by its label, without the code", () => {
-      const chip = resting("dosageRouteCode", ["Oral route (snomed:26643006)"], [CLINIC]);
-      expect(chip).toContain("dosage route code: Oral route");
-      expect(chip).not.toContain("snomed");
-    });
-
-    it("draws any other field as its name in words and its value", () => {
-      expect(resting("medicationRequestIntent", ["order"], [CLINIC])).toContain("medication request intent: order");
-      expect(resting("dispenseDaysSupply", ["dispenseDaysSupply: unitText d, writtenValue 30"], [CLINIC])).toContain(
-        "dispense days supply: 30 d",
+    it("draws a field of the entry as its name in words and its value, from the places that state it", () => {
+      const chip = resting(
+        "dosageInstructionText",
+        [{ sources: ["S3"], records: [RECORD_3], fields: [{ name: "dosageInstructionText", value: "1 tablet by mouth every morning" }] }],
+        [FERNHILL, NORTH],
       );
+      expect(chip).toContain("Dosage instruction text: 1 tablet by mouth every morning · from Fernhill Family Clinic");
+      expect(chip).not.toContain("North Clinic");
     });
 
-    it("draws a line it cannot read as the pod gave it", () => {
-      expect(resting("note", ["a Note: take with food: or not"], [CLINIC])).toContain("take with food");
+    it("draws a value of the entry as a whole from every place the fact is from", () => {
+      const chip = resting(
+        "medicationRequestIntent",
+        [{ sources: [], records: [], fields: [{ name: "medicationRequestIntent", value: "order" }] }],
+        [FERNHILL, NORTH],
+      );
+      expect(chip).toContain("Medication request intent: order · from Fernhill Family Clinic, North Clinic");
     });
 
     it("draws nothing of `held` for a fact that names no field, which the label, value and date already say", () => {
