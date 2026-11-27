@@ -335,20 +335,15 @@ shows one behaviour, on the smallest input that shows it, and asserts what it me
   tiles (`.tiles .tile`). A failure prints `body[data-trace]`, the page's last changes of state. Chromium is not
   downloaded by `npm install`; `npx playwright install chromium` once, then `npm run test:e2e`.
 
-The tests are a specification, and CI checks that they read as one. A test is an `it` in at most three levels of
-`describe`, imported from `vitest`: the first is a capability, the string of `test/spec.json`'s `capabilities` word for
-word, with a doc comment (`/** … */`) directly above it that says what the capability is for; the second names code
-(`loadSample(folder)`) or a situation that begins "when", "given" or "with"; the `it` begins with a verb in the singular
-(`returns …`, `draws …`). The tests of a new capability need it in `spec.json`, and a word of a title that a newcomer
-cannot place goes in its `glossary`. The `describe` and `it` names are what a reader of the report sees, so write them
-as sentences about behaviour. The browser tests in `e2e/` are on no report.
+The tests are a specification: an `it` in `describe`s imported from `vitest`, the outermost of which is a heading in
+the test report, with a doc comment (`/** … */`) directly above it that says what the heading is for. The `describe` and
+`it` names are what a reader of the report sees, so write them as sentences about behaviour; nothing checks the
+grammar of a name. The browser tests in `e2e/` are on no report.
 
 Vitest writes `report/junit.xml` on every `npm test` (`test/spec-reporter.ts`, set in `vitest.config.ts`; it adds each
-case's line and each `describe`'s doc comment, which Vitest's own JUnit lacks). CI runs the shape check over it
-(`scripts/spec-shape.mjs` of cascade-runtime-js, taken from its `main`) and keeps `junit.xml` and `spec.json` as the
-`unit-tests` artifact of the `check` workflow. A run of some files or of one test (`vitest run <file>`, `-t`) overwrites
-`report/junit.xml` with a partial report, so run the whole suite before you read it. The shape check fails the run when a case is under no listed capability,
-is deeper than three levels, or breaks the naming above; its message names the case.
+case's line and each `describe`'s doc comment, which Vitest's own JUnit lacks). CI keeps `report/` as the `unit-tests`
+artifact of the `check` workflow. A run of some files or of one test (`vitest run <file>`, `-t`) overwrites
+`report/junit.xml` with a partial report, so run the whole suite before you read it.
 
 To add a test, put an `it` under the capability it belongs to in a `*.test.ts` in `test/` (or a `*.test.tsx` next to the
 component), `import { describe, expect, it } from "vitest"`; Vitest runs everything there (`vitest.config.ts`). Import
