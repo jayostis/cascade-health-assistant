@@ -335,8 +335,8 @@ shows one behaviour, on the smallest input that shows it, and asserts what it me
   tiles (`.tiles .tile`). A failure prints `body[data-trace]`, the page's last changes of state. Chromium is not
   downloaded by `npm install`; `npx playwright install chromium` once, then `npm run test:e2e`.
 
-The tests are a specification: an `it` in `describe`s imported from `vitest`, the outermost of which is a heading of
-the tests page, with a doc comment (`/** … */`) directly above it that says what the heading is for. The `describe` and
+The tests are a specification: an `it` in `describe`s imported from `vitest`, the outermost of which is a heading in
+the test report, with a doc comment (`/** … */`) directly above it that says what the heading is for. The `describe` and
 `it` names are what a reader of the report sees, so write them as sentences about behaviour; nothing checks the
 grammar of a name. The browser tests in `e2e/` are on no report.
 
