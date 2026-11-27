@@ -1,6 +1,0 @@
-{
-  "about": "A health assistant on a Cascade pod: a chat with a model over a person's records, with every statement checked against the pod before the person sees it. These are the app's Vitest tests (`test/` and `src/`); its three browser tests in `e2e/` run on Playwright against `npm start` and are not on this page.",
-  "build": [
-    "The sample's downloads, as the evals' case has them"
-  ]
-}

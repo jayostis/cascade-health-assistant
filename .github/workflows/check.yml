@@ -32,8 +32,6 @@ jobs:
       # `npm test` writes report/junit.xml (test/spec-reporter.ts). The upload runs even when a test fails.
       - run: npm test
       - if: ${{ !cancelled() }}
-        run: cp test/spec.json report/spec.json
-      - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
           name: unit-tests

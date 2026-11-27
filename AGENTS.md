@@ -341,10 +341,9 @@ the tests page, with a doc comment (`/** … */`) directly above it that says wh
 grammar of a name. The browser tests in `e2e/` are on no report.
 
 Vitest writes `report/junit.xml` on every `npm test` (`test/spec-reporter.ts`, set in `vitest.config.ts`; it adds each
-case's line and each `describe`'s doc comment, which Vitest's own JUnit lacks). CI keeps `junit.xml` and `spec.json`
-(the page's intro and which headings are build checks) as the `unit-tests` artifact of the `check` workflow. A run of
-some files or of one test (`vitest run <file>`, `-t`) overwrites `report/junit.xml` with a partial report, so run the
-whole suite before you read it.
+case's line and each `describe`'s doc comment, which Vitest's own JUnit lacks). CI keeps `report/` as the `unit-tests`
+artifact of the `check` workflow. A run of some files or of one test (`vitest run <file>`, `-t`) overwrites
+`report/junit.xml` with a partial report, so run the whole suite before you read it.
 
 To add a test, put an `it` under the capability it belongs to in a `*.test.ts` in `test/` (or a `*.test.tsx` next to the
 component), `import { describe, expect, it } from "vitest"`; Vitest runs everything there (`vitest.config.ts`). Import
